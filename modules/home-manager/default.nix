@@ -38,6 +38,7 @@
       sherlock
       osx-cpu-temp
       btop
+      ollama
     ];
 
     sessionVariables = {
