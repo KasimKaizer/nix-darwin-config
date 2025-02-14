@@ -29,6 +29,10 @@
       "arc"
       "ghostty"
       "raycast"
+      "stats"
+      "kindle-comic-converter"
+      "calibre"
+      "kindle-previewer"
     ];
 
     taps = [
