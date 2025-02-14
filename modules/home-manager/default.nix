@@ -39,6 +39,9 @@
       osx-cpu-temp
       btop
       ollama
+      p7zip
+      rar
+      bitwarden-cli
     ];
 
     sessionVariables = {
