@@ -15,17 +15,14 @@
       "librewolf"
       "zed@preview"
       "bluewallet"
-      # "font-jetbrains-mono"
       "vesktop"
-      # "font-jetbrains-mono-nerd-font"
       "iina"
       "spotify"
       "plex"
       "intellij-idea"
-      # "mullvadvpn@beta"
       "itsycal"
+      "mullvadvpn"
       "grammarly-desktop"
-      "megasync"
       "arc"
       "ghostty"
       "raycast"
@@ -39,7 +36,7 @@
       "zirixcz/vesktop"
     ];
 
-    brews = [ ];
+    brews = [ "bitwarden-cli" ];
 
     masApps = {
       # TODO Feel free to add your favorite apps here.
@@ -49,8 +46,9 @@
       MicrosoftWord = 462054704;
       MicrosoftPowerPoint = 462062816;
       MicrosoftExcel = 462058435;
+      Onedrive = 823766827;
       Bitwarden = 1352778147;
-      WireGuard = 1451685025;
+      # WireGuard = 1451685025;
     };
 
     # extraConfig = ''

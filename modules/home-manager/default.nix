@@ -41,7 +41,6 @@
       ollama
       p7zip
       rar
-      bitwarden-cli
     ];
 
     sessionVariables = {
