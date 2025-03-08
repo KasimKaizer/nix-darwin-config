@@ -90,7 +90,7 @@ in
       golang.go
 
       # Python
-      ms-python.python
+      # ms-python.python
       ms-toolsai.jupyter
       ms-pyright.pyright
 
