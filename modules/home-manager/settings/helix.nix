@@ -88,95 +88,145 @@
         };
       };
     };
+    languages = {
+      language-server.gpt = {
+        command = "helix-gpt";
+        args = [ "--handler" "copilot" ];
+      };
 
-    languages.language = [
-      {
-        name = "nix";
-        auto-format = true;
-        formatter = { command = "nixpkgs-fmt"; };
-        language-servers = [ "nil" ];
-      }
-      {
-        name = "bash";
-        language-servers = [ "bash-language-server" ];
-      }
-      {
-        name = "markdown";
-        language-servers = [ "marksman" "ltex-ls" ];
-      }
-      {
-        name = "go";
-        formatter = { command = "goimports"; };
-        language-servers = [ "gopls" "golangci-lint-lsp" "ltex-ls" ];
-        auto-format = true;
-      }
-      {
-        name = "rust";
-        language-servers = [ "rust-analyzer" ];
-      }
-      {
-        name = "zig";
-        language-servers = [ "zls" ];
-      }
-      {
-        name = "lua";
-        auto-format = true;
-      }
-      {
-        name = "vhs";
-        auto-format = true;
-        file-types = [ "tape" ];
-        language-servers = [ "vhs-language-server" ];
-      }
-      {
-        name = "html";
-        indent.tab-width = 2;
-        indent.unit = " ";
-        auto-format = false;
-        formatter.command = "prettier";
-        formatter.args = [ "--parser" "html" "--tab-width" "2" ];
-      }
-      {
-        name = "css";
-        indent.tab-width = 4;
-        indent.unit = " ";
-        formatter.command = "prettier";
-        formatter.args = [ "--parser" "css" "--tab-width" "2" ];
-        language-servers = [ "css-languageserver" ];
-      }
-      {
-        name = "typescript";
-        indent.tab-width = 4;
-        indent.unit = " ";
-        auto-format = true;
-        formatter.command = "prettier";
-        formatter.args = [ "--parser" "typescript" "--tab-width" "4" ];
-        language-servers = [ "typescript-language-server" ];
-      }
-      {
-        name = "fennel";
-        auto-format = true;
-        comment-token = ";;";
-        file-types = [ "fnl" ];
-        formatter.args = [ "-" ];
-        formatter.command = "fnlfmt";
-        grammar = "fennel";
-        indent.tab-width = 2;
-        indent.unit = "  ";
-        injection-regex = "(fennel|fnl)";
-        language-servers = [ "fennel-language-server" ];
-        roots = [ ".git" ];
-        scope = "source.fnl";
-      }
-      {
-        name = "svg";
-        scope = "";
-        roots = [ ];
-        file-types = [ "svg" ];
-        formatter.command = "svgo";
-        formatter.args = [ "--pretty" "-" ];
-      }
-    ];
+      language-server.biome = {
+        command = "biome";
+        args = [ "lsp-proxy" ];
+      };
+
+      language = [
+        {
+          name = "nix";
+          auto-format = true;
+          formatter = { command = "nixpkgs-fmt"; };
+          language-servers = [ "nil" ];
+        }
+        {
+          name = "bash";
+          language-servers = [ "bash-language-server" "gpt" ];
+        }
+        {
+          name = "markdown";
+          language-servers = [ "marksman" "ltex-ls" "gpt" ];
+        }
+        {
+          name = "go";
+          formatter = { command = "goimports"; };
+          language-servers = [ "gopls" "golangci-lint-lsp" "ltex-ls" "gpt" ];
+          auto-format = true;
+        }
+        {
+          name = "rust";
+          language-servers = [ "rust-analyzer" "gpt" ];
+        }
+        {
+          name = "zig";
+          language-servers = [ "zls" "gpt" ];
+        }
+        {
+          name = "lua";
+          auto-format = true;
+        }
+        {
+          name = "vhs";
+          auto-format = true;
+          file-types = [ "tape" ];
+          language-servers = [ "vhs-language-server" "gpt" ];
+        }
+        {
+          name = "html";
+          language-servers = [ "vscode-html-language-server" "gpt" ];
+          indent.tab-width = 2;
+          indent.unit = " ";
+          auto-format = true;
+          formatter.command = "prettier";
+          formatter.args = [ "--parser" "html" "--tab-width" "2" ];
+        }
+        {
+          name = "css";
+          indent.tab-width = 4;
+          indent.unit = " ";
+          formatter.command = "prettier";
+          formatter.args = [ "--parser" "css" "--tab-width" "2" ];
+          language-servers = [ "vscode-css-language-server" "gpt" ];
+          auto-format = true;
+        }
+        {
+          name = "json";
+          language-servers = [
+            { name = "vscode-json-language-server"; except-features = [ "format" ]; }
+            "biome"
+          ];
+          formatter = {
+            command = "biome";
+            args = [ "format" "--indent-style" "space" "--stdin-file-path" "file.json" ];
+          };
+          auto-format = true;
+        }
+        {
+          name = "jsonc";
+          language-servers = [
+            { name = "vscode-json-language-server"; except-features = [ "format" ]; }
+            "biome"
+          ];
+          formatter = {
+            command = "biome";
+            args = [ "format" "--indent-style" "space" "--stdin-file-path" "file.jsonc" ];
+          };
+          file-types = [ "jsonc" "hujson" ];
+          auto-format = true;
+        }
+        {
+          name = "jsx";
+          language-servers = [
+            { name = "typescript-language-server"; except-features = [ "format" ]; }
+            "biome"
+            "gpt"
+          ];
+          formatter = {
+            command = "biome";
+            args = [ "format" "--indent-style" "space" "--stdin-file-path" "file.jsx" ];
+          };
+          auto-format = true;
+        }
+        {
+          name = "typescript";
+          indent.tab-width = 4;
+          indent.unit = " ";
+          auto-format = true;
+          formatter.command = "prettier";
+          formatter.args = [ "--parser" "typescript" "--tab-width" "4" ];
+          language-servers = [ "typescript-language-server" ];
+        }
+        {
+          name = "fennel";
+          auto-format = true;
+          comment-token = ";;";
+          file-types = [ "fnl" ];
+          formatter.args = [ "-" ];
+          formatter.command = "fnlfmt";
+          grammar = "fennel";
+          indent.tab-width = 2;
+          indent.unit = "  ";
+          injection-regex = "(fennel|fnl)";
+          language-servers = [ "fennel-language-server" ];
+          roots = [ ".git" ];
+          scope = "source.fnl";
+        }
+        {
+          name = "svg";
+          scope = "";
+          roots = [ ];
+          file-types = [ "svg" ];
+          formatter.command = "svgo";
+          formatter.args = [ "--pretty" "-" ];
+        }
+      ];
+    };
   };
-
 }

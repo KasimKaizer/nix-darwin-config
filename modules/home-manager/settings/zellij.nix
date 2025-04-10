@@ -23,6 +23,7 @@ in
       simplified_ui false
       default_layout "default"
       pane_frames false
+      show_startup_tips false
       keybinds clear-defaults=true {
         normal {
           bind "Ctrl q" { SwitchToMode "tmux"; }
