@@ -101,6 +101,9 @@ in
         # Markdown
         yzhang.markdown-all-in-one
 
+        # HTML and CSS
+        ecmel.vscode-html-css
+
         # Misc
         eamodio.gitlens
         editorconfig.editorconfig
@@ -109,6 +112,7 @@ in
         usernamehw.errorlens
         streetsidesoftware.code-spell-checker
         adpyke.codesnap
+        ritwickdey.liveserver
       ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
         {
           # https://marketplace.visualstudio.com/items?itemName=akamud.vscode-theme-onedark
