@@ -28,6 +28,9 @@
         pkgs = import nixpkgs {
           system = "aarch64-darwin";
           config.allowUnfree = true;
+          permittedInsecurePackages = [
+            "openclaw-2026.2.26"
+          ];
         };
         modules = [
           ./modules/darwin
@@ -37,7 +40,7 @@
               useGlobalPkgs = true;
               useUserPackages = true;
               users.ew.imports = [
-                # openclaw.homeManagerModules.openclaw
+                openclaw.homeManagerModules.openclaw
                 ./modules/home-manager
               ];
             };
