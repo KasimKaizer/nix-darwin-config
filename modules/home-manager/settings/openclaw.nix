@@ -66,10 +66,6 @@ in
   home.activation.openclawSecrets = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     # Ensure nix-managed binaries are visible to launchd services
     /bin/launchctl setenv PATH "/run/current-system/sw/bin:/etc/profiles/per-user/ew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-    if [ -f "${secretsDir}/anthropic-oauth-token" ]; then
-      ANTHROPIC_TOKEN="$(/bin/cat "${secretsDir}/anthropic-oauth-token")"
-      /bin/launchctl setenv ANTHROPIC_OAUTH_TOKEN "$ANTHROPIC_TOKEN"
-    fi
     if [ -f "${secretsDir}/gateway-token" ]; then
       GW_TOKEN="$(/bin/cat "${secretsDir}/gateway-token")"
       /bin/launchctl setenv OPENCLAW_GATEWAY_TOKEN "$GW_TOKEN"
