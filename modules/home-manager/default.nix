@@ -6,6 +6,7 @@
     ./settings/vscodium.nix
     ./settings/ghostty.nix
     ./settings/zellij.nix
+    ./settings/openclaw.nix
   ];
 
   home = {
@@ -34,7 +35,7 @@
       ltex-ls
       bash-language-server
       mosh
-      yt-dlp
+      # yt-dlp
       yazi
       glow
       lazygit
