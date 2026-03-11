@@ -15,8 +15,8 @@
     };
 
     shellAliases = {
-      nixswitch = "sudo darwin-rebuild switch --flake ~/.config/nix-darwin-config/.#inferno";
-      nixup = "pushd ~/.config/nix-darwin-config && sudo nix flake update && nixswitch && popd";
+      nixswitch = "sudo darwin-rebuild switch --flake ~/.config/nix-darwin-config/.#inferno --impure";
+      nixup = "pushd ~/.config/nix-darwin-config && nix flake update && nixswitch && popd";
       nixgc = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
       ls = "eza -F --icons=always";
       ll = "ls -lahrts";
