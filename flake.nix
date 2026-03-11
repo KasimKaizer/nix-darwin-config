@@ -10,7 +10,6 @@
     home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-    openclaw.url = "github:openclaw/nix-openclaw";
   };
 
   outputs =
@@ -18,7 +17,6 @@
     , home-manager
     , darwin
     , nixpkgs
-    , openclaw
     , ...
     }: {
       # Build darwin flake using:
@@ -30,11 +28,9 @@
           config = {
             allowUnfree = true;
             permittedInsecurePackages = [
-              "openclaw-2026.2.26"
             ];
           };
           overlays = [
-            openclaw.overlays.default
           ];
         };
 
@@ -46,7 +42,6 @@
               useGlobalPkgs = true;
               useUserPackages = true;
               users.ew.imports = [
-                openclaw.homeManagerModules.openclaw
                 ./modules/home-manager
               ];
             };
