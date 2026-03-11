@@ -27,11 +27,17 @@
         system = "aarch64-darwin";
         pkgs = import nixpkgs {
           system = "aarch64-darwin";
-          config.allowUnfree = true;
-          permittedInsecurePackages = [
-            "openclaw-2026.2.26"
+          config = {
+            allowUnfree = true;
+            permittedInsecurePackages = [
+              "openclaw-2026.2.26"
+            ];
+          };
+          overlays = [
+            openclaw.overlays.default
           ];
         };
+
         modules = [
           ./modules/darwin
           home-manager.darwinModules.home-manager
