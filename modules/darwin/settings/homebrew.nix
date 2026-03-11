@@ -1,6 +1,6 @@
 { pkgs, ... }: {
   homebrew = {
-    brewPrefix = "/opt/homebrew/bin";
+    prefix = "/opt/homebrew";
     enable = true;
     onActivation.cleanup = "zap";
     caskArgs.no_quarantine = true;
@@ -20,7 +20,8 @@
       "itsycal"
       "mullvad-vpn"
       "grammarly-desktop"
-      # "arc"
+      "google-chrome"
+      "chatgpt"
       "ghostty"
       "kindle-comic-converter"
       "calibre"
@@ -28,7 +29,8 @@
       "utm"
       "android-platform-tools"
       "freedom"
-      "tor-browser"
+      "lulu"
+      "halloy"
     ];
 
     taps = [
@@ -40,7 +42,7 @@
       Xcode = 497799835;
       WhatsApp = 310633997;
       Telegram = 747648890;
-      # MicrosoftWord = 462054704;
+      MicrosoftWord = 462054704;
       # MicrosoftPowerPoint = 462062816;
       # MicrosoftExcel = 462058435;
       Onedrive = 823766827;
@@ -50,11 +52,13 @@
       SponsorBlock = 1573461917;
       DeArrow = 6451469297;
       CookieEditor = 6446215341;
-      AdGuardForSafari = 1440147259;
+      # AdGuardForSafari = 1440147259;
       Bluewallet = 1376878040;
       TheUnarchiver = 425424353;
-      Perplexity = 6714467650;
-      Terminus = 1176074088;
+      # Perplexity = 6714467650;
+      # Terminus = 1176074088;
+      FolderQuickLook = 6753110395;
+      WBlock = 6746388723;
     };
 
     # extraConfig = ''
