@@ -6,7 +6,6 @@
     ./settings/vscodium.nix
     ./settings/ghostty.nix
     ./settings/zellij.nix
-    ./settings/openclaw.nix
   ];
 
   home = {
