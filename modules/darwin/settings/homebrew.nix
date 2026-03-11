@@ -31,12 +31,30 @@
       "freedom"
       "lulu"
       "halloy"
+      "copilot-cli"
+      "openclaw"
     ];
 
     taps = [
+      "steipete/tap"
+      "antoniorodr/memo"
     ];
 
-    brews = [ "bitwarden-cli" "python3" ];
+    brews = [
+      "bitwarden-cli"
+      "python3"
+      "openclaw-cli"
+      # OpenClaw skill dependencies
+      "antoniorodr/memo/memo" # apple-notes
+      "steipete/tap/remindctl" # apple-reminders
+      "steipete/tap/peekaboo" # macOS UI capture
+      "steipete/tap/summarize" # URL/podcast summarizer
+      "steipete/tap/spogo" # spotify-player
+      "himalaya" # email CLI
+      "ffmpeg" # video-frames
+      "tmux" # terminal session control
+      "uv" # Python tool installer (nano-pdf)
+    ];
 
     masApps = {
       Xcode = 497799835;
