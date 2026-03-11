@@ -37,7 +37,7 @@
               useGlobalPkgs = true;
               useUserPackages = true;
               users.ew.imports = [
-                openclaw.homeManagerModules.openclaw
+                # openclaw.homeManagerModules.openclaw
                 ./modules/home-manager
               ];
             };
