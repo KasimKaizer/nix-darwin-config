@@ -28,7 +28,7 @@
       exercism
       wget
       spicetify-cli
-      nixpkgs-fmt
+      nixfmt
       jetbrains-mono
       delve
       go-tools

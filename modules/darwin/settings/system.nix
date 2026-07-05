@@ -1,7 +1,7 @@
 { pkgs, ... }:
 #  All the configuration options are documented here:
 #    https://daiderd.com/nix-darwin/manual/index.html#sec-options
-# 
+#
 #  Incomplete list of macOS `defaults` commands :
 #    https://github.com/yannbertrand/macos-defaults
 {
@@ -63,7 +63,7 @@
         ApplePressAndHoldEnabled = true; # enable press and hold
 
         InitialKeyRepeat = 15; # normal minimum is 15 (225 ms), maximum is 120 (1800 ms)
-        # sets how fast it repeats once it starts. 
+        # sets how fast it repeats once it starts.
         KeyRepeat = 3; # normal minimum is 2 (30 ms), maximum is 120 (1800 ms)
 
         NSAutomaticCapitalizationEnabled = true; # auto capitalization
@@ -132,7 +132,10 @@
   security.pam.services.sudo_local.touchIdAuth = true;
 
   environment = {
-    shells = with pkgs; [ bash zsh ];
+    shells = with pkgs; [
+      bash
+      zsh
+    ];
     # loginShell = pkgs.zsh;
     systemPackages = [ pkgs.coreutils ];
     systemPath = [ "/usr/local/bin" ];

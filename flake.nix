@@ -12,12 +12,16 @@
   };
 
   outputs =
-    inputs @ { self
-    , home-manager
-    , darwin
-    , nixpkgs
-    , ...
-    }: {
+    inputs@{
+      self,
+      home-manager,
+      darwin,
+      nixpkgs,
+      ...
+    }:
+    {
+      formatter.aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixfmt-tree;
+
       # Build darwin flake using:
       # $ darwin-rebuild build --flake .#simple
       darwinConfigurations.inferno = darwin.lib.darwinSystem {
