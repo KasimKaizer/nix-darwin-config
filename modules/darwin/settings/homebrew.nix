@@ -4,7 +4,7 @@
     enable = true;
     onActivation.cleanup = "zap";
     caskArgs.no_quarantine = true;
-    onActivation.autoUpdate = true;
+    onActivation.autoUpdate = false;
     onActivation.upgrade = true;
     global = {
       brewfile = true;
