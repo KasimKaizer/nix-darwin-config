@@ -16,7 +16,7 @@
 
     shellAliases = {
       nixswitch = "sudo darwin-rebuild switch --flake ~/.config/nix-darwin-config/.#inferno";
-      nixup = "pushd ~/.config/nix-darwin-config && nix flake update && nixswitch && popd";
+      nixup = "pushd ~/.config/nix-darwin-config && nix flake update && nixswitch && sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +2 && popd";
       nixgc = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
       ls = "eza -F --icons=always";
       ll = "ls -lahrts";
