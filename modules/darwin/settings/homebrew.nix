@@ -11,29 +11,29 @@
       # lockfiles = true;
     };
     casks = [
-      "exifcleaner"
-      "librewolf"
-      "zed"
-      "iina"
-      "plex"
-      "intellij-idea"
-      "itsycal"
-      "grammarly-desktop"
-      "google-chrome"
-      "chatgpt"
-      "ghostty"
-      "kindle-comic-converter"
-      "calibre"
-      "kindle-previewer"
-      "utm"
       "android-platform-tools"
-      "freedom"
-      "lulu"
+      "antigravity-cli"
+      "calibre"
+      "chatgpt"
       "copilot-cli"
       "cursor-cli"
-      "antigravity-cli"
-      "spotify"
+      "exifcleaner"
+      "freedom"
+      "ghostty"
+      "google-chrome"
       "google-gemini"
+      "grammarly-desktop"
+      "iina"
+      "intellij-idea"
+      "itsycal"
+      "kindle-comic-converter"
+      "kindle-previewer"
+      "librewolf"
+      "lulu"
+      "plex"
+      "spotify"
+      "utm"
+      "zed"
     ];
 
     taps = [
@@ -42,27 +42,27 @@
     brews = [ "mas" ];
 
     masApps = {
-      Xcode = 497799835;
-      WhatsApp = 310633997;
-      Telegram = 747648890;
-      MicrosoftWord = 462054704;
-      MicrosoftPowerPoint = 462062816;
-      MicrosoftExcel = 462058435;
-      Onedrive = 823766827;
-      Bitwarden = 1352778147;
-      TaperMonkey = 6738342400;
-      Noir = 1592917505;
-      SponsorBlock = 1573461917;
-      DeArrow = 6451469297;
-      CookieEditor = 6446215341;
-      Bluewallet = 1376878040;
-      TheUnarchiver = 425424353;
-      FolderQuickLook = 6753110395;
-      WBlock = 6746388723;
-      Passepartout = 1433648537;
-      Tailscale = 1475387142;
-      FocusForYoutube = 1514703160;
       AmazonKindle = 302584613;
+      Bitwarden = 1352778147;
+      Bluewallet = 1376878040;
+      CookieEditor = 6446215341;
+      DeArrow = 6451469297;
+      FocusForYoutube = 1514703160;
+      FolderQuickLook = 6753110395;
+      MicrosoftExcel = 462058435;
+      MicrosoftPowerPoint = 462062816;
+      MicrosoftWord = 462054704;
+      Noir = 1592917505;
+      Onedrive = 823766827;
+      Passepartout = 1433648537;
+      SponsorBlock = 1573461917;
+      Tailscale = 1475387142;
+      TaperMonkey = 6738342400;
+      Telegram = 747648890;
+      TheUnarchiver = 425424353;
+      WBlock = 6746388723;
+      WhatsApp = 310633997;
+      Xcode = 497799835;
     };
 
     # extraConfig = ''
