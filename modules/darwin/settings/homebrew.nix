@@ -46,8 +46,8 @@
       WhatsApp = 310633997;
       Telegram = 747648890;
       MicrosoftWord = 462054704;
-      # MicrosoftPowerPoint = 462062816;
-      # MicrosoftExcel = 462058435;
+      MicrosoftPowerPoint = 462062816;
+      MicrosoftExcel = 462058435;
       Onedrive = 823766827;
       Bitwarden = 1352778147;
       TaperMonkey = 6738342400;
@@ -55,11 +55,14 @@
       SponsorBlock = 1573461917;
       DeArrow = 6451469297;
       CookieEditor = 6446215341;
-      # AdGuardForSafari = 1440147259;
       Bluewallet = 1376878040;
       TheUnarchiver = 425424353;
       FolderQuickLook = 6753110395;
       WBlock = 6746388723;
+      Passepartout = 1433648537;
+      Tailscale = 1475387142;
+      focus = 1514703160;
+      AmazonKindle = 302584613;
     };
 
     # extraConfig = ''
