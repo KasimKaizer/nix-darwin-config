@@ -14,6 +14,7 @@
     packages = with pkgs; [
       htop
       gh
+      bitwarden-cli
       biome
       go
       python3

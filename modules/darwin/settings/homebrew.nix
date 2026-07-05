@@ -42,7 +42,7 @@
     taps = [
     ];
 
-    brews = [ "bitwarden-cli" "mas" ];
+    brews = [ "mas" ];
 
     masApps = {
       Xcode = 497799835;
