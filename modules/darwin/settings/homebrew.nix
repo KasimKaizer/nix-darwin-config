@@ -56,8 +56,6 @@
       # AdGuardForSafari = 1440147259;
       Bluewallet = 1376878040;
       TheUnarchiver = 425424353;
-      # Perplexity = 6714467650;
-      # Terminus = 1176074088;
       FolderQuickLook = 6753110395;
       WBlock = 6746388723;
     };
