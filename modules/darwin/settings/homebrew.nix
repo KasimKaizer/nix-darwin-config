@@ -34,6 +34,10 @@
       "copilot-cli"
       "cursor-cli"
       "antigravity-cli"
+      "cleanmymac"
+      "pdf-expert"
+      "spotify"
+      "google-gemini"
     ];
 
     taps = [
