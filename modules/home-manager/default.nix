@@ -18,8 +18,10 @@
       go
       python3
       uv
-      # nodePackages.prettier
-      # nodePackages.typescript-language-server
+      pyrefly
+      nodejs
+      prettier
+      typescript-language-server
       vscode-langservers-extracted
       fastfetch
       exercism
