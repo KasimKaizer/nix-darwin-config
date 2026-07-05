@@ -32,6 +32,8 @@
       "lulu"
       "halloy"
       "copilot-cli"
+      "cursor-cli"
+      "antigravity-cli"
     ];
 
     taps = [
