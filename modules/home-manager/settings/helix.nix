@@ -1,7 +1,9 @@
-{ pkgs
-, config
-, ...
-}: {
+{
+  pkgs,
+  config,
+  ...
+}:
+{
   programs.helix = {
     enable = true;
     package = pkgs.helix;
@@ -20,11 +22,10 @@
         lsp.display-messages = true;
         # lsp.code-lens.enabled = true;
         # lsp.code-lens.style = "default";
-        soft-wrap =
-          {
-            enable = true;
-            wrap-indicator = "↪";
-          };
+        soft-wrap = {
+          enable = true;
+          wrap-indicator = "↪";
+        };
         completion-trigger-len = 0;
         completion-replace = true;
         lsp.display-inlay-hints = true;
@@ -40,7 +41,10 @@
             select = "SELECT";
             insert = "INSERT";
           };
-          left = [ "mode" "file-name" ];
+          left = [
+            "mode"
+            "file-name"
+          ];
           center = [ ];
           right = [
             "diagnostics"
@@ -56,7 +60,10 @@
       };
       theme = "jetbrains_dark";
       keys = rec {
-        normal.esc = [ "collapse_selection" "normal_mode" ];
+        normal.esc = [
+          "collapse_selection"
+          "normal_mode"
+        ];
         insert.esc = normal.esc;
         select.esc = normal.esc;
 
@@ -66,7 +73,10 @@
 
         normal = {
           X = "extend_line_above";
-          V = [ "extend_line_below" "select_mode" ];
+          V = [
+            "extend_line_below"
+            "select_mode"
+          ];
           G = "goto_file_end";
           p = "paste_before";
           P = "paste_after";
@@ -82,7 +92,12 @@
             l.r = ":lsp-restart";
             l.g = ":sh gh browse";
             l.m = ":sh zellij run -fc --height 100% --width 100% -x 0 -y 0 -- glow -p *.md";
-            l.y = [ ":new" ":insert-output lazygit" ":buffer-close!" ":redraw" ];
+            l.y = [
+              ":new"
+              ":insert-output lazygit"
+              ":buffer-close!"
+              ":redraw"
+            ];
 
           };
         };
@@ -91,7 +106,10 @@
     languages = {
       language-server.gpt = {
         command = "helix-gpt";
-        args = [ "--handler" "copilot" ];
+        args = [
+          "--handler"
+          "copilot"
+        ];
       };
 
       language-server.biome = {
@@ -103,30 +121,52 @@
         {
           name = "nix";
           auto-format = true;
-          formatter = { command = "nixpkgs-fmt"; };
+          formatter = {
+            command = "nixpkgs-fmt";
+          };
           language-servers = [ "nil" ];
         }
         {
           name = "bash";
-          language-servers = [ "bash-language-server" "gpt" ];
+          language-servers = [
+            "bash-language-server"
+            "gpt"
+          ];
         }
         {
           name = "markdown";
-          language-servers = [ "marksman" "ltex-ls" "gpt" ];
+          language-servers = [
+            "marksman"
+            "ltex-ls"
+            "gpt"
+          ];
         }
         {
           name = "go";
-          formatter = { command = "goimports"; };
-          language-servers = [ "gopls" "golangci-lint-lsp" "ltex-ls" "gpt" ];
+          formatter = {
+            command = "goimports";
+          };
+          language-servers = [
+            "gopls"
+            "golangci-lint-lsp"
+            "ltex-ls"
+            "gpt"
+          ];
           auto-format = true;
         }
         {
           name = "rust";
-          language-servers = [ "rust-analyzer" "gpt" ];
+          language-servers = [
+            "rust-analyzer"
+            "gpt"
+          ];
         }
         {
           name = "zig";
-          language-servers = [ "zls" "gpt" ];
+          language-servers = [
+            "zls"
+            "gpt"
+          ];
         }
         {
           name = "lua";
@@ -136,61 +176,110 @@
           name = "vhs";
           auto-format = true;
           file-types = [ "tape" ];
-          language-servers = [ "vhs-language-server" "gpt" ];
+          language-servers = [
+            "vhs-language-server"
+            "gpt"
+          ];
         }
         {
           name = "html";
-          language-servers = [ "vscode-html-language-server" "gpt" ];
+          language-servers = [
+            "vscode-html-language-server"
+            "gpt"
+          ];
           indent.tab-width = 2;
           indent.unit = " ";
           auto-format = true;
           formatter.command = "prettier";
-          formatter.args = [ "--parser" "html" "--tab-width" "2" ];
+          formatter.args = [
+            "--parser"
+            "html"
+            "--tab-width"
+            "2"
+          ];
         }
         {
           name = "css";
           indent.tab-width = 4;
           indent.unit = " ";
           formatter.command = "prettier";
-          formatter.args = [ "--parser" "css" "--tab-width" "2" ];
-          language-servers = [ "vscode-css-language-server" "gpt" ];
+          formatter.args = [
+            "--parser"
+            "css"
+            "--tab-width"
+            "2"
+          ];
+          language-servers = [
+            "vscode-css-language-server"
+            "gpt"
+          ];
           auto-format = true;
         }
         {
           name = "json";
           language-servers = [
-            { name = "vscode-json-language-server"; except-features = [ "format" ]; }
+            {
+              name = "vscode-json-language-server";
+              except-features = [ "format" ];
+            }
             "biome"
           ];
           formatter = {
             command = "biome";
-            args = [ "format" "--indent-style" "space" "--stdin-file-path" "file.json" ];
+            args = [
+              "format"
+              "--indent-style"
+              "space"
+              "--stdin-file-path"
+              "file.json"
+            ];
           };
           auto-format = true;
         }
         {
           name = "jsonc";
           language-servers = [
-            { name = "vscode-json-language-server"; except-features = [ "format" ]; }
+            {
+              name = "vscode-json-language-server";
+              except-features = [ "format" ];
+            }
             "biome"
           ];
           formatter = {
             command = "biome";
-            args = [ "format" "--indent-style" "space" "--stdin-file-path" "file.jsonc" ];
+            args = [
+              "format"
+              "--indent-style"
+              "space"
+              "--stdin-file-path"
+              "file.jsonc"
+            ];
           };
-          file-types = [ "jsonc" "hujson" ];
+          file-types = [
+            "jsonc"
+            "hujson"
+          ];
           auto-format = true;
         }
         {
           name = "jsx";
           language-servers = [
-            { name = "typescript-language-server"; except-features = [ "format" ]; }
+            {
+              name = "typescript-language-server";
+              except-features = [ "format" ];
+            }
             "biome"
             "gpt"
           ];
           formatter = {
             command = "biome";
-            args = [ "format" "--indent-style" "space" "--stdin-file-path" "file.jsx" ];
+            args = [
+              "format"
+              "--indent-style"
+              "space"
+              "--stdin-file-path"
+              "file.jsx"
+            ];
           };
           auto-format = true;
         }
@@ -200,7 +289,12 @@
           indent.unit = " ";
           auto-format = true;
           formatter.command = "prettier";
-          formatter.args = [ "--parser" "typescript" "--tab-width" "4" ];
+          formatter.args = [
+            "--parser"
+            "typescript"
+            "--tab-width"
+            "4"
+          ];
           language-servers = [ "typescript-language-server" ];
         }
         {
@@ -224,7 +318,10 @@
           roots = [ ];
           file-types = [ "svg" ];
           formatter.command = "svgo";
-          formatter.args = [ "--pretty" "-" ];
+          formatter.args = [
+            "--pretty"
+            "-"
+          ];
         }
       ];
     };

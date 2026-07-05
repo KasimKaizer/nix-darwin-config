@@ -29,13 +29,3 @@
     ./settings/homebrew.nix
   ];
 }
-
-
-
-
-
-
-
-
-
-

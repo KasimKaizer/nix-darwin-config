@@ -52,7 +52,7 @@ in
       clipboard-read = allow
       clipboard-write = allow
       copy-on-select = false
-   
+
       auto-update = off
     '';
   };

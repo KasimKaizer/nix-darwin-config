@@ -4,7 +4,9 @@ let
   PLUGIN_DIR = ".config/zellij/plugins";
 in
 {
-  programs.zellij = { enable = true; };
+  programs.zellij = {
+    enable = true;
+  };
 
   home.file = {
     "${PLUGIN_DIR}/zjstatus.wasm" = {
