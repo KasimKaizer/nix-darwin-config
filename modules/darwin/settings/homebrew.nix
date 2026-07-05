@@ -18,7 +18,6 @@
       "plex"
       "intellij-idea"
       "itsycal"
-      "mullvad-vpn"
       "grammarly-desktop"
       "google-chrome"
       "chatgpt"
