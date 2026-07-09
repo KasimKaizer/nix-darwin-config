@@ -1,7 +1,8 @@
-{ super
-, lib
-, pkgs
-, ...
+{
+  super,
+  lib,
+  pkgs,
+  ...
 }:
 let
   inherit (pkgs) nixpkgs-fmt;

@@ -4,7 +4,10 @@
   users.users.ew.home = "/Users/ew";
   system.primaryUser = "ew";
   # services.nix-daemon.enable = true;
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
   nix.optimise.automatic = true;
   nix.enable = true;
   # Flakes-only setup: default NIX_PATH points at root channels that don't
