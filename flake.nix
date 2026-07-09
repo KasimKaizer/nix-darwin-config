@@ -26,15 +26,16 @@
   };
 
   outputs =
-    inputs@{ self
-    , home-manager
-    , darwin
-    , nixpkgs
-    , nix-homebrew
-    , homebrew-core
-    , homebrew-cask
-    , homebrew-bundle
-    , ...
+    inputs@{
+      self,
+      home-manager,
+      darwin,
+      nixpkgs,
+      nix-homebrew,
+      homebrew-core,
+      homebrew-cask,
+      homebrew-bundle,
+      ...
     }:
     {
       formatter.aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixfmt-tree;
