@@ -6,7 +6,7 @@
   networking.localHostName = "inferno";
   networking.computerName = "inferno";
 
-  time.timeZone = "Asia/Kolkata";
+  time.timeZone = "Asia/Calcutta";
 
   imports = [
     ../../modules/darwin
