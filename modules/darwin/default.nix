@@ -5,6 +5,7 @@
   system.primaryUser = "ew";
   # services.nix-daemon.enable = true;
   nixpkgs.hostPlatform = "aarch64-darwin";
+  nixpkgs.config.allowUnfree = true;
   nix.extraOptions = ''
     experimental-features = nix-command flakes
   '';
