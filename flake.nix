@@ -37,7 +37,7 @@
     , ...
     }:
     {
-      formatter.aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixpkgs-fmt;
+      formatter.aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixfmt-tree;
 
       # Build darwin flake using:
       # $ darwin-rebuild build --flake .#simple
