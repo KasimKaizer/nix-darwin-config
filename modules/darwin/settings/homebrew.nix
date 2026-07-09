@@ -22,7 +22,6 @@
       "ghostty"
       "google-chrome"
       "google-gemini"
-      "grammarly-desktop"
       "iina"
       "intellij-idea"
       "itsycal"
@@ -32,6 +31,7 @@
       "lulu"
       "plex"
       "spotify"
+      "superhuman"
       "utm"
       "zed"
     ];
