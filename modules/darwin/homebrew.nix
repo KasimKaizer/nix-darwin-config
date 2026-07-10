@@ -1,7 +1,7 @@
-{ ... }:
+{ pkgs, ... }:
 {
   homebrew = {
-    prefix = "/opt/homebrew";
+    prefix = if pkgs.stdenv.hostPlatform.isAarch64 then "/opt/homebrew" else "/usr/local";
     enable = true;
     onActivation.cleanup = "zap";
     caskArgs.no_quarantine = true;
