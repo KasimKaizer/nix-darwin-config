@@ -69,7 +69,7 @@
               useUserPackages = true;
               backupFileExtension = "hm-bak";
               users.ew.imports = [
-                ./modules/home-manager
+                ./modules/home
               ];
             };
           }

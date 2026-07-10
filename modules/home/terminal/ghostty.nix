@@ -8,7 +8,6 @@ in
     text = ''
       # Font
       font-family = JetBrainsMono Nerd Font
-      font-family = JetBrainsMono Nerd Font
       font-family-bold = JetBrainsMono Nerd Font
       font-family-italic = JetBrainsMono Nerd Font
       font-family-bold-italic = JetBrainsMono Nerd Font

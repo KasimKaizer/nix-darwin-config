@@ -1,4 +1,5 @@
-{ pkgs, ... }: {
+{ ... }:
+{
   homebrew = {
     prefix = "/opt/homebrew";
     enable = true;
@@ -8,7 +9,6 @@
     onActivation.upgrade = true;
     global = {
       brewfile = true;
-      # lockfiles = true;
     };
     casks = [
       "android-platform-tools"
@@ -67,8 +67,5 @@
       WhatsApp = 310633997;
       Xcode = 497799835;
     };
-
-    # extraConfig = ''
-    # '';
   };
 }
