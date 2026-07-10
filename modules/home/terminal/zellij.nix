@@ -124,8 +124,8 @@ in
       # ram=$(vm_stat | awk 'BEGIN {FS=":"} /free/ {free=$2} /active/ {active=$2} /inactive/ {inactive=$2} /speculative/ {speculative=$2} /wired down/ {wired=$2} /file-backed/ {file=$2} END {used=(active+inactive+speculative+wired+file)/256; total=used+free/256; printf("%3.1f%%", used/total*100)}')
       # temp=$(smctemp -c -i25 -n180 -f | awk '{print $1}')
       battery=$(pmset -g batt | grep -o '[0-9]\+%' | head -1)
-      echo "  $battery"
-      # echo "  $cpu%   $ram  $temp   $battery"
+      echo "  $battery"
+      # echo "  $cpu%   $ram  $temp   $battery"
     '';
   };
 }
