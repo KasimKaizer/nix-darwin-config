@@ -1,4 +1,8 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  username,
+  ...
+}:
 {
   # specify my home-manager configs
   imports = [
@@ -13,8 +17,8 @@
   ];
 
   home = {
-    username = "ew";
-    homeDirectory = "/Users/ew";
+    username = username;
+    homeDirectory = "/Users/${username}";
     packages = with pkgs; [
       htop
       gh

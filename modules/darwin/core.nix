@@ -1,8 +1,13 @@
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  username,
+  ...
+}:
 {
   # here go the darwin preferences and config items
   programs.zsh.enable = true;
-  users.users.ew.home = "/Users/ew";
+  users.users.${username}.home = "/Users/${username}";
 
   nix.enable = true;
   nix.settings.experimental-features = [

@@ -1,15 +1,21 @@
-{ ... }:
 {
-  nixpkgs.hostPlatform = "aarch64-darwin";
+  hostname,
+  username,
+  system,
+  timezone,
+  ...
+}:
+{
+  nixpkgs.hostPlatform = system;
   nixpkgs.config.allowUnfree = true;
 
-  networking.hostName = "inferno";
-  networking.localHostName = "inferno";
-  networking.computerName = "inferno";
+  networking.hostName = hostname;
+  networking.localHostName = hostname;
+  networking.computerName = hostname;
 
-  time.timeZone = "Asia/Calcutta";
+  time.timeZone = timezone;
 
-  system.primaryUser = "ew";
+  system.primaryUser = username;
   system.stateVersion = 5;
 
   imports = [

@@ -1,4 +1,8 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  timezone,
+  ...
+}:
 let
   layoutDir = ".config/zellij/layouts";
   PLUGIN_DIR = ".config/zellij/plugins";
@@ -106,7 +110,7 @@ in
 
                 datetime        "#[fg=#6C7086,bold] {format} "
                 datetime_format "%A, %d %b %Y %H:%M"
-                datetime_timezone "Asia/Calcutta"
+                datetime_timezone "${timezone}"
                }
             }
          children

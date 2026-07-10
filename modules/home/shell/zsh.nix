@@ -1,4 +1,8 @@
-{ ... }:
+{
+  config,
+  hostname,
+  ...
+}:
 {
   # .zshenv
   programs.zsh = {
@@ -16,8 +20,8 @@
     };
 
     shellAliases = {
-      nixswitch = "sudo -H darwin-rebuild switch --flake /Users/ew/.config/nix-darwin-config#inferno";
-      nixup = "pushd /Users/ew/.config/nix-darwin-config && nix flake update && nixswitch && sudo -H nix-env --profile /nix/var/nix/profiles/system --delete-generations +2 && popd";
+      nixswitch = "sudo -H darwin-rebuild switch --flake ${config.home.homeDirectory}/.config/nix-darwin-config#${hostname}";
+      nixup = "pushd ${config.home.homeDirectory}/.config/nix-darwin-config && nix flake update && nixswitch && sudo -H nix-env --profile /nix/var/nix/profiles/system --delete-generations +2 && popd";
       nixgc = "sudo -H nix-collect-garbage -d && nix-collect-garbage -d";
       ls = "eza -F --icons=always";
       ll = "ls -lahrts";
@@ -40,8 +44,8 @@
     initContent = ''
       export ERL_AFLAGS="-kernel shell_history enabled"
 
-      export PATH="/Users/ew/go/bin/:$PATH"
-      export XDG_CONFIG_HOME="/Users/ew/.config"
+      export PATH="${config.home.homeDirectory}/go/bin/:$PATH"
+      export XDG_CONFIG_HOME="${config.home.homeDirectory}/.config"
       # And enable this
       if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
         . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
