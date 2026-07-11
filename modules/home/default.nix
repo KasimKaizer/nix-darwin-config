@@ -14,6 +14,7 @@
     ./editors/vscodium.nix
     ./tools/cli.nix
     ./tools/git.nix
+    ./tools/ssh.nix
     ./tools/secrets.nix
   ];
 
@@ -22,7 +23,6 @@
     homeDirectory = "/Users/${username}";
     packages = with pkgs; [
       htop
-      gh
       bitwarden-cli
       biome
       go
@@ -49,16 +49,13 @@
       bash-language-server
       mosh
       # yt-dlp
-      yazi
       glow
-      lazygit
       # Upstream sherlock pins pandas<3.0.0, but nixpkgs now ships pandas 3.x,
       # which fails its runtime-dependency check. Skip that check.
       (sherlock.overridePythonAttrs (_: {
         dontCheckRuntimeDeps = true;
       }))
       osx-cpu-temp
-      btop
       p7zip
       rar
       live-server
