@@ -302,6 +302,7 @@
     "toml": true,
     // Language servers
     "codebook": true,
+    "marksman": true,
     "pyrefly": true,
     "tsgo": true,
     // Snippets
@@ -354,6 +355,22 @@
         },
       },
     },
+    // Prettier handles formatting via global "formatter": "auto".
+    "json-language-server": {
+      "initialization_options": {
+        "provideFormatter": false,
+      },
+      "settings": {
+        "json": {
+          "validate": {
+            "enable": true,
+          },
+          "format": {
+            "enable": false,
+          },
+        },
+      },
+    },
   },
 
   // ============================================================================
@@ -399,6 +416,7 @@
       "tab_size": 4,
     },
     "Markdown": {
+      "language_servers": ["marksman"],
       "soft_wrap": "editor_width",
       // Preserve trailing double-spaces (Markdown hard line breaks).
       "remove_trailing_whitespace_on_save": false,
@@ -434,6 +452,10 @@
         "show_other_hints": true,
         "show_type_hints": true,
       },
+    },
+    "JSON": {
+      "tab_size": 2,
+      "language_servers": ["json-language-server", "..."],
     },
     "Python": {
       "tab_size": 4,
