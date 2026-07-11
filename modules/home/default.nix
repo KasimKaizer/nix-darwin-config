@@ -14,6 +14,7 @@
     ./editors/vscodium.nix
     ./tools/cli.nix
     ./tools/git.nix
+    ./tools/secrets.nix
   ];
 
   home = {
@@ -51,7 +52,11 @@
       yazi
       glow
       lazygit
-      sherlock
+      # Upstream sherlock pins pandas<3.0.0, but nixpkgs now ships pandas 3.x,
+      # which fails its runtime-dependency check. Skip that check.
+      (sherlock.overridePythonAttrs (_: {
+        dontCheckRuntimeDeps = true;
+      }))
       osx-cpu-temp
       btop
       p7zip
@@ -66,6 +71,7 @@
       PAGER = "less";
       CLICOLOR = 1;
       EDITOR = "hx";
+      AOC_PATH = "/Users/${username}/projects/advent_of_code";
     };
   };
 

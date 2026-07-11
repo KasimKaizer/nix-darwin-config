@@ -51,7 +51,9 @@
         . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
       fi
 
-      source ~/.aoc_vars
+      [ -f "${config.sops.templates."secret-env".path}" ] && source "${
+        config.sops.templates."secret-env".path
+      }"
     '';
 
     oh-my-zsh = {
