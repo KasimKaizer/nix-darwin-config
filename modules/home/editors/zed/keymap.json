@@ -1,0 +1,36 @@
+// Zed keymap — managed by nix-darwin (modules/home/editors/zed/keymap.json).
+// Copied to ~/.config/zed/keymap.json on every `nixswitch` (writable copy).
+// Docs: https://zed.dev/docs/key-bindings
+[
+  // ---- Global: toggle AI on/off (two shortcuts for the same action) ----
+  {
+    "bindings": {
+      "cmd-:": ["task::Spawn", { "task_name": "toggle disable_ai" }]
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "cmd-shift-;": ["task::Spawn", { "task_name": "toggle disable_ai" }],
+      // External agent threads (ACP registry)
+      "cmd-alt-shift-c": ["agent::NewExternalAgentThread", { "agent": "cursor" }],
+      "cmd-alt-shift-p": ["agent::NewExternalAgentThread", { "agent": "github-copilot-cli" }],
+    }
+  },
+
+  // ---- Helix mode overrides ----
+  {
+    "context": "(vim_mode == helix_normal || vim_mode == helix_select) && !menu",
+    "bindings": {
+      "d": "editor::Delete",
+      "c": "vim::HelixSubstituteNoYank"
+    }
+  },
+  {
+    "context": "vim_mode == helix_normal && !menu",
+    "bindings": {
+      "space w": "workspace::Save",
+      "space q": "zed::Quit"
+    }
+  }
+]

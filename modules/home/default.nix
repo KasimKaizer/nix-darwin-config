@@ -12,6 +12,7 @@
     ./terminal/zellij.nix
     ./editors/helix.nix
     ./editors/vscodium.nix
+    ./editors/zed.nix
     ./tools/cli.nix
     ./tools/git.nix
     ./tools/ssh.nix
@@ -41,12 +42,16 @@
       jetbrains-mono
       delve
       go-tools
+      gotools # goimports (go-tools is staticcheck; gotools has goimports)
       gopls
       golangci-lint
       nil
       marksman
       ltex-ls
       bash-language-server
+      shfmt # shell formatter (Zed "Shell Script")
+      shellcheck # shell diagnostics (used by bash-language-server)
+      powershell # pwsh runtime for the Zed PowerShell extension (PSES)
       mosh
       # yt-dlp
       glow
