@@ -1,58 +1,42 @@
 { ... }:
-let
-  ghostty_conf_dir = ".config/ghostty";
-in
+# Ghostty is installed as a Homebrew cask (see modules/darwin/homebrew.nix).
+# GUI apps stay on Homebrew — HM only manages ~/.config/ghostty/config (C3).
+# JetBrainsMono Nerd Font is installed system-wide via modules/darwin/fonts.nix (C2).
 {
-  home.file."${ghostty_conf_dir}/Config" = {
+  programs.ghostty = {
     enable = true;
-    text = ''
-      # Font
-      font-family = JetBrainsMono Nerd Font
-      font-family-bold = JetBrainsMono Nerd Font
-      font-family-italic = JetBrainsMono Nerd Font
-      font-family-bold-italic = JetBrainsMono Nerd Font
-      font-style = Medium
-      font-style-bold = Heavy
-      font-style-italic = Medium Italic
-      font-style-bold-italic = Heavy Italic
-      font-size = 15
+    package = null;
 
-      # Theme
-      window-theme = dark
-      theme = Dark Modern
-      background = #1f1f1f
-      foreground = #cccccc
-      selection-background = #3a3d41
-      selection-foreground = #e0e0e0
-      cursor-color = #ffffff
-      palette = 0=#272727
-      palette = 1=#f74949
-      palette = 2=#2ea043
-      palette = 3=#9e6a03
-      palette = 4=#0078d4
-      palette = 5=#d01273
-      palette = 6=#1db4d6
-      palette = 7=#cccccc
-      palette = 8=#5d5d5d
-      palette = 9=#dc5452
-      palette = 10=#23d18b
-      palette = 11=#f5f543
-      palette = 12=#3b8eea
-      palette = 13=#d670d6
-      palette = 14=#29b8db
-      palette = 15=#e5e5e5
-      cursor-style = bar
-      cursor-style-blink = false
-      adjust-cursor-thickness = 1
+    settings = {
+      theme = "Dark Modern";
+      window-theme = "dark";
 
-      # misc
-      confirm-close-surface = false
-      mouse-hide-while-typing = true
-      clipboard-read = allow
-      clipboard-write = allow
-      copy-on-select = false
+      # Font (nerd-fonts.jetbrains-mono from darwin fonts.packages)
+      font-family = "JetBrainsMono Nerd Font";
+      font-size = 15;
+      font-thicken = true;
 
-      auto-update = off
-    '';
+      # Cursor — bar suits Helix/modal editing
+      cursor-style = "bar";
+      cursor-style-blink = false;
+      adjust-cursor-thickness = 1;
+
+      # zsh + Helix on macOS
+      shell-integration = "zsh";
+      window-inherit-working-directory = true;
+      macos-option-as-alt = true;
+
+      # Layout / input
+      scrollbar = "never";
+      window-padding-x = 8;
+      window-padding-y = 8;
+      mouse-hide-while-typing = true;
+      copy-on-select = false;
+      confirm-close-surface = false;
+
+      clipboard-read = "allow";
+      clipboard-write = "allow";
+      auto-update = "off";
+    };
   };
 }
