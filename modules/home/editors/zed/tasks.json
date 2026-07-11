@@ -12,6 +12,6 @@
     "hide": "on_success",
     "show_summary": false,
     "show_command": false,
-    "save": "none"
-  }
+    "save": "none",
+  },
 ]
