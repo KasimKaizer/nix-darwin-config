@@ -8,6 +8,8 @@ let
   inherit (pkgs) nixpkgs-fmt;
 in
 {
+  home.packages = [ pkgs.live-server ];
+
   programs.vscodium = {
     enable = true;
     package = pkgs.vscodium;

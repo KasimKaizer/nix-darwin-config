@@ -31,18 +31,7 @@
       nixswitch = "sudo -H darwin-rebuild switch --flake ${config.home.homeDirectory}/.config/nix-darwin-config#${hostname}";
       nixup = "pushd ${config.home.homeDirectory}/.config/nix-darwin-config && nix flake update && nixswitch && sudo -H nix-env --profile /nix/var/nix/profiles/system --delete-generations +2 && popd";
       nixgc = "sudo -H nix-collect-garbage -d && nix-collect-garbage -d";
-      ls = "eza -F --icons=always";
-      ll = "ls -lahrts";
-      la = "eza -la --git --group-directories-first --icons";
-      l = "eza -l --git --group-directories-first --icons";
-      cd = "z";
-      zj = "zellij";
-      za = "zellij a";
-      zk = "zellij ka -y && zellij da -y";
-      cat = "bat";
       python = "python3";
-      zjt = "zellij action rename-tab";
-      zjs = "zellij action rename-session";
     };
 
     profileExtra = ''
