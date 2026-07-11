@@ -43,6 +43,13 @@ let
     ''SOPS_AGE_KEY_FILE="$ageKey" ${sops} decrypt --extract '["${key}"]' ${secretsFile} 2>/dev/null || true'';
 in
 {
+  home.packages = with pkgs; [
+    python3
+    uv
+    pyrefly
+    ruff
+  ];
+
   home.activation.zedConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     zedDir="${zedDir}"
     ageKey="${config.sops.age.keyFile}"

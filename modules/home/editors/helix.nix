@@ -4,6 +4,37 @@
   ...
 }:
 {
+  # Binaries referenced by language servers / formatters below.
+  home.packages = with pkgs; [
+    biome
+    go
+    gotools
+    go-tools
+    gopls
+    golangci-lint
+    golangci-lint-langserver
+    nil
+    nixpkgs-fmt
+    nixd
+    marksman
+    ltex-ls
+    bash-language-server
+    shfmt
+    shellcheck
+    nodejs
+    prettier
+    typescript-language-server
+    vscode-langservers-extracted
+    rust-analyzer
+    zls
+    fnlfmt
+    fennel-ls
+    vhs
+    svgo
+    glow
+    delve
+  ];
+
   programs.helix = {
     enable = true;
     package = pkgs.helix;
@@ -104,14 +135,6 @@
       };
     };
     languages = {
-      language-server.gpt = {
-        command = "helix-gpt";
-        args = [
-          "--handler"
-          "copilot"
-        ];
-      };
-
       language-server.biome = {
         command = "biome";
         args = [ "lsp-proxy" ];
@@ -128,17 +151,13 @@
         }
         {
           name = "bash";
-          language-servers = [
-            "bash-language-server"
-            "gpt"
-          ];
+          language-servers = [ "bash-language-server" ];
         }
         {
           name = "markdown";
           language-servers = [
             "marksman"
             "ltex-ls"
-            "gpt"
           ];
         }
         {
@@ -150,23 +169,16 @@
             "gopls"
             "golangci-lint-lsp"
             "ltex-ls"
-            "gpt"
           ];
           auto-format = true;
         }
         {
           name = "rust";
-          language-servers = [
-            "rust-analyzer"
-            "gpt"
-          ];
+          language-servers = [ "rust-analyzer" ];
         }
         {
           name = "zig";
-          language-servers = [
-            "zls"
-            "gpt"
-          ];
+          language-servers = [ "zls" ];
         }
         {
           name = "lua";
@@ -176,17 +188,11 @@
           name = "vhs";
           auto-format = true;
           file-types = [ "tape" ];
-          language-servers = [
-            "vhs-language-server"
-            "gpt"
-          ];
+          language-servers = [ "vhs-language-server" ];
         }
         {
           name = "html";
-          language-servers = [
-            "vscode-html-language-server"
-            "gpt"
-          ];
+          language-servers = [ "vscode-html-language-server" ];
           indent.tab-width = 2;
           indent.unit = " ";
           auto-format = true;
@@ -209,10 +215,7 @@
             "--tab-width"
             "2"
           ];
-          language-servers = [
-            "vscode-css-language-server"
-            "gpt"
-          ];
+          language-servers = [ "vscode-css-language-server" ];
           auto-format = true;
         }
         {
@@ -269,7 +272,6 @@
               except-features = [ "format" ];
             }
             "biome"
-            "gpt"
           ];
           formatter = {
             command = "biome";

@@ -79,20 +79,7 @@
           modules = [
             ./hosts/${hostname}
             nix-homebrew.darwinModules.nix-homebrew
-            {
-              nix-homebrew = {
-                enable = true;
-                enableRosetta = system == "aarch64-darwin";
-                user = username;
-                autoMigrate = true;
-                taps = {
-                  "homebrew/homebrew-core" = homebrew-core;
-                  "homebrew/homebrew-cask" = homebrew-cask;
-                  "homebrew/homebrew-bundle" = homebrew-bundle;
-                };
-                mutableTaps = false;
-              };
-            }
+            ./modules/darwin/nix-homebrew.nix
             home-manager.darwinModules.home-manager
             {
               home-manager = {
