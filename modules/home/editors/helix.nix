@@ -4,25 +4,12 @@
   ...
 }:
 {
-  # Binaries referenced by language servers / formatters below.
+  # Helix-only language servers / formatters (shared tooling is in zed.nix).
   home.packages = with pkgs; [
     biome
-    go
-    gotools
-    go-tools
-    gopls
-    golangci-lint
-    golangci-lint-langserver
     nil
-    nixpkgs-fmt
-    nixd
     marksman
     ltex-ls
-    bash-language-server
-    shfmt
-    shellcheck
-    nodejs
-    prettier
     typescript-language-server
     vscode-langservers-extracted
     rust-analyzer
@@ -32,7 +19,6 @@
     vhs
     svgo
     glow
-    delve
   ];
 
   programs.helix = {
