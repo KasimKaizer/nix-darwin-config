@@ -1,0 +1,17 @@
+// Zed global tasks — managed by nix-darwin (modules/home/editors/zed/tasks.json).
+// Available in all workspaces. Copied to ~/.config/zed/tasks.json on every
+// `nixswitch`. @ZED_DIR@ is expanded to the Zed config dir at build time.
+[
+  {
+    "label": "toggle disable_ai",
+    "command": "python3",
+    "args": ["@ZED_DIR@/toggle_disable_ai.py"],
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "never",
+    "hide": "on_success",
+    "show_summary": false,
+    "show_command": false,
+    "save": "none"
+  }
+]
