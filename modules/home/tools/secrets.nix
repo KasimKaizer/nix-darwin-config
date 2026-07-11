@@ -33,7 +33,6 @@
   '';
 
   home.packages = with pkgs; [
-    rclone
     sops
     age
   ];

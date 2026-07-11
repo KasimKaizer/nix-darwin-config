@@ -33,6 +33,7 @@
     ];
     packages = with pkgs; [
       # General CLI utilities
+      rclone
       htop
       bitwarden-cli
       wget
