@@ -22,9 +22,10 @@ in
         "editor.formatOnType" = true;
         "editor.linkedEditing" = true;
         "editor.wordWrap" = "off";
-        "editor.fontFamily" = "Jetbrains Mono";
+        "editor.fontFamily" = "JetBrainsMono Nerd Font Mono";
         "editor.fontSize" = 16;
         "editor.fontLigatures" = false;
+        "terminal.integrated.fontFamily" = "JetBrainsMono Nerd Font Mono";
         "editor.minimap.enabled" = false;
         "editor.semanticHighlighting.enabled" = false;
         "editor.inlineSuggest.enabled" = true;

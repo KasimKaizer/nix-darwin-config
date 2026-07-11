@@ -1,7 +1,6 @@
 { ... }:
 # Ghostty is installed as a Homebrew cask (see modules/darwin/homebrew.nix).
-# GUI apps stay on Homebrew — HM only manages ~/.config/ghostty/config (C3).
-# JetBrainsMono Nerd Font is installed system-wide via modules/darwin/fonts.nix (C2).
+# GUI apps stay on Homebrew — HM only manages ~/.config/ghostty/config.
 {
   programs.ghostty = {
     enable = true;
@@ -11,8 +10,7 @@
       theme = "Dark Modern";
       window-theme = "dark";
 
-      # Font (nerd-fonts.jetbrains-mono from darwin fonts.packages)
-      font-family = "JetBrainsMono Nerd Font";
+      font-family = "JetBrainsMono Nerd Font Mono";
       font-size = 15;
       font-thicken = true;
 
