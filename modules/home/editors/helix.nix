@@ -10,14 +10,10 @@ let
   darwinOpts = "${flakeExpr}.darwinConfigurations.${hostname}.options";
 in
 {
-  # Helix-only tooling. Language servers shared with Zed (gopls, nixd, ruff, …)
-  # live in zed.nix; this module only adds what Helix needs on top.
+  # Helix-only tooling. Shared servers and formatters (gopls, tsgo, prettier,
+  # marksman, …) live in zed.nix; this module only adds what Helix needs on top.
   home.packages = with pkgs; [
-    typescript-go
     vscode-langservers-extracted
-    nodejs
-    prettier
-    marksman
     taplo
     dockerfile-language-server
     dockerfmt
