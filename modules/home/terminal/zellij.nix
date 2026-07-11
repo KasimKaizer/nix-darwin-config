@@ -10,6 +10,16 @@ let
   home = config.home.homeDirectory;
 in
 {
+  home.packages = [ pkgs.osx-cpu-temp ];
+
+  home.shellAliases = {
+    zj = "zellij";
+    za = "zellij a";
+    zk = "zellij ka -y && zellij da -y";
+    zjt = "zellij action rename-tab";
+    zjs = "zellij action rename-session";
+  };
+
   programs.zellij = {
     enable = true;
   };

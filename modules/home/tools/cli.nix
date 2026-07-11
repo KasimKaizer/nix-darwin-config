@@ -1,5 +1,14 @@
-{ ... }:
+{ config, ... }:
 {
+  home.shellAliases = {
+    ls = "eza -F --icons=always";
+    ll = "ls -lahrts";
+    la = "eza -la --git --group-directories-first --icons";
+    l = "eza -l --git --group-directories-first --icons";
+    cat = "bat";
+    cd = "z";
+  };
+
   programs.readline = {
     enable = true;
     variables = {

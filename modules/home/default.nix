@@ -31,47 +31,17 @@
       "${config.home.homeDirectory}/.local/bin"
     ];
     packages = with pkgs; [
+      # General CLI utilities
       htop
       bitwarden-cli
-      biome
-      go
-      python3
-      uv
-      pyrefly
-      ruff
-      nodejs
-      prettier
-      typescript-language-server
-      vscode-langservers-extracted
       exercism
       wget
       spicetify-cli
-      nixfmt
-      delve
-      go-tools
-      gotools
-      gopls
-      golangci-lint
-      nil
-      marksman
-      ltex-ls
-      bash-language-server
-      shfmt
-      shellcheck
       powershell
       mosh
-      glow
       sherlock
-      # # Upstream sherlock pins pandas<3.0.0, but nixpkgs now ships pandas 3.x,
-      # # which fails its runtime-dependency check. Skip that check.
-      # (sherlock.overridePythonAttrs (_: {
-      #   dontCheckRuntimeDeps = true;
-      # }))
-      osx-cpu-temp
       p7zip
       rar
-      live-server
-      nixd
     ];
 
     sessionVariables = {
