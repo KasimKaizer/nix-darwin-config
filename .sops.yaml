@@ -1,0 +1,41 @@
+# sops configuration — which recipients can decrypt which files.
+# The private key lives at ~/.config/sops/age/keys.txt (back it up in a
+# password manager; NEVER commit it). Run all commands from the repo root.
+#
+# ── Edit & view ───────────────────────────────────────────────────────────
+#   sops secrets/secrets.yaml                               # decrypt → $EDITOR → re-encrypt on save (main one)
+#   sops decrypt secrets/secrets.yaml                       # print full decrypted content
+#   sops decrypt --extract '["aoc_session"]' secrets/secrets.yaml   # print ONE value
+#
+# ── Read / write individual keys (scriptable) ─────────────────────────────
+#   sops set secrets/secrets.yaml '["aoc_session"]' '"new-token"'   # value must be JSON (note quotes)
+#   sops set secrets/secrets.yaml '["rclone_conf"]' "$(jq -Rs . < ~/.config/rclone/rclone.conf)"  # whole file → string
+#   sops unset secrets/secrets.yaml '["some_key"]'          # delete a key
+#   sops unset --idempotent secrets/secrets.yaml '["maybe_absent"]' # no error if missing
+#   # nested keys: '["parent"]["child"]'
+#
+# ── Whole-file / binary secrets ───────────────────────────────────────────
+#   sops encrypt --input-type binary --output-type binary FILE > secrets/FILE.enc
+#   sops decrypt --input-type binary --output-type binary secrets/FILE.enc > /tmp/FILE
+#   sops encrypt --in-place secrets/secrets.yaml            # encrypt using creation_rules below
+#
+# ── Recipients / multi-machine ────────────────────────────────────────────
+#   sops updatekeys secrets/secrets.yaml                    # after editing 'keys' below, re-encrypt to new set
+#   sops rotate --add-age age1NEW... --in-place secrets/secrets.yaml   # add one recipient
+#   sops rotate --rm-age  age1OLD... --in-place secrets/secrets.yaml   # remove one recipient
+#   sops rotate --in-place secrets/secrets.yaml             # rotate data key (do after a leak)
+#   sops filestatus secrets/secrets.yaml                    # inspect metadata / recipients
+#
+# ── age keys ──────────────────────────────────────────────────────────────
+#   age-keygen -o ~/.config/sops/age/keys.txt               # make a new keypair (prints public key)
+#   age-keygen -y ~/.config/sops/age/keys.txt               # print PUBLIC key for an existing private key
+#
+# After any change:  git add secrets/secrets.yaml && nixswitch && exec zsh
+# The encrypted vault is safe to commit; the age private key is NOT.
+keys:
+  - &inferno age1xcnl453z9ee96cw50xa0r6xt4keu8ve0sng75ucxmcknurwgj4rswhsewa
+creation_rules:
+  - path_regex: secrets/[^/]+\.yaml$
+    key_groups:
+      - age:
+          - *inferno
