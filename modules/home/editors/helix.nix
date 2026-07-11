@@ -1,31 +1,27 @@
 {
   pkgs,
   config,
+  hostname,
   ...
 }:
+let
+  flake = "${config.home.homeDirectory}/.config/nix-darwin-config";
+  flakeExpr = "(builtins.getFlake \"${flake}\")";
+  darwinOpts = "${flakeExpr}.darwinConfigurations.${hostname}.options";
+in
 {
-  # Helix-only language servers / formatters (shared tooling is in zed.nix).
+  # Helix-only tooling. Language servers shared with Zed (gopls, nixd, ruff, …)
+  # live in zed.nix; this module only adds what Helix needs on top.
   home.packages = with pkgs; [
-    biome
-    nil
-    marksman
-    ltex-ls
-    typescript-language-server
+    typescript-go
     vscode-langservers-extracted
-    rust-analyzer
-    zls
-    fnlfmt
-    fennel-ls
-    vhs
-    svgo
-    glow
-    # Go (goimports formatter + golangci-lint LSP)
-    gotools
-    golangci-lint
-    golangci-lint-langserver
-    # Web (prettier formatters for html/css/typescript)
     nodejs
     prettier
+    marksman
+    taplo
+    dockerfile-language-server
+    dockerfmt
+    glow
   ];
 
   programs.helix = {
@@ -44,8 +40,6 @@
         color-modes = true;
         true-color = true;
         lsp.display-messages = true;
-        # lsp.code-lens.enabled = true;
-        # lsp.code-lens.style = "default";
         soft-wrap = {
           enable = true;
           wrap-indicator = "↪";
@@ -122,73 +116,159 @@
               ":buffer-close!"
               ":redraw"
             ];
-
           };
         };
       };
     };
+
     languages = {
-      language-server.biome = {
-        command = "biome";
-        args = [ "lsp-proxy" ];
+      language-server = {
+        nixd = {
+          command = "nixd";
+          config.nixd = {
+            nixpkgs.expr = "import ${flakeExpr}.inputs.nixpkgs { }";
+            formatting.command = [ "nixfmt" ];
+            options = {
+              nix-darwin.expr = darwinOpts;
+              home-manager.expr = "${darwinOpts}.home-manager.users.type.getSubOptions []";
+            };
+          };
+        };
+
+        pyrefly = {
+          command = "pyrefly";
+          args = [ "lsp" ];
+        };
+
+        tsgo = {
+          command = "tsgo";
+          args = [
+            "--lsp"
+            "--stdio"
+          ];
+          config.typescript = {
+            format.enable = false;
+            inlayHints.parameterNames.enabled = "none";
+            inlayHints.variableTypes.enabled = true;
+            inlayHints.functionLikeReturnTypes.enabled = true;
+          };
+        };
       };
 
       language = [
         {
           name = "nix";
           auto-format = true;
-          formatter = {
-            command = "nixfmt";
-          };
-          language-servers = [ "nil" ];
+          formatter.command = "nixfmt";
+          language-servers = [ "nixd" ];
         }
         {
           name = "bash";
+          auto-format = true;
           language-servers = [ "bash-language-server" ];
-        }
-        {
-          name = "markdown";
-          language-servers = [
-            "marksman"
-            "ltex-ls"
+          formatter.command = "shfmt";
+          formatter.args = [
+            "-i"
+            "2"
+            "-ci"
+            "-bn"
           ];
         }
         {
           name = "go";
-          formatter = {
-            command = "goimports";
-          };
+          auto-format = true;
+          language-servers = [ "gopls" ];
+          indent.tab-width = 4;
+          indent.unit = "\t";
+        }
+        {
+          name = "python";
+          auto-format = true;
           language-servers = [
-            "gopls"
-            "golangci-lint-lsp"
-            "ltex-ls"
+            "pyrefly"
+            "ruff"
           ];
+          indent.tab-width = 4;
+          indent.unit = " ";
+        }
+        {
+          name = "typescript";
           auto-format = true;
+          indent.tab-width = 4;
+          indent.unit = " ";
+          language-servers = [
+            {
+              name = "tsgo";
+              except-features = [ "format" ];
+            }
+          ];
+          formatter.command = "prettier";
+          formatter.args = [
+            "--parser"
+            "typescript"
+            "--tab-width"
+            "4"
+          ];
         }
         {
-          name = "rust";
-          language-servers = [ "rust-analyzer" ];
-        }
-        {
-          name = "zig";
-          language-servers = [ "zls" ];
-        }
-        {
-          name = "lua";
+          name = "javascript";
           auto-format = true;
+          indent.tab-width = 4;
+          indent.unit = " ";
+          language-servers = [
+            {
+              name = "tsgo";
+              except-features = [ "format" ];
+            }
+          ];
+          formatter.command = "prettier";
+          formatter.args = [
+            "--parser"
+            "babel"
+            "--tab-width"
+            "4"
+          ];
         }
         {
-          name = "vhs";
+          name = "jsx";
           auto-format = true;
-          file-types = [ "tape" ];
-          language-servers = [ "vhs-language-server" ];
+          language-servers = [
+            {
+              name = "tsgo";
+              except-features = [ "format" ];
+            }
+          ];
+          formatter.command = "prettier";
+          formatter.args = [
+            "--parser"
+            "babel"
+            "--tab-width"
+            "4"
+          ];
+        }
+        {
+          name = "tsx";
+          auto-format = true;
+          language-servers = [
+            {
+              name = "tsgo";
+              except-features = [ "format" ];
+            }
+          ];
+          formatter.command = "prettier";
+          formatter.args = [
+            "--parser"
+            "typescript"
+            "--tab-width"
+            "4"
+          ];
         }
         {
           name = "html";
-          language-servers = [ "vscode-html-language-server" ];
+          auto-format = true;
           indent.tab-width = 2;
           indent.unit = " ";
-          auto-format = true;
+          language-servers = [ "vscode-html-language-server" ];
           formatter.command = "prettier";
           formatter.args = [
             "--parser"
@@ -199,8 +279,10 @@
         }
         {
           name = "css";
-          indent.tab-width = 4;
+          auto-format = true;
+          indent.tab-width = 2;
           indent.unit = " ";
+          language-servers = [ "vscode-css-language-server" ];
           formatter.command = "prettier";
           formatter.args = [
             "--parser"
@@ -208,115 +290,49 @@
             "--tab-width"
             "2"
           ];
-          language-servers = [ "vscode-css-language-server" ];
-          auto-format = true;
         }
+        # Prettier formats; LSP format disabled to match Zed "auto".
         {
           name = "json";
-          language-servers = [
-            {
-              name = "vscode-json-language-server";
-              except-features = [ "format" ];
-            }
-            "biome"
-          ];
-          formatter = {
-            command = "biome";
-            args = [
-              "format"
-              "--indent-style"
-              "space"
-              "--stdin-file-path"
-              "file.json"
-            ];
-          };
           auto-format = true;
-        }
-        {
-          name = "jsonc";
-          language-servers = [
-            {
-              name = "vscode-json-language-server";
-              except-features = [ "format" ];
-            }
-            "biome"
-          ];
-          formatter = {
-            command = "biome";
-            args = [
-              "format"
-              "--indent-style"
-              "space"
-              "--stdin-file-path"
-              "file.jsonc"
-            ];
-          };
+          indent.tab-width = 2;
+          indent.unit = " ";
           file-types = [
+            "json"
             "jsonc"
+            "code-snippets"
             "hujson"
           ];
-          auto-format = true;
-        }
-        {
-          name = "jsx";
           language-servers = [
             {
-              name = "typescript-language-server";
+              name = "vscode-json-language-server";
               except-features = [ "format" ];
             }
-            "biome"
           ];
-          formatter = {
-            command = "biome";
-            args = [
-              "format"
-              "--indent-style"
-              "space"
-              "--stdin-file-path"
-              "file.jsx"
-            ];
-          };
-          auto-format = true;
-        }
-        {
-          name = "typescript";
-          indent.tab-width = 4;
-          indent.unit = " ";
-          auto-format = true;
           formatter.command = "prettier";
           formatter.args = [
             "--parser"
-            "typescript"
-            "--tab-width"
-            "4"
+            "json"
           ];
-          language-servers = [ "typescript-language-server" ];
         }
         {
-          name = "fennel";
+          name = "markdown";
+          language-servers = [ "marksman" ];
+        }
+        {
+          name = "toml";
           auto-format = true;
-          comment-token = ";;";
-          file-types = [ "fnl" ];
-          formatter.args = [ "-" ];
-          formatter.command = "fnlfmt";
-          grammar = "fennel";
+          language-servers = [ "taplo" ];
           indent.tab-width = 2;
-          indent.unit = "  ";
-          injection-regex = "(fennel|fnl)";
-          language-servers = [ "fennel-language-server" ];
-          roots = [ ".git" ];
-          scope = "source.fnl";
+          indent.unit = " ";
         }
         {
-          name = "svg";
-          scope = "";
-          roots = [ ];
-          file-types = [ "svg" ];
-          formatter.command = "svgo";
-          formatter.args = [
-            "--pretty"
-            "-"
-          ];
+          name = "dockerfile";
+          auto-format = true;
+          language-servers = [ "docker-langserver" ];
+          formatter.command = "dockerfmt";
+          indent.tab-width = 4;
+          indent.unit = " ";
         }
       ];
     };
