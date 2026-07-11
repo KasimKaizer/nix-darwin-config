@@ -45,7 +45,6 @@
       wget
       spicetify-cli
       nixfmt
-      jetbrains-mono
       delve
       go-tools
       gotools
