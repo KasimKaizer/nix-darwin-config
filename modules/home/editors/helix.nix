@@ -21,7 +21,6 @@ in
     taplo
     dockerfile-language-server
     dockerfmt
-    glow
   ];
 
   programs.helix = {
