@@ -19,6 +19,13 @@
     vhs
     svgo
     glow
+    # Go (goimports formatter + golangci-lint LSP)
+    gotools
+    golangci-lint
+    golangci-lint-langserver
+    # Web (prettier formatters for html/css/typescript)
+    nodejs
+    prettier
   ];
 
   programs.helix = {
@@ -131,7 +138,7 @@
           name = "nix";
           auto-format = true;
           formatter = {
-            command = "nixpkgs-fmt";
+            command = "nixfmt";
           };
           language-servers = [ "nil" ];
         }

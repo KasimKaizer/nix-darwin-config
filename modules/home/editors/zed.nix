@@ -43,8 +43,8 @@ let
     ''SOPS_AGE_KEY_FILE="$ageKey" ${sops} decrypt --extract '["${key}"]' ${secretsFile} 2>/dev/null || true'';
 in
 {
-  # Primary editor tooling. Binaries used by both Zed and Helix live here;
-  # helix.nix only adds language servers Helix alone references.
+  # Primary editor tooling. Shared binaries (gopls, bash-language-server, …) live
+  # here; helix.nix adds Helix-only language servers, formatters, and linters.
   home.packages = with pkgs; [
     # Python
     python3
@@ -54,21 +54,13 @@ in
     # Nix
     nixd
     nixfmt
-    nixpkgs-fmt
     # Shell
     bash-language-server
     shfmt
-    # Go
+    # Go (gopls on PATH required by Zed; delve for Zed debug adapter)
     go
-    gotools
-    go-tools
     gopls
-    golangci-lint
-    golangci-lint-langserver
     delve
-    # JS/TS
-    nodejs
-    prettier
   ];
 
   home.activation.zedConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
