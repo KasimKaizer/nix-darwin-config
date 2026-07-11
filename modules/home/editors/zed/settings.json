@@ -148,11 +148,9 @@
   "ui_font_size": 15.0,
   "buffer_font_size": 15.0,
   "buffer_font_weight": 400.0,
-  "buffer_font_family": "JetBrains Mono NL",
+  "buffer_font_family": "JetBrainsMono Nerd Font Mono",
   "buffer_font_features": {
-    "ss02": true,
     "liga": true,
-    "zero": true,
   },
   "cursor_blink": false,
   "relative_line_numbers": "disabled",
@@ -473,9 +471,9 @@
   // Integrated terminal
   // ============================================================================
   "terminal": {
-    "font_family": "JetBrains Mono NL",
+    "font_family": "JetBrainsMono Nerd Font Mono",
     "font_size": 14.0,
-    "font_fallbacks": ["JetBrains Mono NL"],
+    "font_fallbacks": ["JetBrainsMono Nerd Font Mono"],
     "env": {
       "EDITOR": "zed --wait",
     },
