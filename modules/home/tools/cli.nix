@@ -1,5 +1,21 @@
 { ... }:
 {
+  programs.readline = {
+    enable = true;
+    variables = {
+      show-all-if-ambiguous = "on";
+      completion-ignore-case = "on";
+      mark-directories = "on";
+      mark-symlinked-directories = "on";
+      match-hidden-files = "off";
+      visible-stats = "on";
+      keymap = "vi";
+      editing-mode = "vi-insert";
+    };
+  };
+
+  programs.fastfetch.enable = true;
+
   programs.bat = {
     enable = true;
     config.theme = "TwoDark";

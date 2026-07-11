@@ -26,7 +26,10 @@
   home = {
     username = username;
     homeDirectory = homeDirectory;
-    sessionPath = [ "${config.home.homeDirectory}/go/bin" ];
+    sessionPath = [
+      "${config.home.homeDirectory}/go/bin"
+      "${config.home.homeDirectory}/.local/bin"
+    ];
     packages = with pkgs; [
       htop
       bitwarden-cli
@@ -40,7 +43,6 @@
       prettier
       typescript-language-server
       vscode-langservers-extracted
-      fastfetch
       exercism
       wget
       spicetify-cli
@@ -83,7 +85,6 @@
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
-  home.file.".inputrc".source = ./inputrc;
   # Don't change this when you change package input. Leave it alone.
   home.stateVersion = "24.11"; # 23.11 # 24.05
 }
