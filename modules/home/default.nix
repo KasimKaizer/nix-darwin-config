@@ -33,12 +33,12 @@
     ];
     packages = with pkgs; [
       # General CLI utilities
+      glow
       rclone
       htop
       bitwarden-cli
       wget
       powershell
-      mosh
       sherlock
       p7zip
       rar
