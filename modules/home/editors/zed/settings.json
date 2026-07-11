@@ -62,17 +62,11 @@
     "cursor": {
       "type": "registry",
       "default_mode": "agent",
-      "default_config_options": {
-        "model": "auto",
-        "mode": "agent",
-      },
     },
     "github-copilot-cli": {
       "type": "registry",
       "default_config_options": {
-        "allow_all": "on",
         "reasoning_effort": "high",
-        "model": "auto",
       },
     },
   },

@@ -42,30 +42,28 @@
       jetbrains-mono
       delve
       go-tools
-      gotools # goimports (go-tools is staticcheck; gotools has goimports)
+      gotools
       gopls
       golangci-lint
       nil
       marksman
       ltex-ls
       bash-language-server
-      shfmt # shell formatter (Zed "Shell Script")
-      shellcheck # shell diagnostics (used by bash-language-server)
-      powershell # pwsh runtime for the Zed PowerShell extension (PSES)
+      shfmt
+      shellcheck
+      powershell
       mosh
-      # yt-dlp
       glow
-      # Upstream sherlock pins pandas<3.0.0, but nixpkgs now ships pandas 3.x,
-      # which fails its runtime-dependency check. Skip that check.
-      (sherlock.overridePythonAttrs (_: {
-        dontCheckRuntimeDeps = true;
-      }))
+      sherlock
+      # # Upstream sherlock pins pandas<3.0.0, but nixpkgs now ships pandas 3.x,
+      # # which fails its runtime-dependency check. Skip that check.
+      # (sherlock.overridePythonAttrs (_: {
+      #   dontCheckRuntimeDeps = true;
+      # }))
       osx-cpu-temp
       p7zip
       rar
       live-server
-      # ollama
-      # gemini-cli
       nixd
     ];
 
