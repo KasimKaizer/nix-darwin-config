@@ -1,6 +1,8 @@
 {
   pkgs,
+  config,
   username,
+  homeDirectory,
   ...
 }:
 {
@@ -19,9 +21,12 @@
     ./tools/secrets.nix
   ];
 
+  xdg.enable = true;
+
   home = {
     username = username;
-    homeDirectory = "/Users/${username}";
+    homeDirectory = homeDirectory;
+    sessionPath = [ "${config.home.homeDirectory}/go/bin" ];
     packages = with pkgs; [
       htop
       bitwarden-cli
@@ -30,6 +35,7 @@
       python3
       uv
       pyrefly
+      ruff
       nodejs
       prettier
       typescript-language-server
@@ -71,7 +77,7 @@
       PAGER = "less";
       CLICOLOR = 1;
       EDITOR = "hx";
-      AOC_PATH = "/Users/${username}/projects/advent_of_code";
+      AOC_PATH = "${config.home.homeDirectory}/projects/advent_of_code";
     };
   };
 
