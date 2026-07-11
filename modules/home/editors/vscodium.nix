@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (pkgs) nixpkgs-fmt;
+  inherit (pkgs) nixfmt;
 in
 {
   home.packages = [ pkgs.live-server ];
@@ -62,7 +62,7 @@ in
         };
 
         # Nix
-        "nix.formatterPath" = "${nixpkgs-fmt}/bin/nixpkgs-fmt";
+        "nix.formatterPath" = "${nixfmt}/bin/nixfmt";
         "[nix]" = {
           "editor.insertSpaces" = true;
           "editor.tabSize" = 2;
