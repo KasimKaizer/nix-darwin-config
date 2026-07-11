@@ -19,6 +19,7 @@
     ./tools/git.nix
     ./tools/ssh.nix
     ./tools/secrets.nix
+    ./tools/exercism.nix
   ];
 
   xdg.enable = true;
@@ -34,9 +35,7 @@
       # General CLI utilities
       htop
       bitwarden-cli
-      exercism
       wget
-      spicetify-cli
       powershell
       mosh
       sherlock
