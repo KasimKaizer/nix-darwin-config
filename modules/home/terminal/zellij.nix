@@ -1,11 +1,13 @@
 {
   pkgs,
+  config,
   timezone,
   ...
 }:
 let
   layoutDir = ".config/zellij/layouts";
   PLUGIN_DIR = ".config/zellij/plugins";
+  home = config.home.homeDirectory;
 in
 {
   programs.zellij = {
@@ -79,7 +81,7 @@ in
       layout {
         default_tab_template {
             pane size=1 borderless=true {
-                plugin location="file:~/${PLUGIN_DIR}/zjstatus.wasm" {
+                plugin location="file:${home}/${PLUGIN_DIR}/zjstatus.wasm" {
                 format_left   "{mode} #[fg=#89B4FA,bold]{session}"
                 format_center "{tabs} #[fg=#89B4FA,bold]"
                 format_right  "{command_git_branch} {command_info} {datetime}"
@@ -98,7 +100,7 @@ in
                 tab_normal   "#[fg=#6C7086] {name} "
                 tab_active   "#[fg=#9399B2,bold,italic] {name} "
 
-                command_info_command "bash -c ~/${layoutDir}/info.sh"
+                command_info_command "bash -c ${home}/${layoutDir}/info.sh"
                 command_info_format   "#[fg=#6C7086] {stdout}"
                 command_info_interval "10"
                 command_info_rendermode "static"

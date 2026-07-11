@@ -1,6 +1,7 @@
 {
   config,
   hostname,
+  lib,
   ...
 }:
 {
@@ -10,6 +11,13 @@
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
+    defaultKeymap = "viins";
+    dotDir = config.home.homeDirectory;
+
+    # oh-my-zsh runs compinit; point the dump at ~/.cache/zsh (D5).
+    localVariables = {
+      ZSH_COMPDUMP = "${config.xdg.cacheHome}/zsh/zcompdump-${hostname}";
+    };
 
     history = {
       ignoreDups = true;
@@ -41,30 +49,30 @@
       eval "$(/opt/homebrew/bin/brew shellenv)"
     '';
 
-    initContent = ''
-      export ERL_AFLAGS="-kernel shell_history enabled"
+    initContent = lib.mkMerge [
+      (lib.mkOrder 550 ''
+        mkdir -p "${config.xdg.cacheHome}/zsh"
+      '')
+      ''
+        export ERL_AFLAGS="-kernel shell_history enabled"
 
-      export PATH="${config.home.homeDirectory}/go/bin/:$PATH"
-      export XDG_CONFIG_HOME="${config.home.homeDirectory}/.config"
-      # And enable this
-      if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
-        . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
-      fi
+        # nix-daemon env (also sourced from /etc/zshrc on nix-darwin; kept here
+        # so interactive shells that skip system rc still get NIX_* vars).
+        if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+          . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+        fi
 
-      [ -f "${config.sops.templates."secret-env".path}" ] && source "${
-        config.sops.templates."secret-env".path
-      }"
-    '';
+        [ -f "${config.sops.templates."secret-env".path}" ] && source "${
+          config.sops.templates."secret-env".path
+        }"
+      ''
+    ];
 
     oh-my-zsh = {
       enable = true;
-      # theme = "spaceship";
       plugins = [
         "golang"
         "git"
-        "asdf"
-        "fzf"
-        "rbenv"
         "history"
         "history-substring-search"
       ];

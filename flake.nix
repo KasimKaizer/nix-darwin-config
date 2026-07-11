@@ -61,6 +61,9 @@
           username,
           timezone,
         }:
+        let
+          homeDirectory = "/Users/${username}";
+        in
         darwin.lib.darwinSystem {
           specialArgs = {
             inherit
@@ -69,6 +72,7 @@
               username
               system
               timezone
+              homeDirectory
               ;
           };
 
@@ -102,6 +106,7 @@
                     username
                     system
                     timezone
+                    homeDirectory
                     ;
                 };
                 users.${username}.imports = [
