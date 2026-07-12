@@ -5,9 +5,10 @@ Bound to cmd-: / cmd-shift-; via keymap.json + tasks.json. Operates on the
 mutable copy at ~/.config/zed/settings.json; the change is reset to the repo
 baseline on the next `nixswitch`. @ZED_DIR@ is expanded at build time.
 """
-from pathlib import Path
+
 import re
 import sys
+from pathlib import Path
 
 settings_path = Path("@ZED_DIR@/settings.json")
 text = settings_path.read_text()
