@@ -1,0 +1,341 @@
+// VS Code settings — managed by nix-darwin (modules/home/editors/vscode/settings.json).
+//
+// This is the permanent baseline. On every `nixswitch` it is copied to
+// ~/Library/Application Support/Code/User/settings.json (writable).
+// Edit the live file to experiment; commit changes here to keep them.
+//
+// Placeholders expanded at build time:
+//   @NIXFMT@  → nixfmt store path
+//   @SHFMT@   → shfmt store path
+//
+// Extensions: see ./extensions.txt (Microsoft Marketplace, installed on switch).
+{
+  // ==========================================================================
+  // Privacy / telemetry
+  // https://code.visualstudio.com/docs/configure/telemetry
+  // ==========================================================================
+  "telemetry.telemetryLevel": "off",
+  "telemetry.feedback.enabled": false,
+  "workbench.enableExperiments": false,
+  "workbench.settings.enableNaturalLanguageSearch": false,
+  "workbench.commandPalette.experimental.suggestCommands": false,
+  "update.showReleaseNotes": false,
+  "npm.fetchOnlinePackageInfo": false,
+  "gitlens.telemetry.enabled": false,
+  "redhat.telemetry.enabled": false,
+
+  // ==========================================================================
+  // Appearance
+  // ==========================================================================
+  "workbench.colorTheme": "One Dark Pro",
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.sideBar.location": "right",
+  "workbench.startupEditor": "none",
+  "workbench.welcomePage.walkthroughs.openOnInstall": false,
+  "workbench.editor.showTabs": "none",
+  "window.titleBarStyle": "custom",
+  "window.zoomLevel": 0,
+
+  "editor.fontFamily": "JetBrainsMono Nerd Font Mono",
+  "editor.fontSize": 15,
+  "editor.fontLigatures": true,
+  "editor.fontWeight": "400",
+  "editor.cursorBlinking": "solid",
+  "editor.lineNumbers": "on",
+  "editor.wordWrap": "on",
+  "editor.rulers": [80],
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.minimap.enabled": true,
+  "editor.minimap.autohide": true,
+  "editor.scrollBeyondLastLine": false,
+  "editor.cursorSurroundingLines": 0,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.indentation": true,
+  "editor.guides.highlightActiveIndentation": true,
+  "editor.semanticHighlighting.enabled": true,
+  "editor.renderWhitespace": "selection",
+
+  "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono",
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.tabs.enabled": true,
+  "terminal.integrated.cwd": "${workspaceFolder}",
+  "terminal.integrated.env.osx": {
+    "EDITOR": "code --wait",
+  },
+
+  // ==========================================================================
+  // Editor behavior
+  // ==========================================================================
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "editor.linkedEditing": true,
+  "editor.autoClosingBrackets": "languageDefined",
+  "editor.autoClosingQuotes": "languageDefined",
+  "editor.autoSurround": "languageDefined",
+  "editor.inlayHints.enabled": "on",
+  "editor.parameterHints.enabled": true,
+  "editor.inlineSuggest.enabled": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "files.autoSave": "onFocusChange",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.associations": {
+    "Dockerfile.*": "dockerfile",
+    "*.code-snippets": "jsonc",
+    "**/User/settings.json": "jsonc",
+    "**/User/keybindings.json": "jsonc",
+  },
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/Thumbs.db": true,
+    "**/.classpath": true,
+    "**/.settings": true,
+    "**/.ipynb_checkpoints": true,
+    "**/*.swp": true,
+    "**/.env*": true,
+    "**/out": true,
+    "**/dist": true,
+    "**/.husky": true,
+    "**/.turbo": true,
+    "**/.vscode-test": true,
+    "**/.next": true,
+    "**/.storybook": true,
+    "**/.tap": true,
+    "**/.nyc_output": true,
+    "**/report": true,
+    "**/node_modules": true,
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/out": true,
+    "**/.next": true,
+  },
+
+  // Helix emulation (jasew.vscode-helix-emulation)
+  "extensions.experimental.affinity": {
+    "jasew.vscode-helix-emulation": 1,
+  },
+  "helixKeymap.toggleRelativeLineNumbers": false,
+
+  // ==========================================================================
+  // Copilot — used when VS Code's built-in / prompted Copilot is available
+  // ==========================================================================
+  "github.copilot.enable": {
+    "*": true,
+  },
+  "github.copilot.nextEditSuggestions.enabled": true,
+  "github.copilot.editor.enableAutoCompletions": true,
+  "chat.mcp.gallery.enabled": true,
+
+  // ==========================================================================
+  // Git
+  // ==========================================================================
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "git.autofetch": true,
+  "git.blame.editorDecoration.enabled": true,
+  "gitlens.currentLine.enabled": true,
+  "errorLens.enabled": true,
+
+  // ==========================================================================
+  // Prettier as default formatter where it applies
+  // ==========================================================================
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[less]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+    },
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+    },
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+    },
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+    },
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2,
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2,
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.wordWrap": "on",
+    "files.trimTrailingWhitespace": false,
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2,
+  },
+
+  // Let Prettier own JSON/YAML formatting; keep schema validation
+  "json.format.enable": false,
+  "json.validate.enable": true,
+  "yaml.format.enable": false,
+  "yaml.validate": true,
+
+  // ==========================================================================
+  // TypeScript / JavaScript — TypeScriptTeam.native-preview (tsgo)
+  // https://github.com/microsoft/typescript-go
+  // Unified js/ts.* settings (legacy typescript.* / javascript.* are deprecated).
+  // ==========================================================================
+  "js/ts.experimental.useTsgo": true,
+  "js/ts.format.enabled": false,
+  "js/ts.tsserver.experimental.enableProjectDiagnostics": true,
+  "js/ts.updateImportsOnFileMove.enabled": "always",
+  "js/ts.inlayHints.parameterNames.enabled": "none",
+  "js/ts.inlayHints.parameterTypes.enabled": false,
+  "js/ts.inlayHints.variableTypes.enabled": true,
+  "js/ts.inlayHints.propertyDeclarationTypes.enabled": true,
+  "js/ts.inlayHints.functionLikeReturnTypes.enabled": true,
+  "js/ts.inlayHints.enumMemberValues.enabled": true,
+  "eslint.codeActionsOnSave.rules": ["import/order"],
+
+  "tailwindCSS.experimental.classRegex": [["\\bclass:\\s*['\"]([^'\"]*)['\"]"]],
+
+  // ==========================================================================
+  // Nix — nixd + nixfmt via jnoortheen.nix-ide
+  // https://github.com/nix-community/vscode-nix-ide
+  // ==========================================================================
+  "nix.enableLanguageServer": true,
+  "nix.serverPath": "nixd",
+  "nix.formatterPath": ["@NIXFMT@"],
+  "nix.serverSettings": {
+    "nixd": {
+      "formatting": {
+        "command": ["@NIXFMT@"],
+      },
+    },
+  },
+  "[nix]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "jnoortheen.nix-ide",
+  },
+
+  // ==========================================================================
+  // Go — gopls via golang.go
+  // https://go.dev/gopls/settings · https://code.visualstudio.com/docs/languages/go
+  // ==========================================================================
+  "go.formatTool": "default",
+  "go.useLanguageServer": true,
+  "gopls": {
+    "formatting.gofumpt": true,
+    "ui.diagnostic.staticcheck": true,
+    "ui.completion.usePlaceholders": true,
+    "ui.semanticTokens": true,
+    "analyses": {
+      "unusedparams": true,
+      "unusedwrite": true,
+      "nilness": true,
+      "shadow": true,
+      "useany": true,
+    },
+    "hints": {
+      "assignVariableTypes": true,
+      "compositeLiteralFields": true,
+      "compositeLiteralTypes": true,
+      "constantValues": true,
+      "functionTypeParameters": true,
+      "parameterNames": true,
+      "rangeVariableTypes": true,
+    },
+  },
+  "[go]": {
+    "editor.insertSpaces": false,
+    "editor.tabSize": 4,
+    "editor.defaultFormatter": "golang.go",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit",
+    },
+    "editor.inlayHints.enabled": "on",
+  },
+
+  // ==========================================================================
+  // Python — pyrefly + ruff; ms-python for run/debug only (Pylance off)
+  // https://pyrefly.org/en/docs/IDE/ · https://docs.astral.sh/ruff/editors/setup/
+  // ==========================================================================
+  "python.languageServer": "None",
+  "python.analysis.typeCheckingMode": "off",
+  "[python]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4,
+    "editor.renderWhitespace": "all",
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports.ruff": "explicit",
+    },
+    "editor.inlayHints.enabled": "on",
+  },
+
+  // ==========================================================================
+  // Shell — bash-ide + shfmt
+  // https://codeberg.org/mkhl/vscode-shfmt
+  // ==========================================================================
+  "shfmt.executablePath": "@SHFMT@",
+  "shfmt.executableArgs": ["-i", "2", "-ci", "-bn"],
+  "[shellscript]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false,
+    "editor.defaultFormatter": "mkhl.shfmt",
+  },
+
+  // ==========================================================================
+  // Other languages
+  // ==========================================================================
+  "[powershell]": {
+    "editor.tabSize": 4,
+  },
+  "[toml]": {
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "tamasfe.even-better-toml",
+  },
+  "[dockerfile]": {
+    "editor.tabSize": 4,
+  },
+  "[php]": {
+    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
+  },
+
+  // Remote-SSH — uses ~/.ssh/config host "box"
+  "remote.SSH.useLocalServer": true,
+  "remote.SSH.remotePlatform": {
+    "box": "linux",
+  },
+}
