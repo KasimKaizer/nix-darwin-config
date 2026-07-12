@@ -184,7 +184,7 @@
     "git_diff": true,
   },
   "minimap": {
-    "show": "auto",
+    "show": "never",
   },
   "which_key": {
     "enabled": true,
