@@ -12,7 +12,7 @@ in
   home.shellAliases = {
     zj = "zellij";
     za = "zellij a";
-    zk = "zellij ka -y && zellij da -y";
+    zk = "zellij delete-all-sessions -y -f";
     zjt = "zellij action rename-tab";
     zjs = "zellij action rename-session";
   };
