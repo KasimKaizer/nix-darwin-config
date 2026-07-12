@@ -35,6 +35,17 @@
       clipboard-read = "allow";
       clipboard-write = "allow";
       auto-update = "off";
+
+      # Let Zellij own these chords (see modules/home/terminal/zellij.nix Super binds).
+      keybind = [
+        "cmd+t=unbind"
+        "cmd+n=unbind"
+        "cmd+w=unbind"
+        "cmd+alt+left=unbind"
+        "cmd+alt+right=unbind"
+        "cmd+shift+left_bracket=unbind"
+        "cmd+shift+right_bracket=unbind"
+      ];
     };
   };
 }
