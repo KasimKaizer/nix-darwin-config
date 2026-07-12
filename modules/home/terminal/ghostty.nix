@@ -37,6 +37,7 @@
       auto-update = "off";
 
       # Let Zellij own these chords (see modules/home/terminal/zellij.nix Super binds).
+      # Ghostty binds goto_tab on both logical (cmd+N) and physical (cmd+digit_N) keys.
       keybind = [
         "cmd+t=unbind"
         "cmd+n=unbind"
@@ -45,6 +46,24 @@
         "cmd+alt+right=unbind"
         "cmd+shift+left_bracket=unbind"
         "cmd+shift+right_bracket=unbind"
+        "cmd+1=unbind"
+        "cmd+2=unbind"
+        "cmd+3=unbind"
+        "cmd+4=unbind"
+        "cmd+5=unbind"
+        "cmd+6=unbind"
+        "cmd+7=unbind"
+        "cmd+8=unbind"
+        "cmd+9=unbind"
+        "cmd+digit_1=unbind"
+        "cmd+digit_2=unbind"
+        "cmd+digit_3=unbind"
+        "cmd+digit_4=unbind"
+        "cmd+digit_5=unbind"
+        "cmd+digit_6=unbind"
+        "cmd+digit_7=unbind"
+        "cmd+digit_8=unbind"
+        "cmd+digit_9=unbind"
       ];
     };
   };

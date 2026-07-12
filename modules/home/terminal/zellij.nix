@@ -91,6 +91,15 @@ in
           bind "Super Shift ]" { GoToNextTab; }
           bind "Super Alt Left" { GoToPreviousTab; }
           bind "Super Alt Right" { GoToNextTab; }
+          bind "Super 1" { GoToTab 1; }
+          bind "Super 2" { GoToTab 2; }
+          bind "Super 3" { GoToTab 3; }
+          bind "Super 4" { GoToTab 4; }
+          bind "Super 5" { GoToTab 5; }
+          bind "Super 6" { GoToTab 6; }
+          bind "Super 7" { GoToTab 7; }
+          bind "Super 8" { GoToTab 8; }
+          bind "Super 9" { GoToTab 9; }
 
           bind "Alt f" { ToggleFloatingPanes; }
           bind "Alt n" { NewPane; }
