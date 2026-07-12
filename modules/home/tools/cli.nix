@@ -1,4 +1,4 @@
-{ config, ... }:
+{ ... }:
 {
   home.shellAliases = {
     ls = "eza -F --icons=always";

@@ -30,14 +30,10 @@
 
   outputs =
     inputs@{
-      self,
       home-manager,
       darwin,
       nixpkgs,
       nix-homebrew,
-      homebrew-core,
-      homebrew-cask,
-      homebrew-bundle,
       ...
     }:
     let

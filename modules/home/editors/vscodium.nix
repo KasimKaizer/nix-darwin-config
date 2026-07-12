@@ -1,9 +1,4 @@
-{
-  super,
-  lib,
-  pkgs,
-  ...
-}:
+{ pkgs, ... }:
 let
   inherit (pkgs) nixfmt;
 in
