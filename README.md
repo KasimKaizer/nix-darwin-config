@@ -27,23 +27,22 @@ nix --extra-experimental-features "nix-command flakes" build .#darwinConfigurati
 ```
 4. **Activate configuration**:
 ```bash
-./result/sw/bin/darwin-rebuild switch --flake ~/.config/snowflake/.#inferno
+darwin-rebuild switch --flake ~/.config/nix-darwin-config#inferno
 ```
 ## Configuration
 
 - `flake.nix`: Contains the base configuration of our flake, controlling the expected inputs and outputs, in addition to managing the external urls of `home-manager` and `nix-darwin`;
-- `modules/darwin/default.nix`: Contains the complete configuration of our nix-darwin, including imports for configurations, extra options, among others;
-- `modules/darwin/settings/homebrew.nix`: Contains the [homebrew](https://brew.sh/) and MacStore apps configuration, including casks, brews and taps;
-- `modules/darwin/settings/system.nix`: Contains the entire system configuration, including appearance, dock management, I/O devices settings, and others;
-- `modules/home-manager/default.nix`: Contains the `home-manager` configuration imports, packages and session variables;
-- `modules/home-manager/settings/inputrc`: This is just que `inputrrc` file for input settings with `home-manager`;
-- `modules/home-manager/settings/zsh.nix`: Contains the entire [zsh](https://zsh.sourceforge.io/) configuration;
+- `modules/darwin/default.nix`: Contains the nix-darwin imports and host-level settings;
+- `modules/darwin/homebrew.nix`: Contains the [homebrew](https://brew.sh/) casks, brews and taps;
+- `modules/darwin/core.nix`: Contains the core system configuration, including appearance, dock management, I/O devices settings, and others;
+- `modules/home/default.nix`: Contains the `home-manager` configuration imports, packages and session variables;
+- `modules/home/shell/zsh.nix`: Contains the entire [zsh](https://zsh.sourceforge.io/) configuration;
 - `result`: A symlink which apoints to your build at `/nix/store`.
 
-Note: if you want to install a simple package, go to `modules/home-manager/default.nix` and add the package name to the `home.packages` list. But, if you want to strictly configure your package, then include a file in `modules/home-manager/settings` with the name of your package and its settings following the template below:
+Note: if you want to install a simple package, go to `modules/home/default.nix` and add the package name to the `home.packages` list. But, if you want to strictly configure your package, then include a file in `modules/home/` with the name of your package and its settings following the template below:
 
 ```nix
-# At modules/home-manager/settings/yourpackage.nix
+# At modules/home/yourpackage.nix
 { pkgs, ... }: {
   programs.yourpackage = {
     # Your settings
@@ -51,7 +50,7 @@ Note: if you want to install a simple package, go to `modules/home-manager/defau
 }
 ```
 
-And don't forget to import in `modules/home-manager/default.nix`:
+And don't forget to import in `modules/home/default.nix`:
 
 ```nix
 # ...

@@ -133,6 +133,7 @@ in
 
   home.file."${layoutDir}/info.sh" = {
     enable = true;
+    executable = true;
     text = ''
       #!/bin/bash
 
