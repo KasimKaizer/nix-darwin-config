@@ -1,17 +1,14 @@
 {
   pkgs,
   config,
+  lib,
   timezone,
   ...
 }:
 let
-  layoutDir = ".config/zellij/layouts";
-  PLUGIN_DIR = ".config/zellij/plugins";
-  home = config.home.homeDirectory;
+  zjstatus = "${config.xdg.configHome}/zellij/plugins/zjstatus.wasm";
 in
 {
-  home.packages = [ pkgs.osx-cpu-temp ];
-
   home.shellAliases = {
     zj = "zellij";
     za = "zellij a";
@@ -20,32 +17,73 @@ in
     zjs = "zellij action rename-session";
   };
 
+  # Keep Ghostty-only autostart. HM's enableZshIntegration would start Zellij in
+  # every interactive shell (Terminal.app, IDE terminals, etc.).
+  programs.zsh.initContent = lib.mkOrder 2000 ''
+    if [[ -z "$ZELLIJ" && ( "$TERM" == "xterm-ghostty" || "$TERM_PROGRAM" == "ghostty" ) ]]; then
+      export ZELLIJ_AUTO_ATTACH=true
+      eval "$(zellij setup --generate-auto-start zsh)"
+    fi
+  '';
+
+  xdg.configFile."zellij/plugins/zjstatus.wasm".source = pkgs.zellijPlugins.zjstatus;
+
   programs.zellij = {
     enable = true;
-  };
 
-  home.file = {
-    "${PLUGIN_DIR}/zjstatus.wasm" = {
-      source = pkgs.fetchurl {
-        url = "https://github.com/dj95/zjstatus/releases/download/v0.17.0/zjstatus.wasm";
-        sha256 = "sha256-IgTfSl24Eap+0zhfiwTvmdVy/dryPxfEF7LhVNVXe+U=";
-      };
+    settings = {
+      simplified_ui = false;
+      default_layout = "default";
+      pane_frames = false;
+      show_startup_tips = false;
+      show_release_notes = false;
+      theme = "one-half-dark";
+
+      copy_command = "pbcopy";
+      copy_on_select = true;
+
+      session_serialization = true;
+      serialize_pane_viewport = true;
+      scrollback_lines_to_serialize = 10000;
+
+      on_force_close = "detach";
+      scrollback_editor = "hx";
     };
-  };
 
-  # NOTE: the module only supports YAML config which is deprecated
+    # Keybinds stay as raw KDL — toKDL still struggles with repeated `bind` nodes.
+    extraConfig = ''
+      plugins {
+        zjstatus location="file:${zjstatus}"
+      }
 
-  home.file.zellij = {
-    target = ".config/zellij/config.kdl";
-    text = ''
-      simplified_ui false
-      default_layout "default"
-      pane_frames false
-      show_startup_tips false
+      // Ctrl q → tmux-style prefix mode.
+      // clear-defaults strips Zellij's built-in Ctrl chords so they don't fight Helix/apps.
+      // Super/Alt binds restore the modern macOS + Ghostty muscle memory.
       keybinds clear-defaults=true {
         normal {
           bind "Ctrl q" { SwitchToMode "tmux"; }
+
+          // --- macOS / Ghostty muscle memory (Cmd = Super) ---
+          bind "Super t" { NewTab; }
+          bind "Super n" { NewPane; }
+          bind "Super w" { CloseTab; }
+          bind "Super Shift [" { GoToPreviousTab; }
+          bind "Super Shift ]" { GoToNextTab; }
+          bind "Super Alt Left" { GoToPreviousTab; }
+          bind "Super Alt Right" { GoToNextTab; }
+
+          bind "Alt f" { ToggleFloatingPanes; }
+          bind "Alt n" { NewPane; }
+          bind "Alt i" { MoveTab "Left"; }
+          bind "Alt o" { MoveTab "Right"; }
+          bind "Alt h" "Alt Left" { MoveFocusOrTab "Left"; }
+          bind "Alt l" "Alt Right" { MoveFocusOrTab "Right"; }
+          bind "Alt j" "Alt Down" { MoveFocus "Down"; }
+          bind "Alt k" "Alt Up" { MoveFocus "Up"; }
+          bind "Alt =" "Alt +" { Resize "Increase"; }
+          bind "Alt -" { Resize "Decrease"; }
         }
+
         tmux {
           bind "Esc" { SwitchToMode "Normal"; }
           bind "Ctrl u" { CloseFocus; SwitchToMode "Normal"; }
@@ -60,89 +98,77 @@ in
 
           bind "Ctrl y" { NewPane "Down"; SwitchToMode "Normal"; }
           bind "Ctrl n" { NewPane "Right"; SwitchToMode "Normal"; }
+          bind "Ctrl e" { NewPane "stacked"; SwitchToMode "Normal"; }
+          bind "Ctrl f" { ToggleFloatingPanes; SwitchToMode "Normal"; }
 
           bind "Ctrl c" { NewTab; SwitchToMode "Normal"; }
           bind "Ctrl o" { GoToNextTab; SwitchToMode "Normal"; }
           bind "Ctrl p" { GoToPreviousTab; SwitchToMode "Normal"; }
-        }
-      }
 
-      theme "one-half-dark"
-      themes {
-       dracula {
-          fg 248 248 242
-          bg 40 42 54
-          black 0 0 0
-          red 255 85 85
-          green 80 250 123
-          yellow 241 250 140
-          blue 98 114 164
-          magenta 255 121 198
-          cyan 139 233 253
-          white 255 255 255
-          orange 255 184 108
+          bind "Ctrl [" { SwitchToMode "Scroll"; }
+          bind "Ctrl w" {
+            LaunchOrFocusPlugin "session-manager" {
+              floating true
+              move_to_focused_tab true
+            };
+            SwitchToMode "Normal"
+          }
+          bind "Ctrl ," {
+            LaunchOrFocusPlugin "configuration" {
+              floating true
+              move_to_focused_tab true
+            };
+            SwitchToMode "Normal"
+          }
+        }
+
+        scroll {
+          bind "Esc" "Ctrl c" { ScrollToBottom; SwitchToMode "Normal"; }
+          bind "e" { EditScrollback; SwitchToMode "Normal"; }
+          bind "j" "Down" { ScrollDown; }
+          bind "k" "Up" { ScrollUp; }
+          bind "Ctrl f" "PageDown" "l" { PageScrollDown; }
+          bind "Ctrl b" "PageUp" "h" { PageScrollUp; }
+          bind "d" { HalfPageScrollDown; }
+          bind "u" { HalfPageScrollUp; }
         }
       }
     '';
-  };
-  home.file."${layoutDir}/default.kdl" = {
-    enable = true;
-    text = ''
+
+    layouts.default = ''
       layout {
         default_tab_template {
-            pane size=1 borderless=true {
-                plugin location="file:${home}/${PLUGIN_DIR}/zjstatus.wasm" {
-                format_left   "{mode} #[fg=#89B4FA,bold]{session}"
-                format_center "{tabs} #[fg=#89B4FA,bold]"
-                format_right  "{command_git_branch} {command_info} {datetime}"
-                format_space  ""
+          pane size=1 borderless=true {
+            plugin location="zjstatus" {
+              format_left   "{mode} #[fg=#89B4FA,bold]{session}"
+              format_center "{tabs}"
+              format_right  "{command_git_branch} {command_battery} {datetime}"
+              format_space  ""
 
-                border_enabled  "false"
-                border_char     "─"
-                border_format   "#[fg=#6C7086]{char}"
-                border_position "top"
+              mode_normal        "#[bg=blue] "
+              mode_tmux          "#[bg=#ffc387] "
 
-                hide_frame_for_single_pane "false"
+              tab_normal         "#[fg=#6C7086] {name} "
+              tab_active         "#[fg=#9399B2,bold,italic] {name} "
 
-                mode_normal  "#[bg=blue] "
-                mode_tmux    "#[bg=#ffc387] "
+              command_git_branch_command     "git rev-parse --abbrev-ref HEAD"
+              command_git_branch_format      "#[fg=blue] {stdout} "
+              command_git_branch_interval    "10"
+              command_git_branch_rendermode  "static"
 
-                tab_normal   "#[fg=#6C7086] {name} "
-                tab_active   "#[fg=#9399B2,bold,italic] {name} "
+              command_battery_command    "bash -c \"pmset -g batt | grep -Eo '[0-9]+%' | head -1\""
+              command_battery_format     "#[fg=#6C7086] {stdout} "
+              command_battery_interval   "30"
+              command_battery_rendermode "static"
 
-                command_info_command "bash -c ${home}/${layoutDir}/info.sh"
-                command_info_format   "#[fg=#6C7086] {stdout}"
-                command_info_interval "10"
-                command_info_rendermode "static"
-
-                command_git_branch_command     "git rev-parse --abbrev-ref HEAD"
-                command_git_branch_format      "#[fg=blue] {stdout} "
-                command_git_branch_interval    "10"
-                command_git_branch_rendermode  "static"
-
-                datetime        "#[fg=#6C7086,bold] {format} "
-                datetime_format "%A, %d %b %Y %H:%M"
-                datetime_timezone "${timezone}"
-               }
+              datetime          "#[fg=#6C7086,bold] {format} "
+              datetime_format   "%a, %d %b %H:%M"
+              datetime_timezone "${timezone}"
             }
-         children
+          }
+          children
         }
-      }      
-    '';
-  };
-
-  home.file."${layoutDir}/info.sh" = {
-    enable = true;
-    executable = true;
-    text = ''
-      #!/bin/bash
-
-      # cpu=$(top -l 1 | awk '/CPU usage:/ {print 100 - $7}' | sed 's/%//')
-      # ram=$(vm_stat | awk 'BEGIN {FS=":"} /free/ {free=$2} /active/ {active=$2} /inactive/ {inactive=$2} /speculative/ {speculative=$2} /wired down/ {wired=$2} /file-backed/ {file=$2} END {used=(active+inactive+speculative+wired+file)/256; total=used+free/256; printf("%3.1f%%", used/total*100)}')
-      # temp=$(smctemp -c -i25 -n180 -f | awk '{print $1}')
-      battery=$(pmset -g batt | grep -o '[0-9]\+%' | head -1)
-      echo "  $battery"
-      # echo "  $cpu%   $ram  $temp   $battery"
+      }
     '';
   };
 }
