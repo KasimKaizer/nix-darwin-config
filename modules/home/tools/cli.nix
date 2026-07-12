@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 {
   home.shellAliases = {
     ls = "eza -F --icons=always";
@@ -42,10 +42,102 @@
 
   programs.eza.enable = true;
 
+  # https://wiki.nixos.org/wiki/Yazi
   programs.yazi = {
     enable = true;
     enableZshIntegration = true;
     shellWrapperName = "y";
+
+    settings = {
+      mgr = {
+        ratio = [
+          1
+          4
+          3
+        ];
+        sort_by = "natural";
+        sort_sensitive = true;
+        sort_reverse = false;
+        sort_dir_first = true;
+        linemode = "size";
+        show_hidden = true;
+        show_symlink = true;
+        scrolloff = 5;
+        mouse_events = [
+          "click"
+          "scroll"
+          "drag"
+        ];
+      };
+
+      preview = {
+        wrap = "yes";
+        tab_size = 2;
+        max_width = 600;
+        max_height = 900;
+        image_filter = "lanczos3";
+        image_quality = 90;
+        ueberzug_scale = 1;
+        ueberzug_offset = [
+          0
+          0
+          0
+          0
+        ];
+      };
+
+      plugin.prepend_fetchers = [
+        {
+          id = "git";
+          url = "*";
+          run = "git";
+          group = "git";
+        }
+        {
+          id = "git";
+          url = "*/";
+          run = "git";
+          group = "git";
+        }
+      ];
+    };
+
+    keymap.mgr.prepend_keymap = [
+      {
+        on = "l";
+        run = "plugin smart-enter";
+        desc = "Enter directory or open file";
+      }
+      {
+        on = "<Enter>";
+        run = "plugin smart-enter";
+        desc = "Enter directory or open file";
+      }
+      {
+        on = "F";
+        run = "plugin smart-filter";
+        desc = "Smart filter";
+      }
+      {
+        on = "f";
+        run = "plugin jump-to-char";
+        desc = "Jump to char";
+      }
+    ];
+
+    plugins = {
+      full-border = {
+        package = pkgs.yaziPlugins.full-border;
+        setup = true;
+      };
+      git = {
+        package = pkgs.yaziPlugins.git;
+        setup = true;
+      };
+      smart-enter = pkgs.yaziPlugins.smart-enter;
+      smart-filter = pkgs.yaziPlugins.smart-filter;
+      jump-to-char = pkgs.yaziPlugins.jump-to-char;
+    };
   };
 
   programs.btop = {
