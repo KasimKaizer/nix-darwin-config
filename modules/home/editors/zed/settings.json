@@ -1,12 +1,12 @@
 // Zed settings — managed by nix-darwin (modules/home/editors/zed/settings.json).
 //
-// This is the PERMANENT baseline. On every `nixswitch` it is copied to
-// ~/.config/zed/settings.json (a normal, writable file) with the @...@
-// placeholders below filled in from the sops vault. Edit ~/.config/zed freely
-// to experiment — those changes are ephemeral and get reset on the next switch.
-// To make something permanent, edit THIS file and rebuild.
+// This is the PERMANENT baseline. On every `nixswitch`, sops-nix renders it to
+// ~/.config/zed/settings.json (via sops.templates."zed-settings.json") with the
+// @...@ placeholders below filled from the sops vault. Keymap/tasks/scripts are
+// still plain writable copies; settings.json is a sops-managed symlink because
+// it contains secrets. To make something permanent, edit THIS file and rebuild.
 //
-// The @...@ tokens are substituted at activation time from secrets/secrets.yaml.
+// The @...@ tokens are substituted by sops-nix placeholders at activation time.
 // Never paste real secrets (API keys, usernames, hostnames) here.
 //
 // Docs: https://zed.dev/docs/configuring-zed
