@@ -32,6 +32,7 @@
       "spotify"
       "superhuman"
       "utm"
+      "visual-studio-code"
       "zed"
     ];
 

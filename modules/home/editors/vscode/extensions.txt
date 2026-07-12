@@ -1,0 +1,70 @@
+# VS Code extensions — managed by nix-darwin (modules/home/editors/vscode/extensions.txt).
+#
+# On every `nixswitch`, missing IDs are installed via `code --install-extension`
+# (Microsoft Marketplace). Hand-installed extras are left alone; removing an ID
+# does NOT uninstall it.
+#
+# Format: one publisher.name per line. Blank lines and # comments are ignored.
+
+# ============================================================================
+# Themes / icons / keymap
+# ============================================================================
+zhuangtongfa.material-theme
+PKief.material-icon-theme
+k--kato.intellij-idea-keybindings
+
+# ============================================================================
+# Editing modes
+# ============================================================================
+jasew.vscode-helix-emulation
+
+# ============================================================================
+# Languages / tooling
+# ============================================================================
+# Nix — nixd + nixfmt via nix-ide
+jnoortheen.nix-ide
+# Go — gopls
+golang.go
+# Python — pyrefly + ruff for types/lint/format; ms-python for debugger/envs
+# (do NOT add ms-python.vscode-pylance / ms-pyright.pyright)
+meta.pyrefly
+charliermarsh.ruff
+ms-python.python
+ms-python.debugpy
+ms-toolsai.jupyter
+# TypeScript / JavaScript — tsgo native preview + ESLint
+TypeScriptTeam.native-preview
+dbaeumer.vscode-eslint
+# Shell — bash-language-server + shfmt
+mads-hartmann.bash-ide-vscode
+mkhl.shfmt
+# Markdown — All-in-One + Marksman LSP
+yzhang.markdown-all-in-one
+arr.marksman
+# HTML / JSX — built-in language features + auto-rename
+formulahendry.auto-rename-tag
+# Data / infra
+esbenp.prettier-vscode
+tamasfe.even-better-toml
+redhat.vscode-yaml
+ms-azuretools.vscode-containers
+ms-vscode.powershell
+bmewburn.vscode-intelephense-client
+Grafana.vscode-jsonnet
+bradlc.vscode-tailwindcss
+
+# ============================================================================
+# Editor assists
+# ============================================================================
+usernamehw.errorlens
+eamodio.gitlens
+streetsidesoftware.code-spell-checker
+editorconfig.editorconfig
+GitHub.vscode-pull-request-github
+
+# ============================================================================
+# Remote
+# ============================================================================
+ms-vscode-remote.remote-ssh
+ms-vscode-remote.remote-ssh-edit
+ms-vscode-remote.remote-containers

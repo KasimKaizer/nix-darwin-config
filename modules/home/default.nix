@@ -13,7 +13,7 @@
     ./terminal/ghostty.nix
     ./terminal/zellij.nix
     ./editors/helix.nix
-    ./editors/vscodium.nix
+    ./editors/vscode.nix
     ./editors/zed.nix
     ./tools/cli.nix
     ./tools/git.nix
