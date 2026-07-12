@@ -4,7 +4,6 @@
     prefix = if pkgs.stdenv.hostPlatform.isAarch64 then "/opt/homebrew" else "/usr/local";
     enable = true;
     onActivation.cleanup = "zap";
-    caskArgs.no_quarantine = true;
     onActivation.autoUpdate = false;
     onActivation.upgrade = true;
     global = {
