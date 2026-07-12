@@ -43,7 +43,6 @@
   "editor.cursorBlinking": "solid",
   "editor.lineNumbers": "on",
   "editor.wordWrap": "on",
-  "editor.rulers": [80],
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
@@ -84,8 +83,10 @@
   "files.associations": {
     "Dockerfile.*": "dockerfile",
     "*.code-snippets": "jsonc",
-    "**/User/settings.json": "jsonc",
-    "**/User/keybindings.json": "jsonc",
+    "settings.json": "jsonc",
+    "keybindings.json": "jsonc",
+    "tasks.json": "jsonc",
+    "mcp.json": "jsonc",
   },
   "files.exclude": {
     "**/.DS_Store": true,
@@ -188,7 +189,7 @@
     "editor.tabSize": 2,
   },
   "[jsonc]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "vscode.json-language-features",
     "editor.tabSize": 2,
   },
   "[markdown]": {
@@ -201,11 +202,35 @@
     "editor.tabSize": 2,
   },
 
-  // Let Prettier own JSON/YAML formatting; keep schema validation
+  // Let Prettier own strict JSON/YAML formatting.
   "json.format.enable": false,
-  "json.validate.enable": true,
   "yaml.format.enable": false,
   "yaml.validate": true,
+
+  // JSONC still warns on trailing commas unless the schema opts in.
+  // https://code.visualstudio.com/docs/languages/json#_json-with-comments
+  // https://github.com/microsoft/vscode/issues/102061#issuecomment-657080963
+  // Copilot also attaches a schema to every settings.json; merging this keeps
+  // comments + trailing commas valid for editor config files.
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "settings.json",
+        "keybindings.json",
+        "tasks.json",
+        "mcp.json",
+        "*.code-snippets",
+        "**/vscode/settings.json",
+        "**/zed/settings.json",
+        "**/zed/keymap.json",
+        "**/zed/tasks.json",
+      ],
+      "schema": {
+        "allowComments": true,
+        "allowTrailingCommas": true,
+      },
+    },
+  ],
 
   // ==========================================================================
   // TypeScript / JavaScript — TypeScriptTeam.native-preview (tsgo)
