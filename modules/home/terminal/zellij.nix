@@ -7,12 +7,32 @@
 }:
 let
   zjstatus = "${config.xdg.configHome}/zellij/plugins/zjstatus.wasm";
+  # Nuclear wipe: CLI delete is unreliable for the session you're attached to
+  # and for some resurrectable leftovers — clear metadata + runtime too.
+  zk = pkgs.writeShellScriptBin "zk" ''
+    set -euo pipefail
+    unset ZELLIJ ZELLIJ_SESSION_NAME ZELLIJ_PANE_ID || true
+
+    zellij kill-all-sessions -y 2>/dev/null || true
+    zellij delete-all-sessions -y -f 2>/dev/null || true
+
+    cache="${config.home.homeDirectory}/Library/Caches/org.Zellij-Contributors.Zellij"
+    rm -rf "$cache/contract_version_1/session_info"
+    mkdir -p "$cache/contract_version_1/session_info"
+
+    runtime_root="''${TMPDIR:-/tmp}/zellij-$(id -u)"
+    rm -rf "$runtime_root/contract_version_1"
+
+    pkill -x zellij 2>/dev/null || true
+    echo "all zellij sessions wiped"
+  '';
 in
 {
+  home.packages = [ zk ];
+
   home.shellAliases = {
     zj = "zellij";
     za = "zellij a";
-    zk = "zellij delete-all-sessions -y -f";
     zjt = "zellij action rename-tab";
     zjs = "zellij action rename-session";
   };
