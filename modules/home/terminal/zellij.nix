@@ -122,8 +122,8 @@ in
           bind "Ctrl f" { ToggleFloatingPanes; SwitchToMode "Normal"; }
 
           bind "Ctrl c" { NewTab; SwitchToMode "Normal"; }
-          bind "Ctrl o" { GoToNextTab; SwitchToMode "Normal"; }
-          bind "Ctrl p" { GoToPreviousTab; SwitchToMode "Normal"; }
+          bind "Ctrl o" { GoToPreviousTab; SwitchToMode "Normal"; }
+          bind "Ctrl p" { GoToNextTab; SwitchToMode "Normal"; }
 
           bind "Ctrl [" { SwitchToMode "Scroll"; }
           bind "Ctrl w" {
