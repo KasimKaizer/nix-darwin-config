@@ -1,4 +1,31 @@
-result
-result/
-.DS_Store
-MIGRATION_PLAN.md
+# Nix build outputs
+/result
+/result/
+
+# macOS metadata
+/.DS_Store
+**/.DS_Store
+
+# Local planning notes
+/MIGRATION_PLAN.md
+
+# Local secrets / keys
+/.env
+/.env.*
+**/.env
+**/.env.*
+
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+*.asc
+*.gpg
+
+**/id_rsa
+**/id_rsa.pub
+**/id_ed25519
+**/id_ed25519.pub
+**/*.agekey
