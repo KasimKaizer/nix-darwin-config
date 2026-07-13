@@ -47,7 +47,7 @@
       # source <(kubectl completion zsh)
       # export NVM_DIR="$HOME/.nvm"
       # export KERL_BUILD_DOCS="yes"
-      # export ERL_AFLAGS="-kernel shell_history enabled"
+      export ERL_AFLAGS="-kernel shell_history enabled"
       # export SDKMAN_DIR="$HOME/.sdkman"
       # [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
@@ -61,9 +61,9 @@
         . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
       fi
 
-      if [ -t 0 ] && [ -z "$ZELLIJ" ]; then
-          zellij
-      fi  
+      # if [ -t 0 ] && [ -z "$ZELLIJ" ]; then
+          # zellij
+      # fi  
       source ~/.aoc_vars
     '';
 
