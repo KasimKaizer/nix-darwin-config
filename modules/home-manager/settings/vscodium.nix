@@ -7,7 +7,7 @@ let
   inherit (pkgs) nixpkgs-fmt;
 in
 {
-  programs.vscode = {
+  programs.vscodium = {
     enable = true;
     package = pkgs.vscodium;
     profiles.default = {

@@ -16,8 +16,10 @@
       gh
       biome
       go
-      nodePackages.prettier
-      nodePackages.typescript-language-server
+      python3
+      uv
+      # nodePackages.prettier
+      # nodePackages.typescript-language-server
       vscode-langservers-extracted
       fastfetch
       exercism
@@ -45,7 +47,8 @@
       rar
       live-server
       # ollama
-      gemini-cli
+      # gemini-cli
+      nixd
     ];
 
     sessionVariables = {
