@@ -29,6 +29,7 @@
       "kindle-comic-converter"
       "calibre"
       "kindle-previewer"
+      "utm"
     ];
 
     taps = [

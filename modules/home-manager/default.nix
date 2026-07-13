@@ -14,8 +14,14 @@
     packages = with pkgs; [
       htop
       gh
+      biome
       go
-      python3
+      helix-gpt
+      nodePackages.prettier
+      nodePackages.typescript-language-server
+      vscode-langservers-extracted
+      python313
+      python313Packages.pip
       fastfetch
       exercism
       wget
