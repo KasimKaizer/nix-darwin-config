@@ -46,6 +46,10 @@
       "remote": false,
       "settings": {},
     },
+    "markitdown": {
+      "command": "uvx",
+      "args": ["--python", "3.13", "markitdown-mcp"],
+    },
   },
   // ============================================================================
   // External Agents (ACP registry)
