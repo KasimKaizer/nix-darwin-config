@@ -29,7 +29,7 @@
       window-padding-x = 8;
       window-padding-y = 8;
       mouse-hide-while-typing = true;
-      copy-on-select = false;
+      copy-on-select = "clipboard";
       confirm-close-surface = false;
 
       clipboard-read = "allow";
