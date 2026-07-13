@@ -33,15 +33,17 @@
     ];
     packages = with pkgs; [
       # General CLI utilities
-      glow
-      rclone
-      htop
       bitwarden-cli
-      wget
-      powershell
-      sherlock
+      ffmpeg
+      glow
+      htop
+      moor
       p7zip
+      powershell
       rar
+      rclone
+      sherlock
+      wget
     ];
 
     sessionVariables = {
