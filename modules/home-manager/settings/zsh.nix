@@ -15,9 +15,9 @@
     };
 
     shellAliases = {
-      nixswitch = "darwin-rebuild switch --flake ~/.config/nix-darwin-config/.#inferno";
-      nixup = "pushd ~/.config/nix-darwin-config; nix flake update; nixswitch; popd";
-      nixgc = "sudo nix-store --gc -d;sudo nix-store --gc --print-roots | egrep -v \"^(/nix/var|/run/\w+-system|\{memory|/proc)\"";
+      nixswitch = "sudo darwin-rebuild switch --flake ~/.config/nix-darwin-config/.#inferno";
+      nixup = "pushd ~/.config/nix-darwin-config && sudo nix flake update && nixswitch && popd";
+      nixgc = "sudo nix-collect-garbage -d && nix-collect-garbage -d";
       ls = "eza -F --icons=always";
       ll = "ls -lahrts";
       la = "eza -la --git --group-directories-first --icons";
@@ -32,7 +32,7 @@
       zjs = "zellij action rename-session";
     };
 
-    initExtra = ''
+    initContent = ''
       # Legacy settings:
       # export ZSH="/Users/ew/.oh-my-zsh"
       # export TERM=xterm-256color

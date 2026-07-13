@@ -2,6 +2,7 @@
   # here go the darwin preferences and config items
   programs.zsh.enable = true;
   users.users.ew.home = "/Users/ew";
+  system.primaryUser = "ew";
   # services.nix-daemon.enable = true;
   nixpkgs.hostPlatform = "aarch64-darwin";
   nix.extraOptions = ''

@@ -13,50 +13,48 @@
     casks = [
       "exifcleaner"
       "librewolf"
-      "zed@preview"
-      "vesktop"
+      "zed"
       "iina"
-      "spotify"
       "plex"
       "intellij-idea"
       "itsycal"
-      "mullvadvpn"
+      "mullvad-vpn"
       "grammarly-desktop"
-      "arc"
+      # "arc"
       "ghostty"
-      "raycast"
-      "stats"
       "kindle-comic-converter"
       "calibre"
       "kindle-previewer"
       "utm"
+      "android-platform-tools"
+      "freedom"
+      "tor-browser"
     ];
 
     taps = [
-      "zirixcz/vesktop"
     ];
 
-    brews = [ "bitwarden-cli" ];
+    brews = [ "bitwarden-cli" "python3" ];
 
     masApps = {
-      # TODO Feel free to add your favorite apps here.
       Xcode = 497799835;
       WhatsApp = 310633997;
       Telegram = 747648890;
-      MicrosoftWord = 462054704;
-      MicrosoftPowerPoint = 462062816;
-      MicrosoftExcel = 462058435;
+      # MicrosoftWord = 462054704;
+      # MicrosoftPowerPoint = 462062816;
+      # MicrosoftExcel = 462058435;
       Onedrive = 823766827;
       Bitwarden = 1352778147;
-      PiPifier = 1160374471;
       TaperMonkey = 6738342400;
       Noir = 1592917505;
       SponsorBlock = 1573461917;
       DeArrow = 6451469297;
-      RaycastCompanion = 6738274497;
       CookieEditor = 6446215341;
       AdGuardForSafari = 1440147259;
       Bluewallet = 1376878040;
+      TheUnarchiver = 425424353;
+      Perplexity = 6714467650;
+      Terminus = 1176074088;
     };
 
     # extraConfig = ''

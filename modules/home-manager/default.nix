@@ -16,12 +16,9 @@
       gh
       biome
       go
-      helix-gpt
       nodePackages.prettier
       nodePackages.typescript-language-server
       vscode-langservers-extracted
-      python313
-      python313Packages.pip
       fastfetch
       exercism
       wget
@@ -44,9 +41,11 @@
       sherlock
       osx-cpu-temp
       btop
-      ollama
       p7zip
       rar
+      live-server
+      # ollama
+      gemini-cli
     ];
 
     sessionVariables = {
