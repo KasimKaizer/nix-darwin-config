@@ -14,7 +14,6 @@
       "exifcleaner"
       "librewolf"
       "zed@preview"
-      "bluewallet"
       "vesktop"
       "iina"
       "spotify"
@@ -41,14 +40,22 @@
     masApps = {
       # TODO Feel free to add your favorite apps here.
       Xcode = 497799835;
-      WhatsAppMessenge = 310633997;
+      WhatsApp = 310633997;
       Telegram = 747648890;
       MicrosoftWord = 462054704;
       MicrosoftPowerPoint = 462062816;
       MicrosoftExcel = 462058435;
       Onedrive = 823766827;
       Bitwarden = 1352778147;
-      # WireGuard = 1451685025;
+      PiPifier = 1160374471;
+      TaperMonkey = 6738342400;
+      Noir = 1592917505;
+      SponsorBlock = 1573461917;
+      DeArrow = 6451469297;
+      RaycastCompanion = 6738274497;
+      CookieEditor = 6446215341;
+      AdGuardForSafari = 1440147259;
+      Bluewallet = 1376878040;
     };
 
     # extraConfig = ''
