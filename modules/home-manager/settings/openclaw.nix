@@ -41,16 +41,6 @@ in
         { source = "github:openclaw/nix-steipete-tools?dir=tools/summarize"; }
         { source = "github:openclaw/nix-steipete-tools?dir=tools/imsg"; }
 
-        {
-          source = "github:knostic/openclaw-shield";
-          config = {
-            settings = {
-              enforce_read_only = true;
-              require_approval_for_exec = true;
-            };
-          };
-        }
-
         { source = "github:lekt9/openclaw-foundry"; }
       ];
     };
