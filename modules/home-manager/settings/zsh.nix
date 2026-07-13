@@ -32,6 +32,10 @@
       zjs = "zellij action rename-session";
     };
 
+    profileExtra = ''
+      eval "$(/opt/homebrew/bin/brew shellenv)"
+    '';
+
     initContent = ''
       # Legacy settings:
       # export ZSH="/Users/ew/.oh-my-zsh"
