@@ -40,6 +40,7 @@
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
+              backupFileExtension = "hm-bak";
               users.ew.imports = [
                 ./modules/home-manager
               ];

@@ -29,7 +29,6 @@
       "android-platform-tools"
       "freedom"
       "lulu"
-      "halloy"
       "copilot-cli"
       "cursor-cli"
       "antigravity-cli"
