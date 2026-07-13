@@ -17,6 +17,7 @@
   sops.secrets = {
     aoc_session = { };
     copilot_api_key = { };
+    openrouter_api_key = { };
 
     # NOTE: rclone rewrites this file when it refreshes the OAuth token. As a
     # sops-managed symlink that refresh won't survive a rebuild; re-run the
@@ -30,6 +31,7 @@
   sops.templates."secret-env".content = ''
     export AOC_SESSION="${config.sops.placeholder.aoc_session}"
     export COPILOT_API_KEY="${config.sops.placeholder.copilot_api_key}"
+    export OPENROUTER_API_KEY="${config.sops.placeholder.openrouter_api_key}"
   '';
 
   home.packages = with pkgs; [
