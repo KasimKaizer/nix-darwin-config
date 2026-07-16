@@ -143,7 +143,7 @@
   programs.btop = {
     enable = true;
     settings = {
-      color_theme = "Default";
+      color_theme = "onedark";
       theme_background = true;
       truecolor = true;
       vim_keys = false;

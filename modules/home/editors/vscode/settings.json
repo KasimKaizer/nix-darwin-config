@@ -207,11 +207,7 @@
   "yaml.format.enable": false,
   "yaml.validate": true,
 
-  // JSONC still warns on trailing commas unless the schema opts in.
-  // https://code.visualstudio.com/docs/languages/json#_json-with-comments
-  // https://github.com/microsoft/vscode/issues/102061#issuecomment-657080963
-  // Copilot also attaches a schema to every settings.json; merging this keeps
-  // comments + trailing commas valid for editor config files.
+  // Schema opts editor config files into comments + trailing commas — see https://code.visualstudio.com/docs/languages/json#_json-with-comments
   "json.schemas": [
     {
       "fileMatch": [
