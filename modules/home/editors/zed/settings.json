@@ -318,7 +318,6 @@
     // Snippets
     "html-snippets": true,
     // Themes / icons
-    "jetbrains-themes": true,
     "material-icon-theme": true,
     "one-dark-pro": true,
   },
@@ -516,11 +515,7 @@
   // ============================================================================
   // Files: types + scan exclusions
   // ============================================================================
-  // Do NOT map the "json" extension to language JSON here — that overrides Zed's
-  // built-in JSONC associations and makes json-language-server reject // comments
-  // in settings.json ("Comments are not permitted in JSON").
-  // https://zed.dev/docs/languages/json
-  // https://github.com/zed-industries/zed/issues/14709
+  // Keep commented .json files (settings.json etc.) as JSONC, never plain JSON — see https://zed.dev/docs/languages/json#jsonc
   "file_types": {
     "Dockerfile": ["Dockerfile", "Dockerfile.*"],
     "JSONC": ["settings.json"],

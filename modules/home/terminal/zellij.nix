@@ -101,7 +101,7 @@ in
       pane_frames = false;
       show_startup_tips = false;
       show_release_notes = false;
-      theme = "one-half-dark";
+      theme = "ansi";
 
       copy_command = "pbcopy";
       copy_on_select = true;

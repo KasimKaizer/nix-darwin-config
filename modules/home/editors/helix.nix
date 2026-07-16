@@ -71,7 +71,7 @@ in
           ];
         };
       };
-      theme = "jetbrains_dark";
+      theme = "onedark_pro";
       keys = rec {
         normal.esc = [
           "collapse_selection"
@@ -113,6 +113,17 @@ in
             ];
           };
         };
+      };
+    };
+
+    # Builtin onedark with One Dark Pro background greys, matching Zed's
+    # one-dark-pro extension and the Ghostty "one-dark-pro" theme.
+    themes.onedark_pro = {
+      inherits = "onedark";
+      palette = {
+        black = "#23272e";
+        light-black = "#2c313c";
+        linenr = "#495162";
       };
     };
 
