@@ -32,8 +32,12 @@
   documentation.doc.enable = false;
   system.tools.darwin-uninstaller.enable = false;
 
-  # Add ability to used TouchID for sudo authentication
+  # Add ability to use Touch ID for sudo authentication.
   security.pam.services.sudo_local.touchIdAuth = true;
+  security.pam.services.sudo_local.reattach = true;
+
+  # macOS built-in firewall (LuLu adds outbound filtering on top).
+  networking.applicationFirewall.enable = true;
 
   environment = {
     shells = with pkgs; [
