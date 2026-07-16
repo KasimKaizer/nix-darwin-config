@@ -8,6 +8,11 @@
 {
   # here go the darwin preferences and config items
   programs.zsh.enable = true;
+  # Skip the system-level compinit in /etc/zshrc: it runs before ZSH_COMPDUMP
+  # is set and litters ~/.zcompdump. Home-manager's zsh (via oh-my-zsh) runs
+  # compinit with the dump under ~/.cache/zsh. Trade-off: interactive root
+  # shells get no completion (they have no HM config anyway).
+  programs.zsh.enableCompletion = false;
   users.users.${username}.home = homeDirectory;
 
   nix.enable = true;
@@ -25,12 +30,8 @@
     options = lib.mkDefault "--delete-older-than 7d";
   };
 
-  # HTML manual build is broken by nixpkgs/nix-darwin skew
-  # (nixos-render-docs removed --toc-depth, nix-darwin master still passes it).
-  # The uninstaller embeds a default config that hits the same bug.
-  # Re-enable both once upstream nix-darwin catches up.
-  documentation.doc.enable = false;
-  system.tools.darwin-uninstaller.enable = false;
+  documentation.doc.enable = true;
+  system.tools.darwin-uninstaller.enable = true;
 
   # Add ability to use Touch ID for sudo authentication.
   security.pam.services.sudo_local.touchIdAuth = true;
