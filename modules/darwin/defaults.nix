@@ -1,119 +1,220 @@
-{ ... }:
-#  All the configuration options are documented here:
-#    https://daiderd.com/nix-darwin/manual/index.html#sec-options
+{
+  lib,
+  homeDirectory,
+  ...
+}:
+# All configuration options are documented here:
+#   https://nix-darwin.github.io/nix-darwin/manual/index.html
 #
-#  Incomplete list of macOS `defaults` commands :
-#    https://github.com/yannbertrand/macos-defaults
+# Additional macOS defaults coverage:
+#   https://github.com/yannbertrand/macos-defaults
+let
+  dockItems = import ./defaults/dock-items.nix { inherit homeDirectory; };
+
+  loginItems = [
+    {
+      name = "Freedom";
+      path = "/Applications/Freedom.app";
+    }
+    {
+      name = "Itsycal";
+      path = "/Applications/Itsycal.app";
+    }
+    {
+      name = "LuLu";
+      path = "/Applications/LuLu.app";
+    }
+  ];
+in
 {
   system.defaults = {
-    # customize dock
+    NSGlobalDomain = {
+      AppleIconAppearanceTheme = "RegularAutomatic";
+      AppleInterfaceStyle = "Dark";
+      AppleKeyboardUIMode = 3;
+      AppleMeasurementUnits = "Centimeters";
+      AppleMetricUnits = 1;
+      ApplePressAndHoldEnabled = false;
+      AppleSpacesSwitchOnActivate = true;
+      AppleTemperatureUnit = "Celsius";
+      AppleWindowTabbingMode = "always";
+      InitialKeyRepeat = 15;
+      KeyRepeat = 3;
+      NSAutomaticCapitalizationEnabled = true;
+      NSAutomaticDashSubstitutionEnabled = true;
+      NSAutomaticInlinePredictionEnabled = true;
+      NSAutomaticPeriodSubstitutionEnabled = false;
+      NSAutomaticQuoteSubstitutionEnabled = false;
+      NSAutomaticSpellingCorrectionEnabled = true;
+      NSDocumentSaveNewDocumentsToCloud = true;
+      NSNavPanelExpandedStateForSaveMode = true;
+      NSNavPanelExpandedStateForSaveMode2 = true;
+      "com.apple.sound.beep.feedback" = 0;
+      "com.apple.swipescrolldirection" = true;
+    };
+
     dock = {
       autohide = true;
-      show-recents = false; # disable recent apps
-      orientation = "bottom"; # put dock on the left
+      expose-group-apps = true;
+      orientation = "bottom";
+      persistent-apps = dockItems.persistentApps;
+      persistent-others = dockItems.persistentOthers;
+      show-recents = false;
+      showAppExposeGestureEnabled = true;
+      showDesktopGestureEnabled = true;
+      showLaunchpadGestureEnabled = true;
+      showMissionControlGestureEnabled = true;
+      tilesize = 57;
     };
 
-    # customize control center
     controlcenter = {
+      AirDrop = false;
       BatteryShowPercentage = true;
       Bluetooth = true;
+      Display = false;
+      FocusModes = false;
       NowPlaying = true;
       Sound = false;
-      FocusModes = false;
-      Display = false;
-      AirDrop = false;
     };
 
-    # customize finder
     finder = {
-      _FXShowPosixPathInTitle = true; # show full path in finder title
-      AppleShowAllExtensions = true; # show all file extensions
+      AppleShowAllExtensions = true;
       AppleShowAllFiles = true;
-      FXEnableExtensionChangeWarning = false; # disable warning when changing file extension
-      QuitMenuItem = true; # enable quit menu item
-      ShowPathbar = true; # show path bar
-      ShowStatusBar = true; # show status bar
+      FXDefaultSearchScope = "SCcf";
+      FXEnableExtensionChangeWarning = false;
+      FXPreferredViewStyle = "icnv";
+      FXRemoveOldTrashItems = true;
+      NewWindowTarget = "Recents";
+      QuitMenuItem = true;
+      ShowExternalHardDrivesOnDesktop = true;
+      ShowHardDrivesOnDesktop = false;
+      ShowMountedServersOnDesktop = true;
+      ShowPathbar = true;
+      ShowRemovableMediaOnDesktop = true;
+      ShowStatusBar = true;
+      _FXShowPosixPathInTitle = true;
+      _FXSortFoldersFirst = true;
     };
 
-    # customize trackpad
-    trackpad = {
-      Clicking = true;
-      TrackpadRightClick = true;
-      TrackpadThreeFingerDrag = true;
-    };
-
-    # customize settings that not supported by nix-darwin directly
-    # Incomplete list of macOS `defaults` commands :
-    #   https://github.com/yannbertrand/macos-defaults
-    NSGlobalDomain = {
-      # `defaults read NSGlobalDomain "xxx"`
-      "com.apple.swipescrolldirection" = true; # enable natural scrolling(default to true)
-      "com.apple.sound.beep.feedback" = 0; # disable beep sound when pressing volume up/down key
-      AppleInterfaceStyle = "Dark"; # dark mode
-      AppleKeyboardUIMode = 3; # Mode 3 enables full keyboard control.
-      ApplePressAndHoldEnabled = true; # enable press and hold
-
-      InitialKeyRepeat = 15; # normal minimum is 15 (225 ms), maximum is 120 (1800 ms)
-      # sets how fast it repeats once it starts.
-      KeyRepeat = 3; # normal minimum is 2 (30 ms), maximum is 120 (1800 ms)
-
-      NSAutomaticCapitalizationEnabled = true; # auto capitalization
-      NSAutomaticDashSubstitutionEnabled = true; # auto dash substitution
-      NSAutomaticPeriodSubstitutionEnabled = false; # disable auto period substitution
-      NSAutomaticQuoteSubstitutionEnabled = false; # disable auto quote substitution
-      NSAutomaticSpellingCorrectionEnabled = true; # auto spelling correction
-      NSNavPanelExpandedStateForSaveMode = true; # expand save panel by default
-      NSNavPanelExpandedStateForSaveMode2 = true;
-    };
-
-    CustomUserPreferences = {
-      ".GlobalPreferences" = {
-        AppleSpacesSwitchOnActivate = true;
-      };
-      NSGlobalDomain = {
-        WebKitDeveloperExtras = true;
-      };
-      "com.apple.finder" = {
-        ShowExternalHardDrivesOnDesktop = true;
-        ShowHardDrivesOnDesktop = false;
-        ShowMountedServersOnDesktop = true;
-        ShowRemovableMediaOnDesktop = true;
-        _FXSortFoldersFirst = true;
-        # When performing a search, search the current folder by default
-        FXDefaultSearchScope = "SCcf";
-      };
-      "com.apple.desktopservices" = {
-        # Avoid creating .DS_Store files on network or USB volumes
-        DSDontWriteNetworkStores = true;
-        DSDontWriteUSBStores = true;
-      };
-      "com.apple.spaces" = {
-        "spans-displays" = 0;
-      };
-      "com.apple.WindowManager" = {
-        EnableStandardClickToShowDesktop = 0;
-        StandardHideDesktopIcons = 0;
-        HideDesktop = 0;
-        StageManagerHideWidgets = 0;
-        StandardHideWidgets = 0;
-      };
-      "com.apple.screensaver" = {
-        askForPassword = 1;
-        askForPasswordDelay = 0;
-      };
-      "com.apple.screencapture" = {
-        location = "~/Desktop/ScreenShots";
-        type = "png";
-      };
-      "com.apple.AdLib" = {
-        allowApplePersonalizedAdvertising = false;
-      };
-      "com.apple.ImageCapture".disableHotPlug = true;
+    hitoolbox = {
+      AppleFnUsageType = "Change Input Source";
     };
 
     loginwindow = {
       GuestEnabled = false;
       SHOWFULLNAME = true;
     };
+
+    menuExtraClock = {
+      FlashDateSeparators = false;
+      IsAnalog = false;
+      ShowAMPM = true;
+      ShowDate = 2;
+      ShowDayOfWeek = false;
+      ShowSeconds = false;
+    };
+
+    screencapture = {
+      location = "${homeDirectory}/Desktop/ScreenShots";
+      type = "png";
+    };
+
+    screensaver = {
+      askForPassword = true;
+      askForPasswordDelay = 0;
+    };
+
+    SoftwareUpdate = {
+      AutomaticallyInstallMacOSUpdates = true;
+    };
+
+    spaces.spans-displays = false;
+
+    trackpad = {
+      Clicking = true;
+      DragLock = false;
+      TrackpadFourFingerHorizSwipeGesture = 2;
+      TrackpadFourFingerPinchGesture = 2;
+      TrackpadFourFingerVertSwipeGesture = 2;
+      TrackpadMomentumScroll = true;
+      TrackpadPinch = true;
+      TrackpadRightClick = true;
+      TrackpadRotate = true;
+      TrackpadThreeFingerDrag = true;
+      TrackpadThreeFingerHorizSwipeGesture = 0;
+      TrackpadThreeFingerTapGesture = 2;
+      TrackpadThreeFingerVertSwipeGesture = 0;
+      TrackpadTwoFingerDoubleTapGesture = true;
+      TrackpadTwoFingerFromRightEdgeSwipeGesture = 3;
+    };
+
+    # Window tiling (Sequoia+).
+    #   Fn+Ctrl+←/→/↑/↓  tile to half
+    #   Fn+Ctrl+F          fill screen
+    #   Fn+Ctrl+C          center
+    #   Fn+Ctrl+R          restore previous size
+    #   Fn+Ctrl+Shift+arrows  arrange two windows
+    WindowManager = {
+      AppWindowGroupingBehavior = true;
+      AutoHide = false;
+      EnableStandardClickToShowDesktop = false;
+      EnableTiledWindowMargins = false;
+      EnableTilingByEdgeDrag = true;
+      EnableTilingOptionAccelerator = true;
+      EnableTopTilingByEdgeDrag = true;
+      GloballyEnabled = false;
+      HideDesktop = false;
+      StageManagerHideWidgets = false;
+      StandardHideDesktopIcons = false;
+      StandardHideWidgets = false;
+    };
+
+    CustomUserPreferences = {
+      NSGlobalDomain = {
+        AppleFirstWeekday = {
+          gregorian = 2;
+        };
+        AppleLanguages = [ "en-US" ];
+        AppleLocale = "en_US";
+        AppleMiniaturizeOnDoubleClick = false;
+        NSAllowContinuousSpellChecking = true;
+        WebKitDeveloperExtras = true;
+      };
+      "com.80pct.FreedomPlatform" = import ./defaults/freedom.nix;
+      "com.apple.AdLib" = {
+        allowApplePersonalizedAdvertising = false;
+      };
+      "com.apple.ImageCapture".disableHotPlug = true;
+      "com.apple.Safari.SandboxBroker" = {
+        ShowDevelopMenu = true;
+      };
+      "com.apple.desktopservices" = {
+        DSDontWriteNetworkStores = true;
+        DSDontWriteUSBStores = true;
+      };
+      "com.apple.screencapture" = {
+        captureDelay = 5;
+        showsClicks = true;
+        style = "window";
+        video = 1;
+      };
+      "com.mowglii.ItsycalApp" = import ./defaults/itsycal.nix;
+    };
   };
+
+  launchd.user.agents = lib.listToAttrs (
+    map (item: {
+      name = "login-item-${item.name}";
+      value.serviceConfig = {
+        KeepAlive = false;
+        ProcessType = "Interactive";
+        ProgramArguments = [
+          "/usr/bin/open"
+          "-a"
+          item.path
+        ];
+        RunAtLoad = true;
+      };
+    }) loginItems
+  );
 }
