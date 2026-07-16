@@ -12,7 +12,7 @@
 </p>
 
 Declarative multi-host macOS setup (nix-darwin + home-manager + nix-homebrew +
-sops-nix). Primary machine today is **`inferno`** (`ew`, Apple Silicon); add more
+sops-nix). Primary machine for this config is **`inferno`** (`ew`, Apple Silicon); add more
 Macs under `hosts` in `flake.nix`.
 
 One command applies everything on the current machine: edit this repo, then
@@ -30,7 +30,7 @@ This flake is **multi-host**: every entry under `hosts` in `flake.nix` becomes a
 | Host-only overrides      | `hosts/<hostname>/default.nix`                                           |
 | Shared modules           | `modules/darwin/`, `modules/home/` (all hosts import these)              |
 | Clone path (optional)    | per-host `flakeDir` (default: `~/.config/nix-darwin-config`)             |
-| Age recipient            | `.sops.yaml` — add that machine’s public key, then re-encrypt `secrets/` |
+| Age recipient            | `.sops.yaml`: add that machine’s public key, then re-encrypt `secrets/` |
 | Git identity             | `modules/home/tools/git.nix`                                             |
 
 Example (keeping `inferno`, and add a second machine):
@@ -47,7 +47,7 @@ hosts = {
     # flakeDir = "/Users/ew/.config/nix-darwin-config";
   };
 
-  # New Mac — attr key must match the hostname you switch with (#aurora)
+  # New Mac. The attr key must match the hostname you switch with (#aurora)
   aurora = {
     system = "x86_64-darwin";       # Intel; use aarch64-darwin on Apple Silicon
     username = "ew";                # macOS username on that machine
@@ -73,8 +73,8 @@ Use this on **any** Mac this flake manages. Replace `<hostname>` with the
 [Adapting for your machine](#adapting-for-your-machine) before the first switch
 if it is not already listed.
 
-Order matters. The age private key must exist **before** the first switch — this
-flake sets `sops.age.generateKey = false`, so a missing key fails instead of
+Order matters. The age private key must exist **before** the first switch, since
+this flake sets `sops.age.generateKey = false`: a missing key fails instead of
 minting a useless new one.
 
 1. **Xcode Command Line Tools**
@@ -133,15 +133,17 @@ minting a useless new one.
 
 ## Commands
 
-After the first switch, these zsh aliases exist (they target **this** machine’s
-hostname from `flake.nix`):
+After the first switch, these zsh aliases exist. Each machine gets aliases wired
+to its own hostname from `flake.nix`:
 
 | Alias | Action |
 | --- | --- |
-| `nixswitch` | apply this host’s flake (`…#<hostname>`) |
+| `nixswitch` | apply the flake for the current machine (`…#<hostname>`) |
 | `nixup` | `nix flake update` + switch + prune old system generations (keep 2) |
 | `nix-rollback` | activate the previous system generation (undo a bad switch) |
 | `nixgc` | collect system + user Nix store garbage |
+
+Extra commands (not aliased):
 
 ```bash
 cd ~/.config/nix-darwin-config
@@ -151,7 +153,9 @@ darwin-rebuild --list-generations                  # see all generations
 sudo darwin-rebuild switch --switch-generation N   # jump to a specific one
 ```
 
-Don't `brew install` or `defaults write` anything you want to keep —
+**Warnings & gotchas:**
+
+Don't `brew install` or `defaults write` anything you want to keep, because
 `homebrew.onActivation.cleanup = "zap"` removes undeclared packages on switch.
 
 `nixup` keeps only two system generations, so `nix-rollback` undoes just the
