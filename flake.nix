@@ -46,19 +46,21 @@
           system = "aarch64-darwin";
           username = "ew";
           timezone = "Asia/Calcutta";
+          # Optional: override clone path used by nixswitch / nixup
+          # (default: /Users/<username>/.config/nix-darwin-config).
+          # flakeDir = "/Users/ew/.config/nix-darwin-config";
         };
       };
 
       # Build a darwinSystem from a host entry. `hostname` is the attr key.
+      # Optional per-host `flakeDir` overrides the default clone path used by
+      # shell aliases (nixswitch / nixup).
       mkDarwin =
-        hostname:
-        {
-          system,
-          username,
-          timezone,
-        }:
+        hostname: host:
         let
+          inherit (host) system username timezone;
           homeDirectory = "/Users/${username}";
+          flakeDir = host.flakeDir or "${homeDirectory}/.config/nix-darwin-config";
         in
         darwin.lib.darwinSystem {
           specialArgs = {
@@ -69,6 +71,7 @@
               system
               timezone
               homeDirectory
+              flakeDir
               ;
           };
 
@@ -90,6 +93,7 @@
                     system
                     timezone
                     homeDirectory
+                    flakeDir
                     ;
                 };
                 users.${username}.imports = [

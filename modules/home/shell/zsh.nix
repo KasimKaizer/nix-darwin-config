@@ -1,5 +1,6 @@
 {
   config,
+  flakeDir,
   hostname,
   lib,
   ...
@@ -27,9 +28,11 @@
       size = 1000000;
     };
 
+    # flakeDir comes from flake.nix (default: ~/…/.config/nix-darwin-config).
     shellAliases = {
-      nixswitch = "sudo -H darwin-rebuild switch --flake ${config.home.homeDirectory}/.config/nix-darwin-config#${hostname}";
-      nixup = "pushd ${config.home.homeDirectory}/.config/nix-darwin-config && nix flake update && nixswitch && sudo -H nix-env --profile /nix/var/nix/profiles/system --delete-generations +2 && popd";
+      nixswitch = "sudo -H darwin-rebuild switch --flake ${flakeDir}#${hostname}";
+      nixup = "pushd ${flakeDir} && nix flake update && nixswitch && sudo -H nix-env --profile /nix/var/nix/profiles/system --delete-generations +2 && popd";
+      nix-rollback = "sudo -H darwin-rebuild --rollback";
       nixgc = "sudo -H nix-collect-garbage -d && nix-collect-garbage -d";
       python = "python3";
     };
