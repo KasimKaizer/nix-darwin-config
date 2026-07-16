@@ -26,9 +26,53 @@ let
     pkill -x zellij 2>/dev/null || true
     echo "all zellij sessions wiped"
   '';
+
+  # Status-bar metrics for zjstatus (zellij). Prints an icon + value.
+  # Usage: zmetrics <ram|cpu|bat>
+  #
+  # RAM matches Activity Monitor "Memory Used" (app + wired + compressed),
+  # not top's PhysMem which counts file cache as used and looks ~always full.
+  # CPU uses process %cpu / ncpu (same basis as Activity Monitor), avoiding
+  # top -l1's noisy first sample.
+  zmetrics = pkgs.writeShellScriptBin "zmetrics" ''
+    case "$1" in
+      ram)
+        printf ' '
+        page_size="$(pagesize)"
+        total="$(sysctl -n hw.memsize)"
+        vm_stat | awk -v ps="$page_size" -v tot="$total" '
+          /Pages wired down/              { wired=$NF }
+          /Pages occupied by compressor/  { comp=$NF }
+          /^Anonymous pages/              { anon=$NF }
+          END {
+            gsub(/\./, "", wired); gsub(/\./, "", comp); gsub(/\./, "", anon)
+            printf "%d%%", (wired + comp + anon) * ps / tot * 100
+          }
+        '
+        ;;
+      cpu)
+        printf ' '
+        ncpu="$(sysctl -n hw.ncpu)"
+        ps -A -o %cpu= | awk -v n="$ncpu" '{ s += $1 } END { printf "%d%%", (n > 0 ? s / n : 0) }'
+        ;;
+      bat)
+        printf ' '
+        pmset -g batt | grep -Eo '[0-9]+%' | head -n1
+        ;;
+    esac
+  '';
+
+  # nixpkgs still ships 0.23; 0.24 adds {focused_pane_cwd} for git-in-active-pane.
+  zjstatusWasm = pkgs.fetchurl {
+    url = "https://github.com/dj95/zjstatus/releases/download/v0.24.0/zjstatus.wasm";
+    sha256 = "16v6ascpyl7na6lp3v98haggp9lwsg6r1rlv40zcyqpd3p7dxkhw";
+  };
 in
 {
-  home.packages = [ zk ];
+  home.packages = [
+    zk
+    zmetrics
+  ];
 
   home.shellAliases = {
     zj = "zellij";
@@ -46,7 +90,7 @@ in
     fi
   '';
 
-  xdg.configFile."zellij/plugins/zjstatus.wasm".source = pkgs.zellijPlugins.zjstatus;
+  xdg.configFile."zellij/plugins/zjstatus.wasm".source = zjstatusWasm;
 
   programs.zellij = {
     enable = true;
@@ -169,26 +213,52 @@ in
         default_tab_template {
           pane size=1 borderless=true {
             plugin location="zjstatus" {
-              format_left   "{mode} #[fg=#89B4FA,bold]{session}"
+              format_left   "{mode} #[fg=#89B4FA,bold]{session} {command_git_branch}"
               format_center "{tabs}"
-              format_right  "{command_git_branch} {command_battery} {datetime}"
+              format_right  "{command_battery} {command_ram} {command_cpu} {datetime}"
               format_space  ""
+
+              // When the bar is too wide, drop lower-priority sections before the
+              // whole status line vanishes (right = metrics/datetime stay longest).
+              format_hide_on_overlength "true"
+              format_precedence         "lcr"
 
               mode_normal        "#[bg=blue] "
               mode_tmux          "#[bg=#ffc387] "
 
               tab_normal         "#[fg=#6C7086] {name} "
               tab_active         "#[fg=#9399B2,bold,italic] {name} "
+              tab_separator      " "
 
-              command_git_branch_command     "git rev-parse --abbrev-ref HEAD"
-              command_git_branch_format      "#[fg=blue] {stdout} "
-              command_git_branch_interval    "10"
-              command_git_branch_rendermode  "static"
+              // sliding window: keep the active tab visible, hide the
+              // rest behind … +N indicators instead of overflowing the status bar.
+              tab_display_count         "7"
+              tab_truncate_start_format "#[fg=#6C7086] … +{count} "
+              tab_truncate_end_format   "#[fg=#6C7086] +{count} … "
 
-              command_battery_command    "bash -c \"pmset -g batt | grep -Eo '[0-9]+%' | head -1\""
-              command_battery_format     "#[fg=#6C7086] {stdout} "
+              // Follow focused pane cwd (zjstatus >= 0.24) so branch updates on
+              // tab/pane switches and cd into other repos.
+              command_git_branch_command            "git rev-parse --abbrev-ref HEAD"
+              command_git_branch_format             "#[fg=#6C7086,bold] {stdout} "
+              command_git_branch_interval           "10"
+              command_git_branch_rendermode         "static"
+              command_git_branch_cwd                "{focused_pane_cwd}"
+              command_git_branch_hideonemptystdout  "true"
+
+              command_battery_command    "${zmetrics}/bin/zmetrics bat"
+              command_battery_format     "#[fg=#6C7086,bold] {stdout}"
               command_battery_interval   "30"
               command_battery_rendermode "static"
+
+              command_ram_command     "${zmetrics}/bin/zmetrics ram"
+              command_ram_format      "#[fg=#6C7086,bold] {stdout}"
+              command_ram_interval    "10"
+              command_ram_rendermode  "static"
+
+              command_cpu_command     "${zmetrics}/bin/zmetrics cpu"
+              command_cpu_format      "#[fg=#6C7086,bold] {stdout}"
+              command_cpu_interval    "10"
+              command_cpu_rendermode  "static"
 
               datetime          "#[fg=#6C7086,bold] {format} "
               datetime_format   "%a, %d %b %H:%M"
