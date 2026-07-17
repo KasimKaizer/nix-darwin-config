@@ -24,16 +24,16 @@ age private key from your password manager.
 This flake is **multi-host**: every entry under `hosts` in `flake.nix` becomes a
 `darwinConfigurations.<name>`.
 
-| What                     | Where                                                                    |
-| ------------------------ | ------------------------------------------------------------------------ |
-| Host facts (per machine) | `flake.nix` → `hosts.<hostname>`                                         |
-| Host-only overrides      | `hosts/<hostname>/default.nix`                                           |
-| Shared modules           | `modules/darwin/`, `modules/home/` (all hosts import these)              |
-| Clone path (optional)    | per-host `flakeDir` (default: `~/.config/nix-darwin-config`)             |
+| What                     | Where                                                                   |
+| ------------------------ | ----------------------------------------------------------------------- |
+| Host facts (per machine) | `flake.nix` → `hosts.<hostname>`                                        |
+| Host-only overrides      | `hosts/<hostname>/default.nix`                                          |
+| Shared modules           | `modules/darwin/`, `modules/home/` (all hosts import these)             |
+| Clone path (optional)    | per-host `flakeDir` (default: `~/.config/nix-darwin-config`)            |
 | Age recipient            | `.sops.yaml`: add that machine’s public key, then re-encrypt `secrets/` |
-| Git identity             | `modules/home/tools/git.nix`                                             |
+| Git identity             | `modules/home/tools/git.nix`                                            |
 
-Example (keeping `inferno`, and add a second machine):
+Example (keeping `inferno`, and adding a second machine):
 
 ```nix
 # flake.nix → outputs → let → hosts
@@ -57,8 +57,10 @@ hosts = {
 };
 ```
 
-Then create `hosts/aurora/` (copy from `hosts/inferno/` and tweak if needed) and
-on that machine run:
+Then create `hosts/aurora/` (copy from `hosts/inferno/` and tweak if needed). If
+that machine uses a new age key, add its public key to `.sops.yaml` and run
+`sops updatekeys secrets/secrets.yaml` first (skip if reusing the same key). On
+that machine run:
 
 ```bash
 sudo nix run nix-darwin#darwin-rebuild -- switch --flake ~/.config/nix-darwin-config#aurora
@@ -126,7 +128,7 @@ minting a useless new one.
    gh auth login
    ```
 
-   - System Settings → Privacy & Accessibility → enable **skhd**
+   - System Settings → Privacy & Security → Accessibility → enable **skhd**
    - Configure **LuLu** in the app (rules stay outside nix)
    - Sign into iCloud / browsers / Bitwarden as needed
    - Install anything under [Outside nix](#outside-nix)
@@ -136,12 +138,12 @@ minting a useless new one.
 After the first switch, these zsh aliases exist. Each machine gets aliases wired
 to its own hostname from `flake.nix`:
 
-| Alias | Action |
-| --- | --- |
-| `nixswitch` | apply the flake for the current machine (`…#<hostname>`) |
-| `nixup` | `nix flake update` + switch + prune old system generations (keep 2) |
-| `nix-rollback` | activate the previous system generation (undo a bad switch) |
-| `nixgc` | collect system + user Nix store garbage |
+| Alias          | Action                                                              |
+| -------------- | ------------------------------------------------------------------- |
+| `nixswitch`    | apply the flake for the current machine (`…#<hostname>`)            |
+| `nixup`        | `nix flake update` + switch + prune old system generations (keep 2) |
+| `nix-rollback` | activate the previous system generation (undo a bad switch)         |
+| `nixgc`        | collect system + user Nix store garbage                             |
 
 Extra commands (not aliased):
 
@@ -153,20 +155,29 @@ darwin-rebuild --list-generations                  # see all generations
 sudo darwin-rebuild switch --switch-generation N   # jump to a specific one
 ```
 
-**Warnings & gotchas:**
+## Warnings & caveats
 
-Don't `brew install` or `defaults write` anything you want to keep, because
-`homebrew.onActivation.cleanup = "zap"` removes undeclared packages on switch.
+- **Homebrew is fully declarative.** `homebrew.onActivation.cleanup = "zap"` uninstalls anything not listed in `modules/darwin/homebrew.nix` on the next switch, and taps are pinned by the flake (`mutableTaps = false`), so `brew install` / `brew tap` by hand won't survive. Cask/formula versions only move via `nix flake update`.
 
-`nixup` keeps only two system generations, so `nix-rollback` undoes just the
-latest switch. For an older one, use `--list-generations` and
-`--switch-generation N`.
+- **`defaults write` doesn't stick.** Every key managed in `modules/darwin/defaults.nix` is reasserted on switch, reverting ad-hoc tweaks. Put the change in the repo instead.
 
-Edit secrets with `sops secrets/secrets.yaml`, then `nixswitch` (command cheat
-sheet is in the comments at the top of `.sops.yaml`).
+- **The rollback window is short.** `nixup` prunes to the last two system generations and GC runs weekly (`--delete-older-than 7d`), so `nix-rollback` only undoes the latest switch and older generations disappear fast. For a still-existing older one: `darwin-rebuild --list-generations` + `--switch-generation N`.
 
-Zed: `nixswitch` resets `~/.config/zed` to the repo baseline under
-`modules/home/editors/zed/`. Keep permanent changes in the repo.
+- **Updates track unstable.** Inputs follow `nixpkgs-unstable` and home-manager `master`, so `nixup` can pull breaking changes. Check the result and `nix-rollback` if needed.
+
+- **A missing age key fails the switch.** `sops.age.generateKey = false`, so `~/.config/sops/age/keys.txt` must be restored from the password manager before the first switch, and never committed. Edit the vault with `sops secrets/secrets.yaml`, then `nixswitch` (full command cheat sheet in the comments at the top of `.sops.yaml`). A new machine can't decrypt until its public key is added to `.sops.yaml` and the vault is re-encrypted (`sops updatekeys`).
+
+- **rclone token refreshes are lost on switch.** `~/.config/rclone/rclone.conf` is materialized from the vault, so a token rclone rewrote locally is overwritten by the next switch. Copy it back with `sops set` (recipe in `.sops.yaml`).
+
+- **Zed / VS Code configs are reset on switch.** Their config files are copied (not symlinked) into `~/.config/zed` and VS Code's User dir, overwriting local experiments. Keep permanent changes under `modules/home/editors/`. Zed's `settings.json` is rendered from sops templates, so never paste real API keys into the repo copy.
+
+- **Editor extensions are only ever added.** VS Code IDs in `modules/home/editors/vscode/extensions.txt` are installed on switch, and Zed's `auto_install_extensions` installs on startup, but removing an entry from either list does not uninstall the extension; do that in the editor itself.
+
+- **A stale `.hm-bak` file blocks the switch.** When home-manager takes over an existing file it renames the original to `*.hm-bak`; if a later switch conflicts with that leftover backup, activation fails until you delete it.
+
+- **Leave `stateVersion` alone.** `home.stateVersion` and `system.stateVersion` record when the config was created; don't bump them during updates.
+
+- **Some things need one-time manual setup.** skhd needs Accessibility permission, `masApps` needs an App Store login, and LuLu rules live outside nix (see [Bootstrap](#bootstrap)).
 
 ## Layout
 
