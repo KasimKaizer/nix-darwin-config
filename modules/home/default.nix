@@ -1,6 +1,7 @@
 {
   pkgs,
   config,
+  lib,
   username,
   homeDirectory,
   ...
@@ -53,6 +54,12 @@
       AOC_PATH = "${config.home.homeDirectory}/projects/advent_of_code";
     };
   };
+
+  # screencapture.location (modules/darwin/defaults.nix) points here; macOS
+  # silently ignores the setting if the directory is missing.
+  home.activation.screenshotsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    ${pkgs.coreutils}/bin/mkdir -p "${homeDirectory}/Pictures/Screenshots"
+  '';
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
