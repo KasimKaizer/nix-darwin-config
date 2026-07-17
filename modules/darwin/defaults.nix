@@ -115,7 +115,7 @@ in
     };
 
     screencapture = {
-      location = "${homeDirectory}/Desktop/ScreenShots";
+      location = "${homeDirectory}/Pictures/Screenshots";
       type = "png";
     };
 
