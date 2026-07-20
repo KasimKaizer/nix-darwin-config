@@ -29,6 +29,8 @@
   ];
 
   persistentOthers = [
+    { folder = "${homeDirectory}/Documents/Education"; }
+    { folder = "${homeDirectory}/Developer"; }
     { folder = "${homeDirectory}/Downloads"; }
   ];
 }
