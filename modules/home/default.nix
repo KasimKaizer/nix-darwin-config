@@ -38,6 +38,7 @@
       ffmpeg
       glow
       htop
+      mole-cleaner
       moor
       p7zip
       powershell
