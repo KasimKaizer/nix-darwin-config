@@ -65,7 +65,7 @@
       WBlock = 6746388723;
       WhatsApp = 310633997;
       Xcode = 497799835;
-      DoGitWork = 6760287404;
+      # DoGitWork = 6760287404;
     };
   };
 }
