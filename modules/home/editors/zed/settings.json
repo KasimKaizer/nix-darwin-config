@@ -56,12 +56,9 @@
   // Cursor, `copilot` / GitHub sign-in for Copilot — not Zed's LLM providers.
   // Zed MCP servers in `context_servers` above are forwarded to external threads.
   //
-  // Registry IDs: codex-acp, cursor, github-copilot-cli
+  // Registry IDs: cursor, github-copilot-cli
   // Docs: https://zed.dev/docs/ai/external-agents
   "agent_servers": {
-    "codex-acp": {
-      "type": "registry",
-    },
     "cursor": {
       "type": "registry",
       "default_mode": "agent",
