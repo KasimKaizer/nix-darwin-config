@@ -14,6 +14,8 @@
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
     nix-homebrew.url = "github:zhaofengli/nix-homebrew";
+    # remove once the nix-homebrew flake is updated to use brew 6.0.13
+    nix-homebrew.inputs.brew-src.url = "github:Homebrew/brew/6.0.13";
     homebrew-core = {
       url = "github:homebrew/homebrew-core";
       flake = false;
