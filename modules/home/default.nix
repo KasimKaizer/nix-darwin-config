@@ -35,6 +35,7 @@
     packages = with pkgs; [
       # General CLI utilities
       bitwarden-cli
+      codex
       ffmpeg
       glow
       htop

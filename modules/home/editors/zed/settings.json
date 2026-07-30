@@ -56,12 +56,23 @@
   // Cursor, `copilot` / GitHub sign-in for Copilot — not Zed's LLM providers.
   // Zed MCP servers in `context_servers` above are forwarded to external threads.
   //
-  // Registry IDs: cursor, github-copilot-cli
+  // Registry IDs: codex-acp, cursor, github-copilot-cli
   // Docs: https://zed.dev/docs/ai/external-agents
   "agent_servers": {
+    "codex-acp": {
+      "type": "registry",
+    },
     "cursor": {
       "type": "registry",
       "default_mode": "agent",
+      "favorite_config_option_values": {
+        "model": ["grok-4.5", "kimi-k3"],
+      },
+      "default_config_options": {
+        "effort": "high",
+        "fast": "false",
+        "model": "grok-4.5",
+      },
     },
     "github-copilot-cli": {
       "type": "registry",
@@ -72,12 +83,6 @@
   },
   "agent": {
     "favorite_models": [
-      {
-        "provider": "openrouter",
-        "model": "tencent/hy3:free",
-        "enable_thinking": true,
-        "effort": "max",
-      },
       {
         "provider": "openrouter",
         "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
