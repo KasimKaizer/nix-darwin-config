@@ -25,7 +25,7 @@
     # Browsers
     "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
     "/Applications/Google Chrome.app"
-    "/Applications/LibreWolf.app"
+    "/Applications/Mullvad Browser.app"
   ];
 
   persistentOthers = [

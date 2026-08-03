@@ -10,7 +10,7 @@
       cmd + alt - f : open -a Finder
       cmd + alt - s : open -a Safari
       cmd + alt - g : open -a "Google Chrome"
-      cmd + alt - l : open -a LibreWolf
+      cmd + alt - l : open -a "Mullvad Browser"
       cmd + alt - e : open -a Gemini
       cmd + alt - v : open -a Passepartout
       cmd + alt - n : open -a Tailscale
