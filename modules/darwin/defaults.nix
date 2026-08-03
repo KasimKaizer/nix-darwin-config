@@ -193,6 +193,7 @@ in
         DSDontWriteUSBStores = true;
       };
       "com.apple.screencapture" = {
+        "include-date" = false;
         captureDelay = 5;
         showsClicks = true;
         style = "window";
