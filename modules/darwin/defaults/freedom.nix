@@ -28,7 +28,7 @@
     "Infuse.app"
     "Kindle Comic Converter.app"
     "Kindle Previewer 3.app"
-    "LibreWolf.app"
+    "Mullvad Browser.app"
     "Minecraft Bedrock Launcher.app"
     "Outlanders.app"
     "Plex.app"
@@ -73,9 +73,9 @@
       bundleID = "com.amazon.kpr";
       name = "Kindle Previewer 3.app";
     };
-    "LibreWolf.app" = {
-      bundleID = "org.mozilla.librewolf";
-      name = "LibreWolf";
+    "Mullvad Browser.app" = {
+      bundleID = "net.mullvad.mullvadbrowser";
+      name = "Mullvad Browser";
     };
     "Minecraft Bedrock Launcher.app" = {
       bundleID = "io.mrarm.mcpelauncher.ui";
