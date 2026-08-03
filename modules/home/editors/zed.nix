@@ -69,6 +69,9 @@ in
     uv
     pyrefly
     ruff
+    python3Packages.pytest
+    python3Packages.pytest-cov
+    python3Packages.debugpy
     # Nix
     nixd
     nixfmt
