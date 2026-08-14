@@ -220,7 +220,7 @@ sudo darwin-rebuild switch --switch-generation N   # jump to a specific one
 
 ## Outside nix
 
-**Manual installs:** CleanMyMac, PDF Expert, OnVUE, Rosalyn.
+**Manual installs:** DoGitWork (via the App Store), OnVUE, Rosalyn.
 
 **State (not config):** `gh` auth (`~/.config/gh/hosts.yml`), browser / Bitwarden
 profiles, Gemini / Copilot OAuth, App Store / iCloud, LuLu rules, JetBrains
