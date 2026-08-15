@@ -52,7 +52,7 @@
       PAGER = "moor";
       CLICOLOR = 1;
       EDITOR = "hx";
-      AOC_PATH = "${config.home.homeDirectory}/projects/advent_of_code";
+      AOC_PATH = "${config.home.homeDirectory}/Developer/projects/advent_of_code";
     };
   };
 
