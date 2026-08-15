@@ -48,31 +48,29 @@
     },
   },
   // ============================================================================
-  // External Agents (ACP registry)
+  // External Agents (ACP)
   // ============================================================================
-  // Installed via `zed: acp registry` (or Agent Settings → Add Agent → Install
-  // from Registry). These entries persist the install across `nixswitch` and set
-  // per-session defaults. Auth and billing stay with each agent — Cursor login for
-  // Cursor, `copilot` / GitHub sign-in for Copilot — not Zed's LLM providers.
-  // Zed MCP servers in `context_servers` above are forwarded to external threads.
-  //
-  // Registry IDs: cursor, github-copilot-cli
+  // Use Homebrew-managed CLIs instead of Zed's registry downloader.
   // Docs: https://zed.dev/docs/ai/external-agents
   "agent_servers": {
     "cursor": {
-      "type": "registry",
+      "type": "custom",
+      "command": "/opt/homebrew/bin/cursor-agent",
+      "args": ["acp"],
       "default_mode": "agent",
       "favorite_config_option_values": {
-        "model": ["grok-4.5", "kimi-k3"],
+        "model": ["grok-4.6", "kimi-k3"],
       },
       "default_config_options": {
-        "effort": "high",
+        "effort": "xhigh",
         "fast": "false",
-        "model": "grok-4.5",
+        "model": "grok-4.6",
       },
     },
     "github-copilot-cli": {
-      "type": "registry",
+      "type": "custom",
+      "command": "/opt/homebrew/bin/copilot",
+      "args": ["--acp"],
       "default_config_options": {
         "reasoning_effort": "high",
       },
