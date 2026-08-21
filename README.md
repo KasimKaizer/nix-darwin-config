@@ -180,7 +180,8 @@ sudo darwin-rebuild switch --switch-generation N   # jump to a specific one
 ├── flake.lock
 ├── .sops.yaml                     # age recipients + creation rules
 ├── secrets/
-│   └── secrets.yaml               # encrypted vault (safe to commit)
+│   └── secrets.yaml               # encrypted vault
+├── skills/                        # Agent Skills (SKILL.md folders)
 ├── hosts/
 │   └── inferno/
 │       └── default.nix            # platform, hostname, timezone, primaryUser
