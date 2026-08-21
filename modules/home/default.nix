@@ -21,6 +21,7 @@
     ./tools/ssh.nix
     ./tools/secrets.nix
     ./tools/exercism.nix
+    ./tools/azure.nix
   ];
 
   xdg.enable = true;
@@ -46,7 +47,6 @@
       rclone
       sherlock
       wget
-      azure-cli
     ];
 
     sessionVariables = {
