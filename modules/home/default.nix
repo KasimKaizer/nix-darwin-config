@@ -46,6 +46,7 @@
       rclone
       sherlock
       wget
+      azure-cli
     ];
 
     sessionVariables = {
