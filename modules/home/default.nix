@@ -22,6 +22,7 @@
     ./tools/secrets.nix
     ./tools/exercism.nix
     ./tools/azure.nix
+    ./tools/skills.nix
   ];
 
   xdg.enable = true;

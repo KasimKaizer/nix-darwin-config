@@ -1,0 +1,44 @@
+{
+  "skill_name": "nix-darwin-home-manager",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add jq to my nix config so it's on my PATH. I use it all the time in the shell.",
+      "expected_output": "jq is appended to a home-manager home.packages list (generic CLI: modules/home/default.nix). Not added to Homebrew brews/casks. User is told to nixswitch. No sudo/nixswitch executed.",
+      "files": [],
+      "expectations": [
+        "jq is added to a home.packages list in a home-manager module",
+        "jq is not added to Homebrew casks, brews, or masApps",
+        "home.stateVersion and system.stateVersion are unchanged",
+        "The agent tells the user to run nixswitch rather than running sudo darwin-rebuild or nixswitch itself",
+        "No brew install / brew tap / mas install command is executed as the install method"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Install Rectangle on my Mac — the window manager from https://rectangleapp.com. I want it declared in this flake, not a one-off brew install.",
+      "expected_output": "rectangle is appended to modules/darwin/homebrew.nix casks. Not in home.packages. No new tap. User is told to nixswitch.",
+      "files": [],
+      "expectations": [
+        "rectangle is added to the Homebrew casks list in modules/darwin/homebrew.nix",
+        "rectangle is not added to home.packages",
+        "No new Homebrew tap is added in homebrew.nix or nix-homebrew.nix",
+        "The agent does not run brew install as the way to install Rectangle",
+        "The agent tells the user to run nixswitch rather than running it"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I need OPENAI_API_KEY in my shell for CLI tools. Don't put the actual key in git. I'll paste the value into sops myself.",
+      "expected_output": "sops.secrets declaration plus secret-env export in tools/secrets.nix; instructions to add the key via sops secrets/secrets.yaml. Not home.sessionVariables. User told nixswitch && exec zsh.",
+      "files": [],
+      "expectations": [
+        "sops.secrets gains an openai (or openai_api_key) entry in modules/home/tools/secrets.nix",
+        "sops.templates.secret-env exports OPENAI_API_KEY via config.sops.placeholder",
+        "OPENAI_API_KEY is not added to home.sessionVariables",
+        "No plaintext API key is written into a Nix, JSON, or YAML file in the repo copy",
+        "The agent instructs the user to edit the vault with sops secrets/secrets.yaml and then nixswitch && exec zsh"
+      ]
+    }
+  ]
+}
