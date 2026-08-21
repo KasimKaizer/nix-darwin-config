@@ -59,14 +59,7 @@ hosts = {
 
 Then create `hosts/aurora/` (copy from `hosts/inferno/` and tweak if needed). If
 that machine uses a new age key, add its public key to `.sops.yaml` and run
-`sops updatekeys secrets/secrets.yaml` first (skip if reusing the same key). On
-that machine run:
-
-```bash
-sudo nix run nix-darwin#darwin-rebuild -- switch --flake ~/.config/nix-darwin-config#aurora
-```
-
-(or `nixswitch` after the first switch, once aliases exist for that host).
+`sops updatekeys secrets/secrets.yaml` first (skip if reusing the same key).
 
 ## Bootstrap
 
@@ -110,7 +103,6 @@ minting a useless new one.
    ```
 
    That key’s public recipient must be listed in `.sops.yaml` for this machine.
-   Never commit the private key.
 
 5. **First activation** (`darwin-rebuild` is not on `PATH` yet)
 
@@ -212,7 +204,8 @@ sudo darwin-rebuild switch --switch-generation N   # jump to a specific one
         └── tools/                 # git/gh/lazygit, ssh, cli, secrets, exercism
 ```
 
-- System → `modules/darwin/`; user → `modules/home/`
+- System → `modules/darwin/`
+- User → `modules/home/`
 - One module ≈ one concern; `default.nix` files are import lists
 - CLI package → `modules/home/default.nix` (or the module that owns the tool)
 - GUI / MAS app → `modules/darwin/homebrew.nix`
@@ -224,8 +217,7 @@ sudo darwin-rebuild switch --switch-generation N   # jump to a specific one
 
 **State (not config):** `gh` auth (`~/.config/gh/hosts.yml`), browser / Bitwarden
 profiles, Gemini / Copilot OAuth, App Store / iCloud, LuLu rules, JetBrains
-Settings Sync, Chrome PWAs, `~/.claude` / `~/.ollama`. Age private key stays in
-the password manager only.
+Settings Sync, Chrome PWAs, `~/.claude` / `~/.ollama`.
 
 ## References
 
