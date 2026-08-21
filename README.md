@@ -118,6 +118,7 @@ minting a useless new one.
    ```bash
    exec zsh
    gh auth login
+   az login
    ```
 
    - System Settings → Privacy & Security → Accessibility → enable **skhd**
@@ -201,7 +202,7 @@ sudo darwin-rebuild switch --switch-generation N   # jump to a specific one
         ├── shell/                 # zsh, starship
         ├── terminal/              # ghostty, zellij
         ├── editors/               # helix, vscode, zed (+ config baselines)
-        └── tools/                 # git/gh/lazygit, ssh, cli, secrets, exercism
+        └── tools/                 # azure, cli, git/gh/lazygit, ssh, secrets, exercism
 ```
 
 - System → `modules/darwin/`
@@ -215,9 +216,10 @@ sudo darwin-rebuild switch --switch-generation N   # jump to a specific one
 
 **Manual installs:** DoGitWork (via the App Store), OnVUE, Rosalyn.
 
-**State (not config):** `gh` auth (`~/.config/gh/hosts.yml`), browser / Bitwarden
-profiles, Gemini / Copilot OAuth, App Store / iCloud, LuLu rules, JetBrains
-Settings Sync, Chrome PWAs, `~/.claude` / `~/.ollama`.
+**State (not config):** Azure CLI login/session data (`~/.azure`), `gh` auth
+(`~/.config/gh/hosts.yml`), browser / Bitwarden profiles, Gemini / Copilot OAuth,
+App Store / iCloud, LuLu rules, JetBrains Settings Sync, Chrome PWAs,
+`~/.claude` / `~/.ollama`.
 
 ## References
 
