@@ -154,7 +154,7 @@ sudo darwin-rebuild switch --switch-generation N   # jump to a specific one
 
 - **`defaults write` doesn't stick.** Every key managed in `modules/darwin/defaults.nix` is reasserted on switch, reverting ad-hoc tweaks. Put the change in the repo instead.
 
-- **Built-in right speaker is forced off.** The MacBook Air's right speaker is broken (buzzes/pops), so a launchd agent pans only that built-in device fully left (`modules/darwin/defaults.nix` and `defaults/mute-builtin-right-speaker.c`). Headphones and earbuds stay stereo. The startup chime is also muted in NVRAM (`system.startup.chime`).
+- **inferno's right speaker is forced off.** This host's MacBook Air has a broken right speaker (buzzes/pops). `hosts/inferno/audio.nix` pans only that built-in device fully left; headphones and earbuds stay stereo. Do not copy this into a new host. The startup chime is also muted in NVRAM on inferno only (`system.startup.chime`).
 
 - **The rollback window is short.** `nixup` prunes to the last two system generations and GC runs weekly (`--delete-older-than 7d`), so `nix-rollback` only undoes the latest switch and older generations disappear fast. For a still-existing older one: `darwin-rebuild --list-generations` + `--switch-generation N`.
 
@@ -186,15 +186,16 @@ sudo darwin-rebuild switch --switch-generation N   # jump to a specific one
 ├── skills/                        # Agent Skills (SKILL.md folders)
 ├── hosts/
 │   └── inferno/
-│       └── default.nix            # platform, hostname, timezone, primaryUser
+│       ├── default.nix            # platform, hostname, timezone, primaryUser
+│       ├── audio.nix              # inferno-only: mute chime, pan right speaker off
+│       └── mute-builtin-right-speaker.c
 └── modules/
     ├── darwin/                    # nix-darwin (system)
     │   ├── default.nix            # imports only
     │   ├── core.nix               # nix settings, GC/optimise, shells, PAM, firewall
-    │   ├── defaults.nix           # system.defaults, login items, startup chime, speaker pan
+    │   ├── defaults.nix           # system.defaults + login items
     │   ├── defaults/
     │   │   ├── dock-items.nix     # dock persistent-apps
-    │   │   ├── mute-builtin-right-speaker.c
     │   │   ├── itsycal.nix
     │   │   └── freedom.nix
     │   ├── fonts.nix

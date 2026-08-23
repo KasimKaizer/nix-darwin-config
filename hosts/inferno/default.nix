@@ -20,5 +20,6 @@
 
   imports = [
     ../../modules/darwin
+    ./audio.nix
   ];
 }

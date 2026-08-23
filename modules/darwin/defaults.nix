@@ -1,5 +1,4 @@
 {
-  pkgs,
   lib,
   homeDirectory,
   ...
@@ -11,24 +10,6 @@
 #   https://github.com/yannbertrand/macos-defaults
 let
   dockItems = import ./defaults/dock-items.nix { inherit homeDirectory; };
-
-  muteBuiltinRightSpeaker = pkgs.stdenv.mkDerivation {
-    pname = "mute-builtin-right-speaker";
-    version = "1.0";
-    src = ./defaults/mute-builtin-right-speaker.c;
-    dontUnpack = true;
-    buildPhase = ''
-      runHook preBuild
-      $CC -O2 -Wall -Werror -framework CoreAudio -framework CoreFoundation "$src" -o mute-builtin-right-speaker
-      runHook postBuild
-    '';
-    installPhase = ''
-      runHook preInstall
-      mkdir -p "$out/bin"
-      cp mute-builtin-right-speaker "$out/bin/"
-      runHook postInstall
-    '';
-  };
 
   loginItems = [
     {
@@ -46,9 +27,6 @@ let
   ];
 in
 {
-  # https://nix-darwin.github.io/nix-darwin/manual/index.html#opt-system.startup.chime
-  system.startup.chime = false;
-
   system.defaults = {
     NSGlobalDomain = {
       AppleIconAppearanceTheme = "RegularAutomatic";
@@ -225,17 +203,7 @@ in
     };
   };
 
-  launchd.user.agents = {
-    mute-builtin-right-speaker = {
-      command = "${muteBuiltinRightSpeaker}/bin/mute-builtin-right-speaker";
-      serviceConfig = {
-        KeepAlive = true;
-        ProcessType = "Background";
-        RunAtLoad = true;
-      };
-    };
-  }
-  // lib.listToAttrs (
+  launchd.user.agents = lib.listToAttrs (
     map (item: {
       name = "login-item-${item.name}";
       value.serviceConfig = {
