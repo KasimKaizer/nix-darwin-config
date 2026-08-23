@@ -40,8 +40,10 @@ Read more only when the task needs it:
    dead.
 4. Keep secrets out of Nix and JSON in git. Vault is `secrets/secrets.yaml`
    via `sops`.
-5. From the flake root: `nix fmt` and `nix flake check --no-build`.
-6. Tell the user to run **`nixswitch`**. Do not run it unless they ask (needs
+5. When adding multiple related packages to one `home.packages` profile, apply
+   the package-profile collision check below before asking the user to switch.
+6. From the flake root: `nix fmt` and `nix flake check --no-build`.
+7. Tell the user to run **`nixswitch`**. Do not run it unless they ask (needs
    sudo). Do not run **`nixup`** unless they asked to update flake inputs.
 
 `specialArgs` / `extraSpecialArgs` already pass `inputs`, `hostname`,
@@ -104,6 +106,35 @@ Lookups: [nixpkgs](https://search.nixos.org/packages), [Homebrew](https://formul
 **Add a secret env var**: `sops secrets/secrets.yaml` (cheat sheet is the comments in `.sops.yaml`) → `sops.secrets.<name> = { };` in `tools/secrets.nix` → `export NAME="${config.sops.placeholder.<name>}"` on `sops.templates."secret-env"` → user runs `nixswitch && exec zsh`. Other secret shapes: [references/secrets.md](references/secrets.md).
 
 **Add an Agent Skill**: `skills/<name>/SKILL.md` with `name` + `description` frontmatter. Flat only (`skills/<name>/`, no `skills/group/name/`). Do not edit `skills.nix` unless the install mechanism itself changes. Do not write into `~/.cursor/skills-cursor/` or duplicate into `~/.cursor/skills/` (Cursor already reads `~/.agents/skills/`).
+
+## Package-profile collision checks
+
+`home.packages` is built as one `buildEnv` with a shared destination namespace
+(including `bin`). Related packages can therefore collide even when their main
+commands have different names.
+
+Apply this check only when adding two or more packages that are plausibly
+related or overlapping—for example, components from the same upstream project,
+a CLI plus a separately packaged language server, or a runtime plus a bundled
+tool. It is not a blanket restriction on complementary CLI/LSP pairs.
+
+1. Confirm what each package contributes to the requested workflow. Do not add
+   a fallback CLI or server merely because an editor extension might use it.
+2. After editing, build the affected Home Manager profile before recommending
+   `nixswitch`:
+
+   ```sh
+   nix build --no-link --print-out-paths \
+     .#darwinConfigurations.inferno.config.home-manager.users.ew.home.path
+   ```
+
+3. If `buildEnv` reports a conflicting subpath, trace the colliding outputs and
+   make the smallest change that preserves the required workflows. Do not hide
+   the collision with `pathsToLink` or by broadly removing all CLI/LSP pairs.
+   A CLI and LSP are often both valid—for example, `terraform` supplies the
+   CLI, formatting, and provider metadata, while `terraform-ls` supplies editor
+   features. Select only one when an actual collision exists or one component
+   already supplies the other component’s role.
 
 ## Hard rules
 
