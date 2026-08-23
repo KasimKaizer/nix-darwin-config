@@ -88,6 +88,11 @@ in
     typescript-go
     # Markdown
     marksman
+    # Azure IaC
+    dotnet-sdk_8
+    bicep-lsp
+    terraform
+    terraform-ls
   ];
 
   home.activation.zedConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

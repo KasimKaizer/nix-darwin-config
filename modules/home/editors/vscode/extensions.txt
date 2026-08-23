@@ -44,6 +44,10 @@ arr.marksman
 # HTML / JSX — built-in language features + auto-rename
 formulahendry.auto-rename-tag
 # Data / infra
+# Azure IaC — resource-aware Bicep and ARM template tooling plus Terraform LSP.
+ms-azuretools.vscode-bicep
+msazurermtools.azurerm-vscode-tools
+HashiCorp.terraform
 esbenp.prettier-vscode
 tamasfe.even-better-toml
 redhat.vscode-yaml

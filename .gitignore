@@ -6,8 +6,9 @@
 /.DS_Store
 **/.DS_Store
 
-# Local planning notes
+# Local planning notes and documentation
 /MIGRATION_PLAN.md
+/docs/
 
 # Local secrets / keys
 /.env

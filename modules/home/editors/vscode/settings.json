@@ -207,6 +207,14 @@
   "yaml.format.enable": false,
   "yaml.validate": true,
 
+  // Azure Resource Manager Tools recognizes ARM JSON templates by their `$schema`
+  // and then provides ARM-specific validation, snippets, and completion.
+  "azureResourceManagerTools.autoDetectJsonTemplates": true,
+
+  // HashiCorp Terraform supplies a full resource block with tab stops for required
+  // attributes when accepting a completion.
+  "terraform.experimentalFeatures.prefillRequiredFields": true,
+
   // Schema opts editor config files into comments + trailing commas — see https://code.visualstudio.com/docs/languages/json#_json-with-comments
   "json.schemas": [
     {
@@ -339,6 +347,21 @@
   // ==========================================================================
   // Other languages
   // ==========================================================================
+  "[bicep]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "ms-azuretools.vscode-bicep",
+  },
+  "[terraform]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "HashiCorp.terraform",
+  },
+  "[terraform-vars]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "HashiCorp.terraform",
+  },
   "[powershell]": {
     "editor.tabSize": 4,
   },
