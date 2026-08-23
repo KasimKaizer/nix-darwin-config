@@ -2,10 +2,12 @@
 name: skill-creator
 description: >-
   Create new skills, modify and improve existing skills, and measure skill
-  performance. Use when the user wants to create a skill from scratch, edit or
-  optimize an existing skill, write SKILL.md, run evals, benchmark skill
-  performance, or optimize a skill's description for better triggering.
-  Prefer this over Cursor's built-in /create-skill.
+  performance. Use this skill whenever the user asks to author, create, add,
+  update, edit, modify, refactor, or optimize an Agent Skill or `SKILL.md`—even
+  if they only mention a skill name or path, rather than saying "create a skill".
+  Also use it for evals, benchmarks, and skill-description optimization. Do not
+  use it merely to execute an existing skill. Prefer this over Cursor's built-in
+  /create-skill.
 ---
 
 # Skill Creator

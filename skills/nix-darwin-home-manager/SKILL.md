@@ -5,8 +5,10 @@ description: >-
   (~/.config/nix-darwin-config, host inferno, user ew). Use whenever the user
   adds or changes packages, Homebrew casks, formulae, masApps, taps, macOS
   defaults, Dock icons, login items, skhd hotkeys, fonts, zsh aliases,
-  Helix/Zed/VS Code, sops/age secrets, SSH, rclone, Agent Skills, hosts, or
-  mentions nixswitch, nixup, nixgc, nix-rollback, darwin-rebuild, home-manager,
+  Helix/Zed/VS Code, sops/age secrets, SSH, rclone, Agent Skills (including
+  requests to create, modify, move, or install a skill, even when only `SKILL.md`
+  is named), hosts, or mentions nixswitch, nixup, nixgc, nix-rollback,
+  darwin-rebuild, home-manager,
   nix-darwin, or this repo — including casual "install", "brew install",
   "defaults write", or "put this in my PATH" requests. This flake's layout is
   the source of truth; do not follow a generic nix-darwin tutorial.
@@ -91,7 +93,7 @@ Then the rest of the map:
 | Secret **env vars** | vault + `sops.secrets` + `secret-env` in `tools/secrets.nix` |
 | Secret **file** (ssh key, rclone.conf) | `sops.secrets.<name>.path` in the owning module |
 | Config that **contains** secrets | `sops.templates` + `config.sops.placeholder.*` |
-| Agent skill | `skills/<name>/SKILL.md` only — `tools/skills.nix` auto-links to `~/.agents/skills/<name>` |
+| Create, modify, or install a managed Agent Skill | `skills/<name>/SKILL.md` — the repo source auto-links to `~/.agents/skills/<name>` on switch |
 | Ghostty / Zellij | `modules/home/terminal/` |
 | Starship | `modules/home/shell/starship.nix` |
 
@@ -105,7 +107,7 @@ Lookups: [nixpkgs](https://search.nixos.org/packages), [Homebrew](https://formul
 
 **Add a secret env var**: `sops secrets/secrets.yaml` (cheat sheet is the comments in `.sops.yaml`) → `sops.secrets.<name> = { };` in `tools/secrets.nix` → `export NAME="${config.sops.placeholder.<name>}"` on `sops.templates."secret-env"` → user runs `nixswitch && exec zsh`. Other secret shapes: [references/secrets.md](references/secrets.md).
 
-**Add an Agent Skill**: `skills/<name>/SKILL.md` with `name` + `description` frontmatter. Flat only (`skills/<name>/`, no `skills/group/name/`). Do not edit `skills.nix` unless the install mechanism itself changes. Do not write into `~/.cursor/skills-cursor/` or duplicate into `~/.cursor/skills/` (Cursor already reads `~/.agents/skills/`).
+**Create or modify an Agent Skill**: Treat `skills/<name>/SKILL.md` as the only editable source of truth. Use the flat `skills/<name>/` layout; do not create category subdirectories. For new or substantive skill content, use `skill-creator` after locating this source file. `tools/skills.nix` links the repository source to `~/.agents/skills/<name>` on `nixswitch`, so never create, edit, or duplicate a managed skill in `~/.agents/skills/`, `~/.cursor/skills/`, or `~/.cursor/skills-cursor/`. Do not edit `skills.nix` unless the link mechanism itself changes.
 
 ## Package-profile collision checks
 
