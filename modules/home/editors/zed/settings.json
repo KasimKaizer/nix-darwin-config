@@ -46,6 +46,11 @@
       "remote": false,
       "settings": {},
     },
+    "browser-tools-context-server": {
+      "enabled": true,
+      "remote": false,
+      "settings": {},
+    },
   },
   // ============================================================================
   // External Agents (ACP)
