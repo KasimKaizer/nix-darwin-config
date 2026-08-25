@@ -22,8 +22,8 @@ Write and edit skills **in the nix-darwin repo**, not in `~/.agents/skills/` or
 
 - **New skill:** `skills/<name>/SKILL.md` at the flake root (`~/.config/nix-darwin-config/skills/<name>/`).
 - **Flat only.** `skills/<name>/SKILL.md` — no category folders. Zed does not recurse.
-- **Do not** write into `~/.cursor/skills-cursor/` (Cursor built-ins) or duplicate into `~/.cursor/skills/` (Cursor already loads `~/.agents/skills/`).
-- After the files exist, tell the user to run **`nixswitch`**. Home Manager links `skills/<name>` → `~/.agents/skills/<name>`.
+- **Do not** write into `~/.cursor/skills-cursor/`, `~/.cursor/skills/`, or any other agent directory. Home Manager deploys the same bundle to Zed, Cursor, Codex, OpenCode, Antigravity, and Copilot.
+- After the files exist, tell the user to run **`nixswitch`**. Custom skills under `skills/` and third-party skills allowlisted in `modules/home/tools/skills.nix` are deployed to every configured agent.
 - Skip packaging a `.skill` zip unless the user asked for a portable archive or API upload. The source of truth here is the folder in `skills/`.
 - Description-optimizer scripts call Cursor Agent with `cursor-agent --print --mode ask` in read-only mode. Run `nixswitch` first so `cursor-cli` is available; set `SKILL_CREATOR_CURSOR_AGENT` only to override the command.
 

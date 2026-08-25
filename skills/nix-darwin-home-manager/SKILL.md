@@ -101,7 +101,8 @@ Then the rest of the map:
 | Secret **env vars** | vault + `sops.secrets` + `secret-env` in `tools/secrets.nix` |
 | Secret **file** (ssh key, rclone.conf) | `sops.secrets.<name>.path` in the owning module |
 | Config that **contains** secrets | `sops.templates` + `config.sops.placeholder.*` |
-| Create, modify, or install a managed Agent Skill | `skills/<name>/SKILL.md` — the repo source auto-links to `~/.agents/skills/<name>` on switch |
+| Create or modify a custom Agent Skill | `skills/<name>/SKILL.md` — auto-installed into `~/.agents/skills/<name>` on switch |
+| Install / enable a third-party Agent Skill | `modules/home/tools/skills.nix` (`sources` + `skills.enable`) |
 | Ghostty / Zellij | `modules/home/terminal/` |
 | Starship | `modules/home/shell/starship.nix` |
 
@@ -118,7 +119,9 @@ append to the existing `home.packages` list in the owning module (generic tools:
 
 **Add a secret env var**: `sops secrets/secrets.yaml` (cheat sheet is the comments in `.sops.yaml`) → `sops.secrets.<name> = { };` in `tools/secrets.nix` → `export NAME="${config.sops.placeholder.<name>}"` on `sops.templates."secret-env"` → user runs `nixswitch && exec zsh`. Other secret shapes: [references/secrets.md](references/secrets.md).
 
-**Create or modify an Agent Skill**: Treat `skills/<name>/SKILL.md` as the only editable source of truth. Use the flat `skills/<name>/` layout; do not create category subdirectories. For new or substantive skill content, use `skill-creator` after locating this source file. `tools/skills.nix` links the repository source to `~/.agents/skills/<name>` on `nixswitch`, so never create, edit, or duplicate a managed skill in `~/.agents/skills/`, `~/.cursor/skills/`, or `~/.cursor/skills-cursor/`. Do not edit `skills.nix` unless the link mechanism itself changes.
+**Create or modify a custom Agent Skill**: Treat `skills/<name>/SKILL.md` as the only editable source of truth. Use the flat `skills/<name>/` layout; do not create category subdirectories. For new or substantive skill content, use `skill-creator` after locating this source file. Local skills are auto-installed on `nixswitch` (`enableAll = [ "local" ]`) to Zed (`~/.agents/skills`), Cursor, Codex, OpenCode, Antigravity, and Copilot. Never create, edit, or duplicate a managed skill in an agent directory.
+
+**Enable a third-party Agent Skill**: pin the repo in `flake.nix` (`flake = false`) if it is not already an input, add or reuse a `sources` entry in `modules/home/tools/skills.nix`, put the directory name in that source's discover list, then move it into `skills.enable`. Do not `npx skills` / skills.sh.
 
 ## Package-profile collision checks
 
@@ -151,7 +154,7 @@ These exist because the next `nixswitch` will undo the "easy" workaround.
 - **Do not add taps** without pinning them in `nix-homebrew.nix` `taps` **and** a `flake.nix` input (`flake = false`). Prefer not adding taps.
 - **Do not** put secrets in `home.sessionVariables`, `programs.ssh`, or editor JSON in git. Store ciphertext; substitute with placeholders.
 - **Do not** use `programs.vscode` / `home.file` for Zed or VS Code settings — activation **copies** baselines over `~/.config/zed` and VS Code User settings. Permanent edits go in `modules/home/editors/`.
-- **Do not** nest skills. Zed only sees `skills/<name>/SKILL.md`.
+- **Do not** nest skills. Zed only sees `skills/<name>/SKILL.md`. Custom skills live under `./skills/`; third-party skills are allowlisted in `modules/home/tools/skills.nix`. Do not write into any generated agent skill directory.
 - Removing a VS Code / Zed extension ID does **not** uninstall it; only stops ensuring it. Uninstall in the editor.
 - If activation fails on `*.hm-bak`, delete the leftover backup and retry. `backupFileExtension = "hm-bak"`.
 - `sops.age.generateKey = false`. Missing `~/.config/sops/age/keys.txt` must fail, not mint a new key.

@@ -1,6 +1,6 @@
 ---
 name: using-agent-skills
-description: Discovers and invokes agent skills. Use when starting a session or when you need to discover which skill applies to the current task. This is the meta-skill that governs how the Addy Osmani engineering skills are discovered and invoked. Flake-local skills (nix-darwin-home-manager, skill-creator, exercism-codecrafters-python-mentor, creating-pr, writing-commit-messages, verification-before-completion) take precedence when they apply. The unmanaged pdf skill in ~/.agents takes precedence for PDF work.
+description: Discovers and invokes agent skills. Use when starting a session or when you need to discover which skill applies to the current task. This is the meta-skill that governs how the Addy Osmani engineering skills are discovered and invoked. Flake-local skills (nix-darwin-home-manager, skill-creator, exercism-codecrafters-python-mentor) take precedence when they apply. Third-party skills are allowlisted in modules/home/tools/skills.nix and deployed to every configured agent on nixswitch.
 ---
 
 # Using Agent Skills
@@ -13,13 +13,15 @@ Flake-local skills take precedence when they apply:
 - **nix-darwin / home-manager / this flake** → `nix-darwin-home-manager`
 - **Authoring or editing an Agent Skill** → `skill-creator`
 - **Python Exercism or CodeCrafters** → `exercism-codecrafters-python-mentor`
-- **Open a pull request** → `creating-pr`
-- **Commit message help** → `writing-commit-messages`
+
+Pinned third-party skills (flake inputs, allowlisted in `modules/home/tools/skills.nix`):
+
 - **About to claim done / passing / fixed** → `verification-before-completion`
-
-Unmanaged skills (not in the nix-darwin git repo; live under `~/.agents/unmanaged-skills/`):
-
 - **PDF files** → `pdf`
+- **Word documents (.docx / .dotx)** → `docx`
+- **PowerPoint (.pptx)** → `pptx`
+
+Not installed (move the name into `enable` in `modules/home/tools/skills.nix` to get them back): `interview-me`, `frontend-ui-engineering`, `browser-testing-with-devtools`, `performance-optimization`, `observability-and-instrumentation`, `shipping-and-launch`. `creating-pr` and `writing-commit-messages` also need a pinned source before they can be enabled. Do not invent those workflows from memory; if the user needs one, enable it first.
 
 ## Overview
 
@@ -36,32 +38,26 @@ Task arrives
     ├── Authoring or editing a skill? ──────→ skill-creator
     ├── Python Exercism / CodeCrafters? ────→ exercism-codecrafters-python-mentor
     ├── PDF files? ─────────────────────────→ pdf
-    ├── Opening a pull request? ────────────→ creating-pr
-    ├── Commit message only? ───────────────→ writing-commit-messages
+    ├── Word / .docx / .dotx? ───────────────→ docx
+    ├── PowerPoint / .pptx? ────────────────→ pptx
     ├── About to claim done? ───────────────→ verification-before-completion
-    ├── Don't know what you want yet? ──────→ interview-me
     ├── Have a rough concept, need variants? → idea-refine
     ├── New project/feature/change? ──→ spec-driven-development
     ├── Have a spec, need tasks? ──────→ planning-and-task-breakdown
     ├── Implementing code? ────────────→ incremental-implementation
-    │   ├── UI work? ─────────────────→ frontend-ui-engineering
     │   ├── API work? ────────────────→ api-and-interface-design
     │   ├── Need better context? ─────→ context-engineering
     │   ├── Need doc-verified code? ───→ source-driven-development
     │   └── Stakes high / unfamiliar code? ──→ doubt-driven-development
     ├── Writing/running tests? ────────→ test-driven-development
-    │   └── Browser-based? ───────────→ browser-testing-with-devtools
     ├── Something broke? ──────────────→ debugging-and-error-recovery
-    ├── Reviewing code? ───────────────→ code-review-and-quality
+    ├── Reviewing code? ──────────────→ code-review-and-quality
     │   ├── Too complex? ─────────────→ code-simplification
-    │   ├── Security concerns? ───────→ security-and-hardening
-    │   └── Performance concerns? ────→ performance-optimization
+    │   └── Security concerns? ───────→ security-and-hardening
     ├── Committing/branching? ─────────→ git-workflow-and-versioning
     ├── CI/CD pipeline work? ──────────→ ci-cd-and-automation
     ├── Deprecating/migrating? ────────→ deprecation-and-migration
-    ├── Writing docs/ADRs? ───────────→ documentation-and-adrs
-    ├── Adding logs/metrics/alerts? ───→ observability-and-instrumentation
-    └── Deploying/launching? ─────────→ shipping-and-launch
+    └── Writing docs/ADRs? ───────────→ documentation-and-adrs
 ```
 
 ## Core Operating Behaviors
@@ -158,7 +154,7 @@ These are the subtle errors that look like productivity but create problems:
 
 2. **Skills are workflows, not suggestions.** Follow the steps in order. Don't skip verification steps.
 
-3. **Multiple skills can apply.** A feature implementation might involve `idea-refine` → `spec-driven-development` → `planning-and-task-breakdown` → `incremental-implementation` → `test-driven-development` → `code-review-and-quality` → `code-simplification` → `shipping-and-launch` in sequence.
+3. **Multiple skills can apply.** A feature implementation might involve `idea-refine` → `spec-driven-development` → `planning-and-task-breakdown` → `incremental-implementation` → `test-driven-development` → `code-review-and-quality` → `code-simplification` in sequence.
 
 4. **When in doubt, start with a spec.** If the task is non-trivial and there's no spec, begin with `spec-driven-development`.
 
@@ -167,50 +163,41 @@ These are the subtle errors that look like productivity but create problems:
 For a complete feature, the typical skill sequence is:
 
 ```
-1.  interview-me                → Extract what the user actually wants
-2.  idea-refine                 → Refine vague ideas
-3.  spec-driven-development     → Define what we're building
-4.  planning-and-task-breakdown → Break into verifiable chunks
-5.  context-engineering         → Load the right context
-6.  source-driven-development   → Verify against official docs
-7.  incremental-implementation  → Build slice by slice
-8.  observability-and-instrumentation → Instrument as you build (runs parallel with 7-9, not after)
-9.  doubt-driven-development    → Cross-examine non-trivial decisions in-flight
-10. test-driven-development     → Prove each slice works
-11. code-review-and-quality     → Review before merge
-12. code-simplification         → Reduce unnecessary complexity while preserving behavior
-13. git-workflow-and-versioning → Clean commit history
-14. documentation-and-adrs      → Document decisions
-15. deprecation-and-migration   → Retire old systems and move users safely when needed
-16. shipping-and-launch         → Deploy safely
+1.  idea-refine                 → Refine vague ideas
+2.  spec-driven-development     → Define what we're building
+3.  planning-and-task-breakdown → Break into verifiable chunks
+4.  context-engineering         → Load the right context
+5.  source-driven-development   → Verify against official docs
+6.  incremental-implementation  → Build slice by slice
+7.  doubt-driven-development    → Cross-examine non-trivial decisions in-flight
+8.  test-driven-development     → Prove each slice works
+9.  code-review-and-quality     → Review before merge
+10. code-simplification         → Reduce unnecessary complexity while preserving behavior
+11. git-workflow-and-versioning → Clean commit history
+12. documentation-and-adrs      → Document decisions
+13. deprecation-and-migration   → Retire old systems and move users safely when needed
 ```
 
 Not every task needs every skill. A bug fix might only need: `debugging-and-error-recovery` → `test-driven-development` → `code-review-and-quality`.
 
 ## Quick Reference
 
-| Phase  | Skill                             | One-Line Summary                                                           |
-| ------ | --------------------------------- | -------------------------------------------------------------------------- |
-| Define | interview-me                      | Surface what the user actually wants before any plan, spec, or code exists |
-| Define | idea-refine                       | Refine ideas through structured divergent and convergent thinking          |
-| Define | spec-driven-development           | Requirements and acceptance criteria before code                           |
-| Plan   | planning-and-task-breakdown       | Decompose into small, verifiable tasks                                     |
-| Build  | incremental-implementation        | Thin vertical slices, test each before expanding                           |
-| Build  | source-driven-development         | Verify against official docs before implementing                           |
-| Build  | doubt-driven-development          | Adversarial fresh-context review of every non-trivial decision             |
-| Build  | context-engineering               | Right context at the right time                                            |
-| Build  | frontend-ui-engineering           | Production-quality UI with accessibility                                   |
-| Build  | api-and-interface-design          | Stable interfaces with clear contracts                                     |
-| Verify | test-driven-development           | Failing test first, then make it pass                                      |
-| Verify | browser-testing-with-devtools     | Chrome DevTools MCP for runtime verification                               |
-| Verify | debugging-and-error-recovery      | Reproduce → localize → fix → guard                                         |
-| Review | code-review-and-quality           | Five-axis review with quality gates                                        |
-| Review | code-simplification               | Preserve behavior while reducing unnecessary complexity                    |
-| Review | security-and-hardening            | OWASP prevention, input validation, least privilege                        |
-| Review | performance-optimization          | Measure first, optimize only what matters                                  |
-| Ship   | git-workflow-and-versioning       | Atomic commits, clean history                                              |
-| Ship   | ci-cd-and-automation              | Automated quality gates on every change                                    |
-| Ship   | deprecation-and-migration         | Remove old systems and migrate users safely                                |
-| Ship   | documentation-and-adrs            | Document the why, not just the what                                        |
-| Ship   | observability-and-instrumentation | Structured logs, RED metrics, traces, symptom-based alerts                 |
-| Ship   | shipping-and-launch               | Pre-launch checklist, monitoring, rollback plan                            |
+| Phase  | Skill                       | One-Line Summary                                                |
+| ------ | --------------------------- | --------------------------------------------------------------- |
+| Define | idea-refine                 | Refine ideas through structured divergent and convergent thinking |
+| Define | spec-driven-development     | Requirements and acceptance criteria before code                |
+| Plan   | planning-and-task-breakdown | Decompose into small, verifiable tasks                          |
+| Build  | incremental-implementation  | Thin vertical slices, test each before expanding                |
+| Build  | source-driven-development   | Verify against official docs before implementing                |
+| Build  | doubt-driven-development    | Adversarial fresh-context review of every non-trivial decision  |
+| Build  | context-engineering         | Right context at the right time                                 |
+| Build  | api-and-interface-design    | Stable interfaces with clear contracts                          |
+| Verify | test-driven-development     | Failing test first, then make it pass                           |
+| Verify | debugging-and-error-recovery| Reproduce → localize → fix → guard                              |
+| Review | code-review-and-quality     | Five-axis review with quality gates                             |
+| Review | code-simplification         | Preserve behavior while reducing unnecessary complexity         |
+| Review | security-and-hardening      | OWASP prevention, input validation, least privilege             |
+| Ship   | git-workflow-and-versioning | Atomic commits, clean history                                   |
+| Ship   | ci-cd-and-automation        | Automated quality gates on every change                         |
+| Ship   | deprecation-and-migration   | Remove old systems and migrate users safely                     |
+| Ship   | documentation-and-adrs      | Document the why, not just the what                             |
