@@ -63,7 +63,7 @@
       "command": "/opt/homebrew/bin/cursor-agent",
       // `--yolo` is Cursor Agent's documented "Run Everything" alias for
       // `--force`, so command approvals are accepted automatically.
-      "args": ["--yolo", "acp"],
+      "args": ["acp"],
       "default_mode": "agent",
       "favorite_config_option_values": {
         "model": ["grok-4.6", "kimi-k3"],
