@@ -135,7 +135,9 @@ static char *copy_source_name(AudioObjectID id, UInt32 source) {
       kAudioDevicePropertyDataSourceNameForIDCFString,
       kAudioObjectPropertyScopeOutput, kAudioObjectPropertyElementMain};
   CFStringRef name = NULL;
-  AudioValueTranslation tr = {&source, sizeof(source), &name, sizeof(name)};
+  AudioValueTranslation tr = {
+      &source, sizeof(source), &name,
+      sizeof(name)}; // NOLINT(bugprone-sizeof-expression)
   UInt32 size = sizeof(tr);
   char *out;
   CFIndex n;
