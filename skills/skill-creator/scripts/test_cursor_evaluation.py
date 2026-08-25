@@ -26,7 +26,7 @@ class InlineExecutor:
         future = Future()
         try:
             future.set_result(function(*args, **kwargs))
-        except Exception as error:
+        except Exception as error:  # noqa: BLE001
             future.set_exception(error)
         return future
 
@@ -42,9 +42,8 @@ class CursorEvaluationTests(unittest.TestCase):
             "invoke",
             "",
         ):
-            with self.subTest(response=response):
-                with self.assertRaises(ValueError):
-                    run_eval.parse_classifier_response(response)
+            with self.subTest(response=response), self.assertRaises(ValueError):
+                run_eval.parse_classifier_response(response)
 
     @patch("scripts.run_eval.run_cursor_agent", return_value="<invoke>")
     def test_classifier_uses_an_isolated_temporary_workspace(self, run_cursor_agent):

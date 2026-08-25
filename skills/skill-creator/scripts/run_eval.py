@@ -100,7 +100,7 @@ def run_eval(
             query_items[query] = item
             try:
                 triggered = future.result()
-            except Exception as error:
+            except Exception as error:  # noqa: BLE001
                 errors.append(f"query {query!r}, run {run_idx + 1}: {error}")
                 continue
             query_triggers.setdefault(query, []).append(triggered)

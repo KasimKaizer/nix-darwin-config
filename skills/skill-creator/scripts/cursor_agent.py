@@ -67,7 +67,7 @@ def run_cursor_agent(
         command.extend(["--model", model])
     command.append(prompt)
 
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: PLW1510
         command,
         capture_output=True,
         text=True,
