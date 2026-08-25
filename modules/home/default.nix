@@ -37,7 +37,7 @@
     packages = with pkgs; [
       # ACP agent CLIs used by Zed
       cursor-cli
-      codex-acp
+      codex
       antigravity-cli
       opencode
       # General CLI utilities
