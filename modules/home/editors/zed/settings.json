@@ -60,12 +60,35 @@
   "agent_servers": {
     "codex-acp": {
       "type": "registry",
+      "default_config_options": {
+        "mode": "agent-full-access",
+        "model": "gpt-5.6-terra",
+        "reasoning_effort": "xhigh",
+      },
     },
     "antigravity-acp": {
       "type": "registry",
+      "favorite_config_option_values": {
+        "model": ["gemini-pro-agent", "gemini-3.7-flash-high"],
+      },
+      "default_config_options": {
+        "mode": "yolo",
+        "model": "gemini-3.7-flash-high",
+      },
     },
     "opencode": {
       "type": "registry",
+      "favorite_config_option_values": {
+        "model": [
+          "openai/gpt-5.6-terra",
+          "cursor/kimi-k3",
+          "cursor/grok-4.6",
+        ],
+      },
+      "default_config_options": {
+        "effort": "xhigh",
+        "model": "cursor/grok-4.6",
+      },
     },
     "cursor": {
       "type": "registry",
