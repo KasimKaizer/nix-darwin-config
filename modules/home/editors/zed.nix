@@ -19,6 +19,7 @@
 # as ssh-config / exercism-user.json. Never written to the Nix store in plaintext.
 let
   zedDir = "${config.home.homeDirectory}/.config/zed";
+  claudeAgentAcp = pkgs.claude-agent-acp;
 
   # Non-secret files. @ZED_DIR@ is expanded now (build time); no secrets involved.
   subst = lib.replaceStrings [ "@ZED_DIR@" ] [ zedDir ];
@@ -51,12 +52,20 @@ in
           "@ZED_CONTEXT7_API_KEY@"
           "@ZED_GITHUB_PAT@"
           "@ZED_SSH_BOX_USER@"
+          "@CURSOR_AGENT@"
+          "@CLAUDE_AGENT_ACP@"
+          "@CLAUDE_CODE_EXECUTABLE@"
+          "@CLAUDE_CONFIG_ROOT@"
         ]
         [
           config.sops.placeholder.zed_exa_api_key
           config.sops.placeholder.zed_context7_api_key
           config.sops.placeholder.zed_github_pat
           config.sops.placeholder.ssh_box_user
+          (lib.getExe pkgs.cursor-cli)
+          (lib.getExe claudeAgentAcp)
+          (lib.getExe pkgs.claude-code)
+          "${config.xdg.configHome}/claude-code"
         ]
         (builtins.readFile ./zed/settings.json);
   };
@@ -64,6 +73,8 @@ in
   # Primary editor tooling. Shared language servers and formatters used by both
   # Zed and Helix live here
   home.packages = with pkgs; [
+    # ACP external agents
+    claudeAgentAcp
     # Python
     python3
     uv

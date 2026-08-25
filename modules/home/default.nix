@@ -17,6 +17,7 @@
     ./editors/vscode.nix
     ./editors/zed.nix
     ./tools/cli.nix
+    ./tools/claude-code-proxy.nix
     ./tools/git.nix
     ./tools/ssh.nix
     ./tools/secrets.nix

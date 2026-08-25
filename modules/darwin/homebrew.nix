@@ -14,7 +14,6 @@
       "antigravity-cli"
       "calibre"
       "copilot-cli"
-      "cursor-cli"
       "exifcleaner"
       "freedom"
       "grammarly-desktop"

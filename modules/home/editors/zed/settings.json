@@ -55,14 +55,60 @@
   // ============================================================================
   // External Agents (ACP)
   // ============================================================================
-  // Use Homebrew-managed CLIs instead of Zed's registry downloader.
+  // Use the Nix-managed Cursor Agent instead of Zed's registry downloader.
   // Docs: https://zed.dev/docs/ai/external-agents
   "agent_servers": {
+    // Each profile starts an independent ACP process with its own Claude Code
+    // config root, so changing agents cannot mutate an in-flight task.
+    "claude-codex": {
+      "type": "custom",
+      "command": "@CLAUDE_AGENT_ACP@",
+      "args": [],
+      "env": {
+        "CLAUDE_CODE_EXECUTABLE": "@CLAUDE_CODE_EXECUTABLE@",
+        "CLAUDE_CONFIG_DIR": "@CLAUDE_CONFIG_ROOT@/codex",
+        "ANTHROPIC_BASE_URL": "http://127.0.0.1:18765",
+        "ANTHROPIC_AUTH_TOKEN": "unused",
+        "ANTHROPIC_MODEL": "gpt-5.6-terra[1m]",
+        "ANTHROPIC_SMALL_FAST_MODEL": "gpt-5.6-luna[1m]",
+        "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "272000",
+        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+        "CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK": "1",
+      },
+    },
+    "claude-grok": {
+      "type": "custom",
+      "command": "@CLAUDE_AGENT_ACP@",
+      "args": [],
+      "env": {
+        "CLAUDE_CODE_EXECUTABLE": "@CLAUDE_CODE_EXECUTABLE@",
+        "CLAUDE_CONFIG_DIR": "@CLAUDE_CONFIG_ROOT@/grok",
+        "ANTHROPIC_BASE_URL": "http://127.0.0.1:18765",
+        "ANTHROPIC_AUTH_TOKEN": "unused",
+        "ANTHROPIC_MODEL": "cursor:grok-4.6",
+        "ANTHROPIC_SMALL_FAST_MODEL": "cursor:composer-2.5-fast",
+        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+        "CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK": "1",
+      },
+    },
+    "claude-kimi": {
+      "type": "custom",
+      "command": "@CLAUDE_AGENT_ACP@",
+      "args": [],
+      "env": {
+        "CLAUDE_CODE_EXECUTABLE": "@CLAUDE_CODE_EXECUTABLE@",
+        "CLAUDE_CONFIG_DIR": "@CLAUDE_CONFIG_ROOT@/kimi",
+        "ANTHROPIC_BASE_URL": "http://127.0.0.1:18765",
+        "ANTHROPIC_AUTH_TOKEN": "unused",
+        "ANTHROPIC_MODEL": "cursor:kimi-k3",
+        "ANTHROPIC_SMALL_FAST_MODEL": "cursor:composer-2.5-fast",
+        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+        "CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK": "1",
+      },
+    },
     "cursor": {
       "type": "custom",
-      "command": "/opt/homebrew/bin/cursor-agent",
-      // `--yolo` is Cursor Agent's documented "Run Everything" alias for
-      // `--force`, so command approvals are accepted automatically.
+      "command": "@CURSOR_AGENT@",
       "args": ["acp"],
       "default_mode": "agent",
       "favorite_config_option_values": {

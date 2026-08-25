@@ -25,7 +25,7 @@ One module ≈ one concern. `default.nix` files are import lists.
 ## Homebrew vs nixpkgs
 
 - **casks** — GUI and tools installed as apps (`zed`, `ghostty`,
-  `visual-studio-code`, `cursor-cli`, `antigravity-cli`, …).
+  `visual-studio-code`, `antigravity-cli`, …).
 - **masApps** — `{ PrettyName = 123456789; }`. Needs App Store login on the
   machine. `mas search 'Name'` prints ids (`mas` is already in `brews`).
 - **brews** — only `mas` today. If nixpkgs has the CLI, put it in

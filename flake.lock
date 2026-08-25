@@ -17,6 +17,26 @@
         "type": "github"
       }
     },
+    "claude-code-proxy": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1787483767,
+        "narHash": "sha256-GH9fuhXhbXIgofVBD2cJpAzmtqS1jd/IjduwQPvL5WM=",
+        "owner": "raine",
+        "repo": "claude-code-proxy",
+        "rev": "018540918b7950e7ca1d8619432010748488bbd5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "raine",
+        "repo": "claude-code-proxy",
+        "type": "github"
+      }
+    },
     "darwin": {
       "inputs": {
         "nixpkgs": [
@@ -142,6 +162,7 @@
     },
     "root": {
       "inputs": {
+        "claude-code-proxy": "claude-code-proxy",
         "darwin": "darwin",
         "home-manager": "home-manager",
         "homebrew-bundle": "homebrew-bundle",
