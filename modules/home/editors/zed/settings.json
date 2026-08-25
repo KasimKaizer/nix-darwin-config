@@ -79,14 +79,11 @@
     "opencode": {
       "type": "registry",
       "favorite_config_option_values": {
-        "model": [
-          "openai/gpt-5.6-terra",
-          "cursor/kimi-k3",
-          "cursor/grok-4.6",
-        ],
+        "model": ["openai/gpt-5.6-terra", "cursor/kimi-k3", "cursor/grok-4.6"],
+        "effort": ["Cursor Grok 4.6 Extra High", "Cursor Grok 4.6 High"],
       },
       "default_config_options": {
-        "effort": "xhigh",
+        "effort": "Cursor Grok 4.6 Extra High",
         "model": "cursor/grok-4.6",
       },
     },
