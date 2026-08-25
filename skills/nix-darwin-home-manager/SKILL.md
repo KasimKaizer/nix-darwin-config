@@ -77,7 +77,7 @@ Then the rest of the map:
 | Zed `settings.json` (includes API keys) | `zed/settings.json` + `sops.templates` in `zed.nix` |
 | VS Code settings / extensions | `editors/vscode/settings.json`, `extensions.txt`, logic in `vscode.nix` |
 | macOS `defaults` | `modules/darwin/defaults.nix`; app blobs under `modules/darwin/defaults/` |
-| Freedom / Itsycal prefs | `defaults/freedom.nix`, `defaults/itsycal.nix` |
+| Itsycal prefs | `defaults/itsycal.nix` |
 | Dock icons | `modules/darwin/defaults/dock-items.nix` |
 | Login items | `loginItems` in `defaults.nix` |
 | ⌘⌥ app hotkeys | `modules/darwin/skhd.nix` |

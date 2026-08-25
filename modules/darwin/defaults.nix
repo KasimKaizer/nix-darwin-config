@@ -180,7 +180,6 @@ in
         NSAllowContinuousSpellChecking = true;
         WebKitDeveloperExtras = true;
       };
-      "com.80pct.FreedomPlatform" = import ./defaults/freedom.nix;
       "com.apple.AdLib" = {
         allowApplePersonalizedAdvertising = false;
       };

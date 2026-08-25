@@ -196,8 +196,7 @@ sudo darwin-rebuild switch --switch-generation N   # jump to a specific one
     │   ├── defaults.nix           # system.defaults + login items
     │   ├── defaults/
     │   │   ├── dock-items.nix     # dock persistent-apps
-    │   │   ├── itsycal.nix
-    │   │   └── freedom.nix
+    │   │   └── itsycal.nix
     │   ├── fonts.nix
     │   ├── homebrew.nix           # casks / brews / masApps only
     │   ├── nix-homebrew.nix       # pin Homebrew + taps
