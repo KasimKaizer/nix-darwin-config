@@ -39,6 +39,19 @@
         "No plaintext API key is written into a Nix, JSON, or YAML file in the repo copy",
         "The agent instructs the user to edit the vault with sops secrets/secrets.yaml and then nixswitch && exec zsh"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Install the GitHub Copilot CLI on this Mac via the flake. I want `copilot` on my PATH.",
+      "expected_output": "Agent finds copilot-cli already in modules/darwin/homebrew.nix casks. Does not add it to home.packages, brews, or a second casks entry. Does not brew install. Tells the user it is already declared.",
+      "files": [],
+      "expectations": [
+        "copilot-cli is not added to home.packages",
+        "copilot-cli is not added to brews or masApps",
+        "No duplicate copilot-cli cask entry is created",
+        "The agent does not run brew install as the install method",
+        "The agent does not run nixswitch or sudo darwin-rebuild"
+      ]
     }
   ]
 }

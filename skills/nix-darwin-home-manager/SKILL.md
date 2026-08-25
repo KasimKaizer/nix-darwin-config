@@ -33,8 +33,11 @@ Read more only when the task needs it:
 
 ## Workflow
 
-1. **Classify** with the table below. If nothing fits, `rg` the repo for the
-   app, option, or similar package — do not guess a new directory.
+1. **Search, then classify.** `rg` the requested name (and obvious aliases) in
+   this flake first. Some CLIs are Homebrew casks here, and some tools live in
+   an editor module's `home.packages` — the GUI/CLI heuristic alone will
+   duplicate them. If an entry exists, edit that list. If it does not, classify
+   with the table. Do not guess a new directory.
 2. **Read** the target file (and its `default.nix` import list). Match lists,
    comments, and indentation already there.
 3. **Edit once**, in the module that already owns that concern. New module →
@@ -64,12 +67,16 @@ Pick the **kind** of change first. GUI vs CLI is the usual fork:
 | CLI nixpkgs lacks but Homebrew has as a formula | `homebrew.nix` → `brews` (today only `mas` — prefer nixpkgs) |
 | New Homebrew tap | **Don't.** Taps are flake-pinned in `modules/darwin/nix-homebrew.nix` (`mutableTaps = false`) |
 
+Those rows are for **new** entries. A few CLIs are already casks (`copilot-cli`,
+`android-platform-tools`).
+
 Then the rest of the map:
 
 | Change | File |
 | ------ | ---- |
 | Host facts (`system`, `username`, `timezone`, optional `flakeDir`) | `flake.nix` → `hosts` |
 | Host-only nix-darwin (hostname, `stateVersion`, `allowUnfree`) | `hosts/<hostname>/default.nix` |
+| Host-only hardware, launchd, or machine quirks | `hosts/<hostname>/` (inferno: `audio.nix`), not shared `modules/darwin/` |
 | New host | `flake.nix` hosts **and** `hosts/<hostname>/` (copy inferno). Age key: [reference.md](reference.md) |
 | Shared LSP / formatters (Python, Nix, Go, TS, shell, markdown) | `modules/home/editors/zed.nix` `home.packages` (Helix uses these too) |
 | Helix-only LSP / `programs.helix` | `modules/home/editors/helix.nix` |
@@ -90,6 +97,7 @@ Then the rest of the map:
 | Exercism CLI + token | `modules/home/tools/exercism.nix` |
 | SSH key + `~/.ssh/config` | `modules/home/tools/ssh.nix` (sops templates, not `programs.ssh`) |
 | Non-secret env vars | `home.sessionVariables` in `modules/home/default.nix` |
+| Extra PATH **directories** (not packages) | `home.sessionPath` in `modules/home/default.nix` |
 | Secret **env vars** | vault + `sops.secrets` + `secret-env` in `tools/secrets.nix` |
 | Secret **file** (ssh key, rclone.conf) | `sops.secrets.<name>.path` in the owning module |
 | Config that **contains** secrets | `sops.templates` + `config.sops.placeholder.*` |
@@ -97,11 +105,14 @@ Then the rest of the map:
 | Ghostty / Zellij | `modules/home/terminal/` |
 | Starship | `modules/home/shell/starship.nix` |
 
-Lookups: [nixpkgs](https://search.nixos.org/packages), [Homebrew](https://formulae.brew.sh/). GUI apps are Homebrew, not `home.packages`. CLI tools are nixpkgs, not `brew install`.
+Lookups: [nixpkgs](https://search.nixos.org/packages), [Homebrew](https://formulae.brew.sh/). GUI apps are Homebrew, not `home.packages`. New CLIs are nixpkgs, not `brew install` — after `rg` so you do not duplicate a cask.
 
 ## Recipes
 
-**Add a nixpkgs CLI** (e.g. `jq`): confirm the attribute on search.nixos.org → append to the existing `home.packages` list in the owning module (generic tools: `modules/home/default.nix`) → `nix fmt` → tell the user `nixswitch`.
+**Add a nixpkgs CLI** (e.g. `jq`): `rg` the name first so you do not duplicate a
+cask or editor-scoped package → confirm the attribute on search.nixos.org →
+append to the existing `home.packages` list in the owning module (generic tools:
+`modules/home/default.nix`) → `nix fmt` → tell the user `nixswitch`.
 
 **Add a GUI app**: App Store → `masApps` with `mas search`; otherwise a `casks` entry. If it should sit in the Dock, login at boot, or get a ⌘⌥ hotkey, update `dock-items.nix` / `loginItems` / `skhd.nix` in the same change. Never `brew install`.
 
@@ -111,32 +122,24 @@ Lookups: [nixpkgs](https://search.nixos.org/packages), [Homebrew](https://formul
 
 ## Package-profile collision checks
 
-`home.packages` is built as one `buildEnv` with a shared destination namespace
-(including `bin`). Related packages can therefore collide even when their main
-commands have different names.
+`home.packages` lands in one `buildEnv` with a shared `bin`. Related packages
+(same upstream, CLI + LSP, runtime + bundled tool) can collide even when the
+main commands differ. Apply this only when adding two or more packages that
+overlap that way — not as a blanket ban on complementary CLI/LSP pairs.
 
-Apply this check only when adding two or more packages that are plausibly
-related or overlapping—for example, components from the same upstream project,
-a CLI plus a separately packaged language server, or a runtime plus a bundled
-tool. It is not a blanket restriction on complementary CLI/LSP pairs.
-
-1. Confirm what each package contributes to the requested workflow. Do not add
-   a fallback CLI or server merely because an editor extension might use it.
-2. After editing, build the affected Home Manager profile before recommending
-   `nixswitch`:
+1. Add only what the requested workflow needs. Do not add a fallback CLI or
+   server just because an editor extension might call it.
+2. Build the Home Manager profile before recommending `nixswitch`:
 
    ```sh
    nix build --no-link --print-out-paths \
      .#darwinConfigurations.inferno.config.home-manager.users.ew.home.path
    ```
 
-3. If `buildEnv` reports a conflicting subpath, trace the colliding outputs and
-   make the smallest change that preserves the required workflows. Do not hide
-   the collision with `pathsToLink` or by broadly removing all CLI/LSP pairs.
-   A CLI and LSP are often both valid—for example, `terraform` supplies the
-   CLI, formatting, and provider metadata, while `terraform-ls` supplies editor
-   features. Select only one when an actual collision exists or one component
-   already supplies the other component’s role.
+3. If `buildEnv` reports a conflicting subpath, keep both workflows with the
+   smallest fix. Do not hide the collision with `pathsToLink`. A CLI and an
+   LSP can both be valid (`terraform` + `terraform-ls` in this flake); drop
+   one only when they collide or one already covers the other.
 
 ## Hard rules
 
@@ -160,6 +163,7 @@ These exist because the next `nixswitch` will undo the "easy" workaround.
 | Apply current repo | `nixswitch` |
 | Update nixpkgs/darwin/home-manager/etc. | `nixup` (also prunes system generations to 2) |
 | Undo last switch | `nix-rollback` (only last two gens survive `nixup` + weekly GC) |
+| Collect garbage now | `nixgc` |
 | Format / eval | `nix fmt` and `nix flake check --no-build` from the flake root |
 
 Bootstrap for a **new Mac** is in the repo `README.md` (age key before first switch). Do not re-encode those steps as Nix.

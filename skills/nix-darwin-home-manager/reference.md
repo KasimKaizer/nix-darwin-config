@@ -12,6 +12,7 @@ flake.nix                         hosts attrset, mkDarwin, formatter (nixfmt-tre
 secrets/secrets.yaml              encrypted vault (safe to commit)
 skills/<name>/SKILL.md            user skills → ~/.agents/skills/<name>
 hosts/<hostname>/default.nix      platform, hostname, timezone, primaryUser, imports darwin
+hosts/<hostname>/*.nix            host-only darwin (inferno: audio.nix + launchd)
 modules/darwin/default.nix        import list (core, defaults, skhd, fonts, homebrew)
 modules/darwin/nix-homebrew.nix   imported from flake.nix, not darwin/default.nix
 modules/home/default.nix          import list, generic home.packages, sessionVariables
@@ -24,12 +25,13 @@ One module ≈ one concern. `default.nix` files are import lists.
 
 ## Homebrew vs nixpkgs
 
-- **casks** — GUI and tools installed as apps (`zed`, `ghostty`,
-  `visual-studio-code`, `antigravity-cli`, …).
+- **casks** — GUI apps (`zed`, `ghostty`, `visual-studio-code`, …) and a few
+  CLIs shipped as casks (`copilot-cli`, `android-platform-tools`).
+  `cursor-cli` and `antigravity-cli` are nixpkgs (`home.packages`), not casks.
 - **masApps** — `{ PrettyName = 123456789; }`. Needs App Store login on the
   machine. `mas search 'Name'` prints ids (`mas` is already in `brews`).
 - **brews** — only `mas` today. If nixpkgs has the CLI, put it in
-  `home.packages`.
+  `home.packages` — after confirming it is not already a cask.
 - **taps** — `homebrew/core`, `cask`, `bundle` pinned via flake inputs.
   `mutableTaps = false`: a tap not in `nix-homebrew.nix` will not stick.
   `homebrew.nix` also lists those tap names; keep both in sync if you ever add
