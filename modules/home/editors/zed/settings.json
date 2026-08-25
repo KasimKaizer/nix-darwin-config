@@ -83,7 +83,6 @@
         "effort": ["Cursor Grok 4.6 Extra High", "Cursor Grok 4.6 High"],
       },
       "default_config_options": {
-        "effort": "Cursor Grok 4.6 Extra High",
         "model": "cursor/grok-4.6",
       },
     },
