@@ -13,11 +13,6 @@
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
-    claude-code-proxy = {
-      url = "github:raine/claude-code-proxy";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     nix-homebrew.url = "github:zhaofengli/nix-homebrew";
     homebrew-core = {
       url = "github:homebrew/homebrew-core";

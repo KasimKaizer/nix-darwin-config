@@ -222,8 +222,8 @@ sudo darwin-rebuild switch --switch-generation N   # jump to a specific one
 
 **State (not config):** Azure CLI login/session data (`~/.azure`), `gh` auth
 (`~/.config/gh/hosts.yml`), browser / Bitwarden profiles, Gemini / Copilot OAuth,
-App Store / iCloud, LuLu rules, JetBrains Settings Sync, Chrome PWAs,
-`~/.claude` / `~/.ollama`.
+App Store / iCloud, LuLu rules, JetBrains Settings Sync, Chrome PWAs, and
+`~/.ollama`.
 
 ## References
 

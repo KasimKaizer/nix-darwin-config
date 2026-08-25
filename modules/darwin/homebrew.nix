@@ -11,7 +11,6 @@
     };
     casks = [
       "android-platform-tools"
-      "antigravity-cli"
       "calibre"
       "copilot-cli"
       "exifcleaner"

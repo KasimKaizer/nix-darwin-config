@@ -17,7 +17,6 @@
     ./editors/vscode.nix
     ./editors/zed.nix
     ./tools/cli.nix
-    ./tools/claude-code-proxy.nix
     ./tools/git.nix
     ./tools/ssh.nix
     ./tools/secrets.nix
@@ -36,6 +35,11 @@
       "${config.home.homeDirectory}/.local/bin"
     ];
     packages = with pkgs; [
+      # ACP agent CLIs used by Zed
+      cursor-cli
+      codex-acp
+      antigravity-cli
+      opencode
       # General CLI utilities
       bitwarden-cli
       ffmpeg

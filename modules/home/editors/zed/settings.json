@@ -55,61 +55,20 @@
   // ============================================================================
   // External Agents (ACP)
   // ============================================================================
-  // Use the Nix-managed Cursor Agent instead of Zed's registry downloader.
+  // Install and launch common ACP agents through Zed's registry.
   // Docs: https://zed.dev/docs/ai/external-agents
   "agent_servers": {
-    // Each profile starts an independent ACP process with its own Claude Code
-    // config root, so changing agents cannot mutate an in-flight task.
-    "claude-codex": {
-      "type": "custom",
-      "command": "@CLAUDE_AGENT_ACP@",
-      "args": [],
-      "env": {
-        "CLAUDE_CODE_EXECUTABLE": "@CLAUDE_CODE_EXECUTABLE@",
-        "CLAUDE_CONFIG_DIR": "@CLAUDE_CONFIG_ROOT@/codex",
-        "ANTHROPIC_BASE_URL": "http://127.0.0.1:18765",
-        "ANTHROPIC_AUTH_TOKEN": "unused",
-        "ANTHROPIC_MODEL": "gpt-5.6-terra[1m]",
-        "ANTHROPIC_SMALL_FAST_MODEL": "gpt-5.6-luna[1m]",
-        "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "272000",
-        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-        "CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK": "1",
-      },
+    "codex-acp": {
+      "type": "registry",
     },
-    "claude-grok": {
-      "type": "custom",
-      "command": "@CLAUDE_AGENT_ACP@",
-      "args": [],
-      "env": {
-        "CLAUDE_CODE_EXECUTABLE": "@CLAUDE_CODE_EXECUTABLE@",
-        "CLAUDE_CONFIG_DIR": "@CLAUDE_CONFIG_ROOT@/grok",
-        "ANTHROPIC_BASE_URL": "http://127.0.0.1:18765",
-        "ANTHROPIC_AUTH_TOKEN": "unused",
-        "ANTHROPIC_MODEL": "cursor:grok-4.6",
-        "ANTHROPIC_SMALL_FAST_MODEL": "cursor:composer-2.5-fast",
-        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-        "CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK": "1",
-      },
+    "antigravity-acp": {
+      "type": "registry",
     },
-    "claude-kimi": {
-      "type": "custom",
-      "command": "@CLAUDE_AGENT_ACP@",
-      "args": [],
-      "env": {
-        "CLAUDE_CODE_EXECUTABLE": "@CLAUDE_CODE_EXECUTABLE@",
-        "CLAUDE_CONFIG_DIR": "@CLAUDE_CONFIG_ROOT@/kimi",
-        "ANTHROPIC_BASE_URL": "http://127.0.0.1:18765",
-        "ANTHROPIC_AUTH_TOKEN": "unused",
-        "ANTHROPIC_MODEL": "cursor:kimi-k3",
-        "ANTHROPIC_SMALL_FAST_MODEL": "cursor:composer-2.5-fast",
-        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-        "CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK": "1",
-      },
+    "opencode": {
+      "type": "registry",
     },
     "cursor": {
-      "type": "custom",
-      "command": "@CURSOR_AGENT@",
-      "args": ["acp"],
+      "type": "registry",
       "default_mode": "agent",
       "favorite_config_option_values": {
         "model": ["grok-4.6", "kimi-k3"],
@@ -121,9 +80,7 @@
       },
     },
     "github-copilot-cli": {
-      "type": "custom",
-      "command": "/opt/homebrew/bin/copilot",
-      "args": ["--acp"],
+      "type": "registry",
       "default_config_options": {
         "reasoning_effort": "high",
       },

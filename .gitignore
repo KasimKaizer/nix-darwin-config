@@ -10,6 +10,9 @@
 /MIGRATION_PLAN.md
 /docs/
 
+# Local agent settings and worktrees
+/.claude/
+
 # Local secrets / keys
 /.env
 /.env.*
@@ -30,3 +33,6 @@
 **/id_ed25519
 **/id_ed25519.pub
 **/*.agekey
+
+# Python bytecode
+__pycache__/
