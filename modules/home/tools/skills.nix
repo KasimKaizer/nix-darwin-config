@@ -51,6 +51,13 @@ let
     ];
   };
 
+  mattpocock = {
+    enable = [
+      "grill-me"
+      "grilling" # Required by grill-me.
+    ];
+  };
+
   discoverRegex = names: "^(${lib.concatStringsSep "|" names})$";
 
   skillTarget = dest: {
@@ -94,11 +101,20 @@ in
         filter.maxDepth = 1;
         filter.nameRegex = "^verification-before-completion$";
       };
+
+      mattpocock = {
+        # github:mattpocock/skills
+        path = inputs.mattpocock-skills;
+        subdir = "skills/productivity";
+        filter.maxDepth = 1;
+        filter.nameRegex = discoverRegex mattpocock.enable;
+      };
     };
 
     skills = {
       enableAll = [ "local" ];
-      enable = addy.enable ++ anthropic.enable ++ [ "verification-before-completion" ];
+      enable =
+        addy.enable ++ anthropic.enable ++ mattpocock.enable ++ [ "verification-before-completion" ];
     };
 
     # `link` is home.file (HM-native); destinations must be static relative to $HOME.
