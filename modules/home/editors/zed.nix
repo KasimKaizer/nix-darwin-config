@@ -28,8 +28,44 @@ let
       "arch-ops-server==3.4.0"
   '';
 
+  nixosMcpServer = pkgs.writeShellScript "zed-mcp-nixos-server" ''
+    exec ${pkgs.uv}/bin/uvx "mcp-nixos==3.0.1"
+  '';
+
+  serenaMcpServer = pkgs.writeShellScript "zed-serena-mcp-server" ''
+    exec ${pkgs.uv}/bin/uvx \
+      --from "git+https://github.com/oraios/serena@7fcbca7e62555ec2287ddb2f083caee805848ea6" \
+      serena start-mcp-server \
+      --project-from-cwd \
+      --enable-web-dashboard false \
+      --open-web-dashboard false
+  '';
+
+  # An isolated, headless browser avoids persisting sessions or opening windows.
+  playwrightMcpServer = pkgs.writeShellScript "zed-playwright-mcp-server" ''
+    exec ${pkgs.nodejs}/bin/npx \
+      --yes "@playwright/mcp@0.0.76" \
+      --isolated \
+      --headless
+  '';
+
   # Non-secret files. Tokens are expanded now (build time); no secrets involved.
-  subst = lib.replaceStrings [ "@ZED_DIR@" "@ARCH_OPS_SERVER@" ] [ zedDir (toString archOpsServer) ];
+  subst =
+    lib.replaceStrings
+      [
+        "@ZED_DIR@"
+        "@ARCH_OPS_SERVER@"
+        "@NIXOS_MCP_SERVER@"
+        "@SERENA_MCP_SERVER@"
+        "@PLAYWRIGHT_MCP_SERVER@"
+      ]
+      [
+        zedDir
+        (toString archOpsServer)
+        (toString nixosMcpServer)
+        (toString serenaMcpServer)
+        (toString playwrightMcpServer)
+      ];
 
   tasksFile = pkgs.writeText "zed-tasks.json" (subst (builtins.readFile ./zed/tasks.json));
   toggleFile = pkgs.writeTextFile {

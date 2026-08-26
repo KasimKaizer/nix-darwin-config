@@ -48,6 +48,21 @@
       "remote": false,
       "settings": {},
     },
+    "nixos": {
+      "command": "@NIXOS_MCP_SERVER@",
+      "args": [],
+      "env": {},
+    },
+    "serena": {
+      "command": "@SERENA_MCP_SERVER@",
+      "args": [],
+      "env": {},
+    },
+    "playwright": {
+      "command": "@PLAYWRIGHT_MCP_SERVER@",
+      "args": [],
+      "env": {},
+    },
   },
   // ============================================================================
   // External Agents (ACP)

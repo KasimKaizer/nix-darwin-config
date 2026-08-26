@@ -29,6 +29,27 @@ let
       "arch-ops-server==3.4.0"
   '';
 
+  nixosMcpServer = pkgs.writeShellScript "mcp-nixos-server" ''
+    exec ${pkgs.uv}/bin/uvx "mcp-nixos==3.0.1"
+  '';
+
+  serenaMcpServer = pkgs.writeShellScript "serena-mcp-server" ''
+    exec ${pkgs.uv}/bin/uvx \
+      --from "git+https://github.com/oraios/serena@7fcbca7e62555ec2287ddb2f083caee805848ea6" \
+      serena start-mcp-server \
+      --project-from-cwd \
+      --enable-web-dashboard false \
+      --open-web-dashboard false
+  '';
+
+  # An isolated, headless browser avoids persisting sessions or opening windows.
+  playwrightMcpServer = pkgs.writeShellScript "playwright-mcp-server" ''
+    exec ${pkgs.nodejs}/bin/npx \
+      --yes "@playwright/mcp@0.0.76" \
+      --isolated \
+      --headless
+  '';
+
   # Canonical definition for MCP servers shared by the agent clients.
   # Client-specific functions below only adapt their transport schema.
   mcpServers = {
@@ -40,6 +61,9 @@ let
       "@modelcontextprotocol/server-sequential-thinking"
     ];
     "arch-linux" = stdio (toString archOpsServer) [ ];
+    nixos = stdio (toString nixosMcpServer) [ ];
+    serena = stdio (toString serenaMcpServer) [ ];
+    playwright = stdio (toString playwrightMcpServer) [ ];
   };
 
   toOpenCode =

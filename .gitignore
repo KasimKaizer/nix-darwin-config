@@ -12,6 +12,7 @@
 
 # Local agent settings and worktrees
 /.claude/
+/.serena/
 
 # Local secrets / keys
 /.env
