@@ -123,7 +123,7 @@ in
       cursor = skillTarget ".cursor/skills";
       codex = skillTarget ".codex/skills";
       opencode = skillTarget ".config/opencode/skills";
-      antigravity = skillTarget ".gemini/antigravity/skills";
+      antigravity = skillTarget ".gemini/skills";
       copilot = skillTarget ".copilot/skills";
     };
   };
