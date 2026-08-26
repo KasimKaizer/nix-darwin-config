@@ -20,8 +20,16 @@
 let
   zedDir = "${config.home.homeDirectory}/.config/zed";
 
-  # Non-secret files. @ZED_DIR@ is expanded now (build time); no secrets involved.
-  subst = lib.replaceStrings [ "@ZED_DIR@" ] [ zedDir ];
+  # arch-ops-server 3.4.0 permits MCP SDK 2.x, but uses an API removed there.
+  # Run the verified compatible SDK release through an executable wrapper.
+  archOpsServer = pkgs.writeShellScript "zed-arch-ops-server" ''
+    exec ${pkgs.uv}/bin/uvx \
+      --with "mcp==1.29.1" \
+      "arch-ops-server==3.4.0"
+  '';
+
+  # Non-secret files. Tokens are expanded now (build time); no secrets involved.
+  subst = lib.replaceStrings [ "@ZED_DIR@" "@ARCH_OPS_SERVER@" ] [ zedDir (toString archOpsServer) ];
 
   tasksFile = pkgs.writeText "zed-tasks.json" (subst (builtins.readFile ./zed/tasks.json));
   toggleFile = pkgs.writeTextFile {
@@ -32,8 +40,8 @@ let
   keymapFile = ./zed/keymap.json;
 in
 {
-  # Declared so sops.placeholder.* resolves and sops-install-secrets decrypts them.
-  # ssh_box_user is already declared in tools/ssh.nix.
+  # Declared here because this editor template consumes these placeholders.
+  # ssh_box_user is declared in tools/ssh.nix.
   sops.secrets = {
     zed_exa_api_key = { };
     zed_context7_api_key = { };
@@ -43,7 +51,7 @@ in
   # Render settings.json with secrets substituted in-process by sops-nix
   sops.templates."zed-settings.json" = {
     path = "${zedDir}/settings.json";
-    mode = "0644";
+    mode = "0600";
     content =
       lib.replaceStrings
         [
@@ -58,7 +66,7 @@ in
           config.sops.placeholder.zed_github_pat
           config.sops.placeholder.ssh_box_user
         ]
-        (builtins.readFile ./zed/settings.json);
+        (subst (builtins.readFile ./zed/settings.json));
   };
 
   # Primary editor tooling. Shared language servers and formatters used by both

@@ -1,0 +1,192 @@
+{
+  config,
+  lib,
+  pkgs,
+  flakeDir,
+  ...
+}:
+let
+  homeDirectory = config.home.homeDirectory;
+
+  remote = url: token: {
+    transport = "http";
+    inherit url;
+    headers = {
+      Authorization = "Bearer ${token}";
+    };
+  };
+
+  stdio = command: args: {
+    transport = "stdio";
+    inherit command args;
+  };
+
+  # arch-ops-server 3.4.0 permits MCP SDK 2.x, but uses an API removed there.
+  # Run the verified compatible SDK release through an executable wrapper.
+  archOpsServer = pkgs.writeShellScript "arch-ops-server" ''
+    exec ${pkgs.uv}/bin/uvx \
+      --with "mcp==1.29.1" \
+      "arch-ops-server==3.4.0"
+  '';
+
+  # Canonical definition for MCP servers shared by the agent clients.
+  # Client-specific functions below only adapt their transport schema.
+  mcpServers = {
+    exa = remote "https://mcp.exa.ai/mcp" config.sops.placeholder.zed_exa_api_key;
+    context7 = remote "https://mcp.context7.com/mcp" config.sops.placeholder.zed_context7_api_key;
+    github = remote "https://api.githubcopilot.com/mcp/" config.sops.placeholder.zed_github_pat;
+    "sequential-thinking" = stdio "npx" [
+      "-y"
+      "@modelcontextprotocol/server-sequential-thinking"
+    ];
+    "arch-linux" = stdio (toString archOpsServer) [ ];
+  };
+
+  toOpenCode =
+    _: server:
+    if server.transport == "http" then
+      {
+        type = "remote";
+        inherit (server) url headers;
+        enabled = true;
+        oauth = false;
+      }
+    else
+      {
+        type = "local";
+        command = [ server.command ] ++ server.args;
+        enabled = true;
+      };
+
+  toMcpJson =
+    _: server:
+    if server.transport == "http" then
+      {
+        inherit (server) url headers;
+      }
+    else
+      {
+        inherit (server) command args;
+      };
+
+  toAntigravity =
+    _: server:
+    if server.transport == "http" then
+      {
+        serverUrl = server.url;
+        inherit (server) headers;
+      }
+    else
+      {
+        inherit (server) command args;
+      };
+
+  toCopilot =
+    _: server:
+    if server.transport == "http" then
+      {
+        type = "http";
+        inherit (server) url headers;
+        tools = [ "*" ];
+      }
+    else
+      {
+        type = "local";
+        inherit (server) command args;
+        env = { };
+        tools = [ "*" ];
+      };
+
+  toCodexMcp =
+    name: server:
+    if server.transport == "http" then
+      ''
+        [mcp_servers.${name}]
+        url = "${server.url}"
+        http_headers = { Authorization = "${server.headers.Authorization}" }
+      ''
+    else
+      ''
+        [mcp_servers.${name}]
+        command = "${server.command}"
+        args = [ ${lib.concatMapStringsSep ", " (arg: "\"${arg}\"") server.args} ]
+      '';
+
+  codexMcpServers = lib.concatStringsSep "\n" (lib.mapAttrsToList toCodexMcp mcpServers);
+in
+{
+
+  # sops-nix renders templates after this activation entry. Ensure target
+  # directories exist even for clients that have not been launched yet.
+  home.activation.mcpConfigDirectories = lib.hm.dag.entryBefore [ "sops-nix" ] ''
+    $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p \
+      "${homeDirectory}/.config/opencode" \
+      "${homeDirectory}/.cursor" \
+      "${homeDirectory}/.codex" \
+      "${homeDirectory}/.gemini/config" \
+      "${homeDirectory}/.copilot"
+  '';
+
+  sops.templates = {
+    "opencode-mcp.jsonc" = {
+      path = "${homeDirectory}/.config/opencode/opencode.jsonc";
+      mode = "0600";
+      content = builtins.toJSON {
+        "$schema" = "https://opencode.ai/config.json";
+        lsp = true;
+        plugin = [ "cursor-opencode-provider" ];
+        provider = {
+          cursor = {
+            npm = "cursor-opencode-provider";
+            name = "Cursor";
+            models = { };
+          };
+          openrouter = {
+            options.apiKey = config.sops.placeholder.openrouter_api_key;
+          };
+        };
+        mcp = lib.mapAttrs toOpenCode mcpServers;
+      };
+    };
+
+    "cursor-mcp.json" = {
+      path = "${homeDirectory}/.cursor/mcp.json";
+      mode = "0600";
+      content = builtins.toJSON {
+        mcpServers = lib.mapAttrs toMcpJson mcpServers;
+      };
+    };
+
+    "codex-config.toml" = {
+      path = "${homeDirectory}/.codex/config.toml";
+      mode = "0600";
+      content = ''
+        plan_mode_reasoning_effort = "xhigh"
+        model = "gpt-5.6-terra"
+        model_reasoning_effort = "xhigh"
+        approvals_reviewer = "auto_review"
+
+        [projects."${flakeDir}"]
+        trust_level = "trusted"
+
+        ${codexMcpServers}
+      '';
+    };
+
+    "antigravity-mcp.json" = {
+      path = "${homeDirectory}/.gemini/config/mcp_config.json";
+      mode = "0600";
+      content = builtins.toJSON {
+        mcpServers = lib.mapAttrs toAntigravity mcpServers;
+      };
+    };
+
+    "copilot-mcp-config.json" = {
+      path = "${homeDirectory}/.copilot/mcp-config.json";
+      mode = "0600";
+      content = builtins.toJSON {
+        mcpServers = lib.mapAttrs toCopilot mcpServers;
+      };
+    };
+  };
+}

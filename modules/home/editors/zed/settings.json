@@ -32,7 +32,9 @@
     "arch-ops-server": {
       "enabled": true,
       "remote": false,
-      "settings": {},
+      "settings": {
+        "server_path": "@ARCH_OPS_SERVER@",
+      },
     },
     "mcp-server-github": {
       "enabled": true,
@@ -42,11 +44,6 @@
       },
     },
     "mcp-server-sequential-thinking": {
-      "enabled": true,
-      "remote": false,
-      "settings": {},
-    },
-    "browser-tools-context-server": {
       "enabled": true,
       "remote": false,
       "settings": {},
