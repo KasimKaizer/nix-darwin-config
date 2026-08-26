@@ -33,11 +33,11 @@ let
       "ci-cd-and-automation"
       "deprecation-and-migration"
       "documentation-and-adrs"
+      "observability-and-instrumentation"
       # "interview-me"
       # "frontend-ui-engineering"
       # "browser-testing-with-devtools"
       # "performance-optimization"
-      # "observability-and-instrumentation"
       # "shipping-and-launch"
     ];
   };
@@ -123,7 +123,7 @@ in
       cursor = skillTarget ".cursor/skills";
       codex = skillTarget ".codex/skills";
       opencode = skillTarget ".config/opencode/skills";
-      antigravity = skillTarget ".gemini/skills";
+      antigravity = skillTarget ".gemini/antigravity-cli/skills";
       copilot = skillTarget ".copilot/skills";
     };
   };
