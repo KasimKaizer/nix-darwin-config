@@ -158,7 +158,10 @@ in
       content = builtins.toJSON {
         "$schema" = "https://opencode.ai/config.json";
         lsp = true;
-        plugin = [ "cursor-opencode-provider" ];
+        plugin = [
+          "cursor-opencode-provider"
+          "@cortexkit/opencode-antigravity-auth@2.1.0"
+        ];
         provider = {
           cursor = {
             npm = "cursor-opencode-provider";
@@ -170,6 +173,14 @@ in
           };
         };
         mcp = lib.mapAttrs toOpenCode mcpServers;
+      };
+    };
+
+    "opencode-tui.json" = {
+      path = "${homeDirectory}/.config/opencode/tui.json";
+      mode = "0600";
+      content = builtins.toJSON {
+        plugin = [ "@cortexkit/opencode-antigravity-auth" ];
       };
     };
 
