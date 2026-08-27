@@ -29,13 +29,6 @@
         "context7_api_key": "@ZED_CONTEXT7_API_KEY@",
       },
     },
-    "arch-ops-server": {
-      "enabled": true,
-      "remote": false,
-      "settings": {
-        "server_path": "@ARCH_OPS_SERVER@",
-      },
-    },
     "mcp-server-github": {
       "enabled": true,
       "remote": false,
@@ -48,8 +41,8 @@
       "remote": false,
       "settings": {},
     },
-    "nixos": {
-      "command": "@NIXOS_MCP_SERVER@",
+    "nix": {
+      "command": "@NIX_MCP_SERVER@",
       "args": [],
       "env": {},
     },
@@ -343,7 +336,6 @@
   // ============================================================================
   "auto_install_extensions": {
     // MCP / context servers
-    "arch-mcp": true,
     "mcp-server-context7": true,
     "mcp-server-exa-search": true,
     "mcp-server-github": true,

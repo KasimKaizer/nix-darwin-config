@@ -21,18 +21,6 @@ let
     inherit command args;
   };
 
-  # arch-ops-server 3.4.0 permits MCP SDK 2.x, but uses an API removed there.
-  # Run the verified compatible SDK release through an executable wrapper.
-  archOpsServer = pkgs.writeShellScript "arch-ops-server" ''
-    exec ${pkgs.uv}/bin/uvx \
-      --with "mcp==1.29.1" \
-      "arch-ops-server==3.4.0"
-  '';
-
-  nixosMcpServer = pkgs.writeShellScript "mcp-nixos-server" ''
-    exec ${pkgs.uv}/bin/uvx "mcp-nixos==3.0.1"
-  '';
-
   serenaMcpServer = pkgs.writeShellScript "serena-mcp-server" ''
     exec ${pkgs.uv}/bin/uvx \
       --from "git+https://github.com/oraios/serena@7fcbca7e62555ec2287ddb2f083caee805848ea6" \
@@ -60,8 +48,8 @@ let
       "-y"
       "@modelcontextprotocol/server-sequential-thinking"
     ];
-    "arch-linux" = stdio (toString archOpsServer) [ ];
-    nixos = stdio (toString nixosMcpServer) [ ];
+    # mcp-nixos includes nix-darwin and Home Manager option sources.
+    nix = stdio "${pkgs.mcp-nixos}/bin/mcp-nixos" [ ];
     serena = stdio (toString serenaMcpServer) [ ];
     playwright = stdio (toString playwrightMcpServer) [ ];
   };

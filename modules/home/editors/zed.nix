@@ -20,18 +20,6 @@
 let
   zedDir = "${config.home.homeDirectory}/.config/zed";
 
-  # arch-ops-server 3.4.0 permits MCP SDK 2.x, but uses an API removed there.
-  # Run the verified compatible SDK release through an executable wrapper.
-  archOpsServer = pkgs.writeShellScript "zed-arch-ops-server" ''
-    exec ${pkgs.uv}/bin/uvx \
-      --with "mcp==1.29.1" \
-      "arch-ops-server==3.4.0"
-  '';
-
-  nixosMcpServer = pkgs.writeShellScript "zed-mcp-nixos-server" ''
-    exec ${pkgs.uv}/bin/uvx "mcp-nixos==3.0.1"
-  '';
-
   serenaMcpServer = pkgs.writeShellScript "zed-serena-mcp-server" ''
     exec ${pkgs.uv}/bin/uvx \
       --from "git+https://github.com/oraios/serena@7fcbca7e62555ec2287ddb2f083caee805848ea6" \
@@ -54,15 +42,13 @@ let
     lib.replaceStrings
       [
         "@ZED_DIR@"
-        "@ARCH_OPS_SERVER@"
-        "@NIXOS_MCP_SERVER@"
+        "@NIX_MCP_SERVER@"
         "@SERENA_MCP_SERVER@"
         "@PLAYWRIGHT_MCP_SERVER@"
       ]
       [
         zedDir
-        (toString archOpsServer)
-        (toString nixosMcpServer)
+        "${pkgs.mcp-nixos}/bin/mcp-nixos"
         (toString serenaMcpServer)
         (toString playwrightMcpServer)
       ];
