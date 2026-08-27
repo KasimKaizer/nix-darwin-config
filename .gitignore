@@ -7,10 +7,7 @@
 **/.DS_Store
 
 # Local planning notes and documentation
-/MIGRATION_PLAN.md
-/docs/
-/decisions/
-/tasks/
+/notes/
 
 # Local agent settings and worktrees
 /.claude/

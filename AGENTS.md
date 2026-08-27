@@ -27,8 +27,6 @@ provided arguments instead of hardcoded paths or host facts.
   package-version queries.
 - Keep this root file as the shared baseline. Add a nested `AGENTS.md` only for
   a subtree with its own owner, validation path, or safety boundary.
-- `docs/`, `decisions/`, and `tasks/` are ignored local notes: useful context,
-  but not tracked specifications or durable sources of truth.
 
 ## Ownership
 
@@ -59,8 +57,7 @@ provided arguments instead of hardcoded paths or host facts.
 - Prefer nixpkgs for CLI tools, Homebrew casks for GUI apps, and `masApps` for
   App Store apps. The existing `mas` formula is a bootstrap exception, not a
   precedent for installing other formulae.
-- Homebrew cleanup is `zap`; do not run `brew install`, `brew tap`, or `mas
-  install`. Do not run `defaults write` for keys this flake manages.
+- Homebrew cleanup is `zap`; do not run `brew install`, `brew tap`, or `mas install`. Do not run `defaults write` for keys this flake manages.
 - Keep secret source values encrypted in `secrets/secrets.yaml`. Use
   `sops.secrets` for whole secret files and `sops.templates` with
   `config.sops.placeholder.*` for generated configurations containing secrets.
