@@ -1,0 +1,337 @@
+{
+  "context_servers": {
+    "mcp-server-exa-search": {
+      "enabled": true,
+      "remote": false,
+      "settings": { "exa_api_key": "@ZED_EXA_API_KEY@" }
+    },
+    "mcp-server-context7": {
+      "enabled": true,
+      "remote": false,
+      "settings": { "context7_api_key": "@ZED_CONTEXT7_API_KEY@" }
+    },
+    "mcp-server-github": {
+      "enabled": true,
+      "remote": false,
+      "settings": { "github_personal_access_token": "@ZED_GITHUB_PAT@" }
+    },
+    "mcp-server-sequential-thinking": {
+      "enabled": true,
+      "remote": false,
+      "settings": {}
+    },
+    "nix": { "command": "@NIX_MCP_SERVER@", "args": [], "env": {} },
+    "serena": { "command": "@SERENA_MCP_SERVER@", "args": [], "env": {} },
+    "playwright": {
+      "command": "@PLAYWRIGHT_MCP_SERVER@",
+      "args": [],
+      "env": {}
+    }
+  },
+  "agent_servers": {
+    "codex-acp": {
+      "type": "registry",
+      "default_config_options": {
+        "mode": "agent-full-access",
+        "model": "gpt-5.6-terra",
+        "reasoning_effort": "xhigh"
+      }
+    },
+    "antigravity-acp": {
+      "type": "registry",
+      "favorite_config_option_values": {
+        "model": ["gemini-pro-agent", "gemini-3.7-flash-high"]
+      },
+      "default_config_options": {
+        "mode": "yolo",
+        "model": "gemini-3.7-flash-high"
+      }
+    },
+    "opencode": {
+      "type": "registry",
+      "favorite_config_option_values": {
+        "model": [
+          "openai/gpt-5.6-terra",
+          "cursor/kimi-k3",
+          "cursor/grok-4.6",
+          "google/antigravity-gemini-3.7-flash",
+          "google/antigravity-gemini-3.1-pro"
+        ],
+        "effort": ["Cursor Grok 4.6 Extra High", "Cursor Grok 4.6 High"]
+      },
+      "default_config_options": {
+        "effort": "Cursor Grok 4.6 High",
+        "model": "cursor/grok-4.6"
+      }
+    },
+    "cursor": {
+      "type": "registry",
+      "default_mode": "agent",
+      "favorite_config_option_values": { "model": ["grok-4.6", "kimi-k3"] },
+      "default_config_options": {
+        "effort": "xhigh",
+        "fast": "false",
+        "model": "grok-4.6"
+      }
+    },
+    "github-copilot-cli": {
+      "type": "registry",
+      "default_config_options": { "reasoning_effort": "high" }
+    }
+  },
+  "agent": {
+    "favorite_models": [
+      {
+        "provider": "openrouter",
+        "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "enable_thinking": true,
+        "effort": "max"
+      },
+      {
+        "provider": "openai-subscribed",
+        "model": "gpt-5.6-terra",
+        "enable_thinking": true,
+        "effort": "xhigh"
+      }
+    ],
+    "dock": "left",
+    "default_profile": "build",
+    "model_parameters": [],
+    "default_model": {
+      "provider": "openai-subscribed",
+      "model": "gpt-5.6-terra",
+      "effort": "high",
+      "enable_thinking": true
+    },
+    "profiles": {
+      "build": {
+        "name": "Build",
+        "tools": {
+          "read_file": true,
+          "grep": true,
+          "list_directory": true,
+          "find_path": true,
+          "diagnostics": true,
+          "fetch": true,
+          "search_web": true,
+          "copy_path": true,
+          "create_directory": true,
+          "delete_path": true,
+          "edit_file": true,
+          "move_path": true,
+          "write_file": true,
+          "terminal": true,
+          "skill": true,
+          "spawn_agent": true
+        },
+        "enable_all_context_servers": true,
+        "default_model": {
+          "provider": "openai-subscribed",
+          "model": "gpt-5.6-terra",
+          "effort": "high",
+          "enable_thinking": true
+        }
+      },
+      "plan": {
+        "name": "Plan",
+        "tools": {
+          "read_file": true,
+          "grep": true,
+          "list_directory": true,
+          "find_path": true,
+          "diagnostics": true,
+          "fetch": true,
+          "search_web": true,
+          "edit_file": false,
+          "terminal": true,
+          "skill": true,
+          "spawn_agent": true
+        },
+        "enable_all_context_servers": false,
+        "context_servers": {
+          "mcp-server-context7": {
+            "tools": { "resolve-library-id": true, "get-library-docs": true }
+          },
+          "mcp-server-exa-search": {
+            "tools": {
+              "web_search_exa": true,
+              "get_code_context_exa": true,
+              "crawling_exa": true
+            }
+          },
+          "mcp-server-github": {
+            "tools": {
+              "get_me": true,
+              "get_file_contents": true,
+              "get_commit": true,
+              "get_label": true,
+              "get_latest_release": true,
+              "get_release_by_tag": true,
+              "get_tag": true,
+              "get_team_members": true,
+              "get_teams": true,
+              "issue_read": true,
+              "list_branches": true,
+              "list_commits": true,
+              "list_issues": true,
+              "list_pull_requests": true,
+              "list_releases": true,
+              "pull_request_read": true,
+              "search_code": true,
+              "search_commits": true,
+              "search_issues": true,
+              "search_pull_requests": true,
+              "search_repositories": true
+            }
+          },
+          "mcp-server-sequential-thinking": {
+            "tools": { "sequentialthinking": true }
+          },
+          "nix": { "tools": { "nix": true, "nix_versions": true } }
+        },
+        "default_model": {
+          "provider": "openai-subscribed",
+          "model": "gpt-5.6-terra",
+          "effort": "xhigh",
+          "enable_thinking": true
+        }
+      },
+      "review": {
+        "name": "Review",
+        "tools": {
+          "read_file": true,
+          "grep": true,
+          "list_directory": true,
+          "find_path": true,
+          "diagnostics": true,
+          "fetch": true,
+          "edit_file": false,
+          "terminal": true,
+          "skill": true,
+          "spawn_agent": false
+        },
+        "enable_all_context_servers": false,
+        "context_servers": {
+          "mcp-server-context7": {
+            "tools": { "resolve-library-id": true, "get-library-docs": true }
+          },
+          "mcp-server-sequential-thinking": {
+            "tools": { "sequentialthinking": true }
+          },
+          "serena": {
+            "tools": {
+              "find_declaration": true,
+              "find_file": true,
+              "find_implementations": true,
+              "find_referencing_symbols": true,
+              "find_symbol": true,
+              "get_diagnostics_for_file": true,
+              "get_symbols_overview": true,
+              "list_dir": true,
+              "read_file": true,
+              "search_for_pattern": true
+            }
+          },
+          "playwright": {
+            "tools": {
+              "browser_click": true,
+              "browser_close": true,
+              "browser_console_messages": true,
+              "browser_fill_form": true,
+              "browser_hover": true,
+              "browser_navigate": true,
+              "browser_network_request": true,
+              "browser_network_requests": true,
+              "browser_press_key": true,
+              "browser_select_option": true,
+              "browser_snapshot": true,
+              "browser_take_screenshot": true,
+              "browser_type": true,
+              "browser_wait_for": true
+            }
+          }
+        },
+        "default_model": {
+          "provider": "openai-subscribed",
+          "model": "gpt-5.6-terra",
+          "effort": "xhigh",
+          "enable_thinking": true
+        }
+      },
+      "research": {
+        "name": "Research",
+        "tools": {
+          "read_file": true,
+          "grep": true,
+          "list_directory": true,
+          "find_path": true,
+          "diagnostics": true,
+          "fetch": true,
+          "search_web": true,
+          "edit_file": false,
+          "terminal": false,
+          "skill": true,
+          "spawn_agent": false
+        },
+        "enable_all_context_servers": false,
+        "context_servers": {
+          "mcp-server-context7": {
+            "tools": { "resolve-library-id": true, "get-library-docs": true }
+          },
+          "mcp-server-exa-search": {
+            "tools": {
+              "web_search_exa": true,
+              "get_code_context_exa": true,
+              "crawling_exa": true
+            }
+          },
+          "nix": { "tools": { "nix": true, "nix_versions": true } }
+        },
+        "default_model": {
+          "provider": "openai-subscribed",
+          "model": "gpt-5.6-luna",
+          "effort": "high",
+          "enable_thinking": true
+        }
+      }
+    },
+    "tool_permissions": {
+      "default": "allow",
+      "tools": {
+        "edit_file": {
+          "always_allow": [{ "pattern": "^rotational-cipher/\\.zed/" }],
+          "always_confirm": [{ "pattern": "(^|/)(secrets/|\\.sops\\.yaml$)" }]
+        },
+        "write_file": {
+          "always_confirm": [{ "pattern": "(^|/)(secrets/|\\.sops\\.yaml$)" }]
+        },
+        "delete_path": {
+          "always_confirm": [{ "pattern": "(^|/)(secrets/|\\.sops\\.yaml$)" }]
+        },
+        "move_path": {
+          "always_confirm": [{ "pattern": "(^|/)(secrets/|\\.sops\\.yaml$)" }]
+        },
+        "terminal": {
+          "always_deny": [{ "pattern": "(^|\\s)rm\\s+-rf\\s+(/|/\\*)($|\\s)" }],
+          "always_confirm": [
+            {
+              "pattern": "(^|\\s)(sudo|doas|diskutil|launchctl|osascript|rm|rmdir|unlink|shred|dd|chmod|chown|kill|pkill|curl|wget|scp|rsync|ssh|gh)\\b|(^|\\s)git\\s+(commit|push|pull|checkout|switch|restore|reset|clean|rebase|merge|tag)\\b|(^|\\s)(nixswitch|nixup|nixgc|nix-rollback|nix-env)\\b|(^|\\s)nix\\s+(flake\\s+update|profile)\\b|(^|\\s)darwin-rebuild\\s+switch\\b|(^|\\s)defaults\\s+write\\b|(^|\\s)(brew\\s+(install|tap)|mas\\s+install|npm\\s+(install|uninstall|update)|pnpm\\s+(add|remove|update)|yarn\\s+(add|remove|upgrade)|bun\\s+(add|remove)|pip\\s+(install|uninstall)|uv\\s+(add|remove)|cargo\\s+install|go\\s+install)\\b"
+            }
+          ]
+        },
+        "fetch": { "default": "allow" },
+        "search_web": { "default": "allow" },
+        "skill": { "default": "allow" }
+      }
+    }
+  },
+  "disable_ai": false,
+  "edit_predictions": {
+    "mode": "subtle",
+    "provider": "copilot",
+    "allow_data_collection": "no",
+    "copilot": { "enable_next_edit_suggestions": true },
+    "ollama": { "model": "qwen2.5-coder:7b-base" },
+    "open_ai_compatible_api": { "prompt_format": "infer" }
+  }
+}

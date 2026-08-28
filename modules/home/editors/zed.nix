@@ -53,6 +53,19 @@ let
         (toString playwrightMcpServer)
       ];
 
+  stripJsonObject =
+    content:
+    assert lib.hasPrefix "{" content && lib.hasSuffix "}\n" content;
+    lib.removePrefix "{" (lib.removeSuffix "}\n" content);
+
+  composeJsonObjects =
+    objects: "{\n" + lib.concatStringsSep ",\n" (map stripJsonObject objects) + "\n}\n";
+
+  settingsContent = composeJsonObjects [
+    (builtins.readFile ./zed/agents.json)
+    (builtins.readFile ./zed/settings.json)
+  ];
+
   tasksFile = pkgs.writeText "zed-tasks.json" (subst (builtins.readFile ./zed/tasks.json));
   toggleFile = pkgs.writeTextFile {
     name = "zed-toggle-disable-ai.py";
@@ -88,7 +101,7 @@ in
           config.sops.placeholder.zed_github_pat
           config.sops.placeholder.ssh_box_user
         ]
-        (subst (builtins.readFile ./zed/settings.json));
+        (subst settingsContent);
   };
 
   # Primary editor tooling. Shared language servers and formatters used by both
