@@ -54,33 +54,6 @@ let
     playwright = stdio (toString playwrightMcpServer) [ ];
   };
 
-  toOpenCode =
-    _: server:
-    if server.transport == "http" then
-      {
-        type = "remote";
-        inherit (server) url headers;
-        enabled = true;
-        oauth = false;
-      }
-    else
-      {
-        type = "local";
-        command = [ server.command ] ++ server.args;
-        enabled = true;
-      };
-
-  toMcpJson =
-    _: server:
-    if server.transport == "http" then
-      {
-        inherit (server) url headers;
-      }
-    else
-      {
-        inherit (server) command args;
-      };
-
   toAntigravity =
     _: server:
     if server.transport == "http" then
@@ -125,61 +98,34 @@ let
       '';
 
   codexMcpServers = lib.concatStringsSep "\n" (lib.mapAttrsToList toCodexMcp mcpServers);
+  cursorConfig = import ./agents/cursor.nix {
+    inherit lib homeDirectory mcpServers;
+  };
+  opencode = import ./agents/opencode.nix {
+    inherit
+      config
+      homeDirectory
+      lib
+      mcpServers
+      ;
+  };
 in
 {
+  imports = [ cursorConfig ];
 
   # sops-nix renders templates after this activation entry. Ensure target
   # directories exist even for clients that have not been launched yet.
   home.activation.mcpConfigDirectories = lib.hm.dag.entryBefore [ "sops-nix" ] ''
     $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p \
       "${homeDirectory}/.config/opencode" \
-      "${homeDirectory}/.cursor" \
+      "${homeDirectory}/.cursor/agents" \
+      "${homeDirectory}/.cursor/rules" \
       "${homeDirectory}/.codex" \
       "${homeDirectory}/.gemini/config" \
       "${homeDirectory}/.copilot"
   '';
 
-  sops.templates = {
-    "opencode-mcp.jsonc" = {
-      path = "${homeDirectory}/.config/opencode/opencode.jsonc";
-      mode = "0600";
-      content = builtins.toJSON {
-        "$schema" = "https://opencode.ai/config.json";
-        lsp = true;
-        plugin = [
-          "cursor-opencode-provider"
-          "@cortexkit/opencode-antigravity-auth@2.1.0"
-        ];
-        provider = {
-          cursor = {
-            npm = "cursor-opencode-provider";
-            name = "Cursor";
-            models = { };
-          };
-          openrouter = {
-            options.apiKey = config.sops.placeholder.openrouter_api_key;
-          };
-        };
-        mcp = lib.mapAttrs toOpenCode mcpServers;
-      };
-    };
-
-    "opencode-tui.json" = {
-      path = "${homeDirectory}/.config/opencode/tui.json";
-      mode = "0600";
-      content = builtins.toJSON {
-        plugin = [ "@cortexkit/opencode-antigravity-auth" ];
-      };
-    };
-
-    "cursor-mcp.json" = {
-      path = "${homeDirectory}/.cursor/mcp.json";
-      mode = "0600";
-      content = builtins.toJSON {
-        mcpServers = lib.mapAttrs toMcpJson mcpServers;
-      };
-    };
-
+  sops.templates = opencode.templates // {
     "codex-config.toml" = {
       path = "${homeDirectory}/.codex/config.toml";
       mode = "0600";
