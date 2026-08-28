@@ -52,6 +52,7 @@
       powershell
       rar
       rclone
+      ripgrep
       sherlock
       wget
     ];
