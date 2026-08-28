@@ -185,7 +185,8 @@ rec {
     builder = {
       description = "Primary builder for implementing code, fixing bugs, and verifying changes";
       mode = "primary";
-      model = "cursor/grok-4.6";
+      # model = "cursor/grok-4.6";
+      model = "google/antigravity-gemini-3.7-flash";
       prompt = builtins.readFile ./opencode/builder.md;
       tools = allMcpToolsEnabled;
       permission = {
@@ -209,7 +210,8 @@ rec {
     planner = {
       description = "Explores requirements and writes durable implementation handoffs under docs/agent-handoffs without modifying product code";
       mode = "all";
-      model = "cursor/claude-opus-5";
+      # model = "cursor/claude-opus-5";
+      model = "google/antigravity-gemini-3.7-flash";
       prompt = builtins.readFile ./opencode/planner.md;
       tools =
         (mcpToolAccess true [
@@ -238,7 +240,8 @@ rec {
     reviewer = {
       description = "Performs adversarial, read-only code and diff reviews";
       mode = "all";
-      model = "cursor/grok-4.6";
+      # model = "cursor/grok-4.6";
+      model = "google/antigravity-gemini-3.7-flash";
       prompt = builtins.readFile ./opencode/reviewer.md;
       tools =
         (mcpToolAccess true [
@@ -260,6 +263,7 @@ rec {
     researcher = {
       description = "Searches official documentation and upstream examples without mutating files";
       mode = "all";
+      # model = "google/antigravity-gemini-3.7-flash";
       model = "google/antigravity-gemini-3.7-flash";
       prompt = builtins.readFile ./opencode/researcher.md;
       tools =
@@ -267,6 +271,7 @@ rec {
           "context7"
           "exa"
           "nix"
+          "sequential-thinking"
         ])
         // githubReadTools;
       permission = {
@@ -281,6 +286,7 @@ rec {
     nix-maintainer = {
       description = "Specialist maintainer for this multi-host nix-darwin + Home Manager flake";
       mode = "all";
+      # model = "google/antigravity-gemini-3.7-flash";
       model = "google/antigravity-gemini-3.7-flash";
       prompt = builtins.readFile ./opencode/nix-maintainer.md;
       tools =
