@@ -7,7 +7,8 @@
 **/.DS_Store
 
 # Local planning notes and documentation
-/notes/
+docs/
+notes/
 
 # Local agent settings and worktrees
 /.claude/
