@@ -10,8 +10,8 @@ For secrets, see [references/secrets.md](references/secrets.md). For editors, se
 flake.nix                         hosts attrset, mkDarwin, formatter (nixfmt-tree)
 .sops.yaml                        age recipients + sops CLI cheat sheet
 secrets/secrets.yaml              encrypted vault (safe to commit)
-skills/<name>/SKILL.md            custom skills → ~/.agents/skills/<name> (auto)
-modules/home/tools/skills.nix     pin/allowlist third-party skills
+modules/home/agents/skills/<name>/SKILL.md  custom skills → ~/.agents/skills/<name> (auto)
+modules/home/agents/skills.nix              pin/allowlist third-party skills
 hosts/<hostname>/default.nix      platform, hostname, timezone, primaryUser, imports darwin
 hosts/<hostname>/*.nix            host-only darwin (inferno: audio.nix + launchd)
 modules/darwin/default.nix        import list (core, defaults, skhd, fonts, homebrew)

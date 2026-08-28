@@ -1,12 +1,12 @@
 {
   // Zed settings — managed by nix-darwin (modules/home/editors/zed/settings.json).
   //
-  // This is the permanent non-AI baseline. `agents.json` is composed into this
+  // This is the permanent non-AI baseline. `zed-agents.json` is composed into this
   // file by zed.nix before SOPS renders ~/.config/zed/settings.json. Never put
   // real secrets in either source file.
   //
   // AI: MCP context servers, agent servers, agent panel, and edit predictions
-  // are defined in agents.json and composed into the rendered settings file.
+  // are defined in modules/home/agents/zed-agents.json and composed into the rendered settings file.
   //
   // Remote development
   // ============================================================================

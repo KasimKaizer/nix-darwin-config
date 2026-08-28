@@ -98,10 +98,10 @@ let
       '';
 
   codexMcpServers = lib.concatStringsSep "\n" (lib.mapAttrsToList toCodexMcp mcpServers);
-  cursorConfig = import ./agents/cursor.nix {
+  cursorConfig = import ./cursor.nix {
     inherit lib homeDirectory mcpServers;
   };
-  opencode = import ./agents/opencode.nix {
+  opencode = import ./opencode.nix {
     inherit
       config
       homeDirectory

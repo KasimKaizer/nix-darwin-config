@@ -1,6 +1,6 @@
 ---
 name: using-agent-skills
-description: Discovers and invokes agent skills. Use when starting a session or when you need to discover which skill applies to the current task. This is the meta-skill that governs how the Addy Osmani engineering skills are discovered and invoked. Flake-local skills (nix-darwin-home-manager, skill-creator, exercism-codecrafters-python-mentor) take precedence when they apply. Third-party skills are allowlisted in modules/home/tools/skills.nix and deployed to every configured agent on nixswitch.
+description: Discovers and invokes agent skills. Use when starting a session or when you need to discover which skill applies to the current task. This is the meta-skill that governs how the Addy Osmani engineering skills are discovered and invoked. Flake-local skills (nix-darwin-home-manager, skill-creator, exercism-codecrafters-python-mentor) take precedence when they apply. Third-party skills are allowlisted in modules/home/agents/skills.nix and deployed to every configured agent on nixswitch.
 ---
 
 # Using Agent Skills
@@ -14,14 +14,14 @@ Flake-local skills take precedence when they apply:
 - **Authoring or editing an Agent Skill** → `skill-creator`
 - **Python Exercism or CodeCrafters** → `exercism-codecrafters-python-mentor`
 
-Pinned third-party skills (flake inputs, allowlisted in `modules/home/tools/skills.nix`):
+Pinned third-party skills (flake inputs, allowlisted in `modules/home/agents/skills.nix`):
 
 - **About to claim done / passing / fixed** → `verification-before-completion`
 - **PDF files** → `pdf`
 - **Word documents (.docx / .dotx)** → `docx`
 - **PowerPoint (.pptx)** → `pptx`
 
-Not installed (move the name into `enable` in `modules/home/tools/skills.nix` to get them back): `interview-me`, `frontend-ui-engineering`, `browser-testing-with-devtools`, `performance-optimization`, `observability-and-instrumentation`, `shipping-and-launch`. `creating-pr` and `writing-commit-messages` also need a pinned source before they can be enabled. Do not invent those workflows from memory; if the user needs one, enable it first.
+Not installed (move the name into `enable` in `modules/home/agents/skills.nix` to get them back): `interview-me`, `frontend-ui-engineering`, `browser-testing-with-devtools`, `performance-optimization`, `observability-and-instrumentation`, `shipping-and-launch`. `creating-pr` and `writing-commit-messages` also need a pinned source before they can be enabled. Do not invent those workflows from memory; if the user needs one, enable it first.
 
 ## Overview
 

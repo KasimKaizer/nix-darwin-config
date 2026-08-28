@@ -20,11 +20,11 @@ output-path overlay. Upstream: https://github.com/anthropics/skills/tree/main/sk
 Write and edit skills **in the nix-darwin repo**, not in `~/.agents/skills/` or
 `~/.cursor/skills/`.
 
-- **New skill:** `skills/<name>/SKILL.md` at the flake root (`~/.config/nix-darwin-config/skills/<name>/`).
-- **Flat only.** `skills/<name>/SKILL.md` — no category folders. Zed does not recurse.
+- **New skill:** `modules/home/agents/skills/<name>/SKILL.md` (`~/.config/nix-darwin-config/modules/home/agents/skills/<name>/`).
+- **Flat only.** `modules/home/agents/skills/<name>/SKILL.md` — no category folders. Zed does not recurse.
 - **Do not** write into `~/.cursor/skills-cursor/`, `~/.cursor/skills/`, or any other agent directory. Home Manager deploys the same bundle to Zed, Cursor, Codex, OpenCode, Antigravity, and Copilot.
-- After the files exist, tell the user to run **`nixswitch`**. Custom skills under `skills/` and third-party skills allowlisted in `modules/home/tools/skills.nix` are deployed to every configured agent.
-- Skip packaging a `.skill` zip unless the user asked for a portable archive or API upload. The source of truth here is the folder in `skills/`.
+- After the files exist, tell the user to run **`nixswitch`**. Custom skills under `modules/home/agents/skills/` and third-party skills allowlisted in `modules/home/agents/skills.nix` are deployed to every configured agent.
+- Skip packaging a `.skill` zip unless the user asked for a portable archive or API upload. The source of truth here is the folder in `modules/home/agents/skills/`.
 - Description-optimizer scripts call Cursor Agent with `cursor-agent --print --mode ask` in read-only mode. Run `nixswitch` first so `cursor-cli` is available; set `SKILL_CREATOR_CURSOR_AGENT` only to override the command.
 
 ---

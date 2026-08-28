@@ -20,10 +20,10 @@
     ./tools/git.nix
     ./tools/ssh.nix
     ./tools/secrets.nix
-    ./tools/agents.nix
     ./tools/exercism.nix
     ./tools/azure.nix
-    ./tools/skills.nix
+    ./agents/agents.nix
+    ./agents/skills.nix
   ];
 
   xdg.enable = true;

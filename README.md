@@ -168,7 +168,7 @@ sudo darwin-rebuild switch --switch-generation N   # jump to a specific one
 
 - **Editor extensions are only ever added.** VS Code IDs in `modules/home/editors/vscode/extensions.txt` are installed on switch, and Zed's `auto_install_extensions` installs on startup, but removing an entry from either list does not uninstall the extension; do that in the editor itself.
 
-- **Agent skills are declarative.** Custom skills live in `skills/`; third-party skills are pinned and allowlisted in `modules/home/tools/skills.nix`. A switch deploys the same bundle to Zed (`~/.agents/skills`), Cursor, Codex, OpenCode, Antigravity, and Copilot. Do not use `npx skills` or edit those generated directories by hand.
+- **Agent skills are declarative.** Custom skills live in `modules/home/agents/skills/`; third-party skills are pinned and allowlisted in `modules/home/agents/skills.nix`. A switch deploys the same bundle to Zed (`~/.agents/skills`), Cursor, Codex, OpenCode, Antigravity, and Copilot. Do not use `npx skills` or edit those generated directories by hand.
 
 - **A stale `.hm-bak` file blocks the switch.** When home-manager takes over an existing file it renames the original to `*.hm-bak`; if a later switch conflicts with that leftover backup, activation fails until you delete it.
 
@@ -185,7 +185,6 @@ sudo darwin-rebuild switch --switch-generation N   # jump to a specific one
 ├── .sops.yaml                     # age recipients + creation rules
 ├── secrets/
 │   └── secrets.yaml               # encrypted vault
-├── skills/                        # custom Agent Skills only (SKILL.md folders)
 ├── hosts/
 │   └── inferno/
 │       ├── default.nix            # platform, hostname, timezone, primaryUser
@@ -208,7 +207,8 @@ sudo darwin-rebuild switch --switch-generation N   # jump to a specific one
         ├── shell/                 # zsh, starship
         ├── terminal/              # ghostty, zellij
         ├── editors/               # helix, vscode, zed (+ config baselines)
-        └── tools/                 # azure, cli, git/gh/lazygit, ssh, secrets, exercism, skills
+        ├── tools/                 # azure, cli, git/gh/lazygit, ssh, secrets, exercism
+        └── agents/                # agents, skills, zed-agents.json, cursor, opencode, custom skills
 ```
 
 - System → `modules/darwin/`

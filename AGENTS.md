@@ -40,9 +40,9 @@ provided arguments instead of hardcoded paths or host facts.
 | Shell, terminal, Git, SSH, cloud, and exercise tools               | `modules/home/{shell,terminal,tools}/`                       |
 | Helix, Zed, VS Code, extensions, and shared LSPs                   | `modules/home/editors/`                                      |
 | Encrypted values and SOPS wiring                                   | `secrets/secrets.yaml`, `.sops.yaml`, and the owning module  |
-| OpenCode, Cursor, Codex, Copilot, and Antigravity MCPs             | `modules/home/tools/agents.nix`                              |
-| Zed native context servers and secret rendering                    | `modules/home/editors/zed.nix` and `zed/settings.json`       |
-| Agent Skills and their deployment                                  | `skills/<name>/SKILL.md` and `modules/home/tools/skills.nix` |
+| OpenCode, Cursor, Codex, Copilot, and Antigravity MCPs             | `modules/home/agents/agents.nix`                             |
+| Zed native context servers and secret rendering                    | `modules/home/editors/zed.nix` and `modules/home/agents/zed-agents.json` |
+| Agent Skills and their deployment                                  | `modules/home/agents/skills/<name>/SKILL.md` and `modules/home/agents/skills.nix` |
 
 ## Declarative Boundaries
 
@@ -52,7 +52,7 @@ provided arguments instead of hardcoded paths or host facts.
 - Zed and VS Code baseline files are copied on `nixswitch`; Zed's
   `settings.json` is the SOPS-rendered exception and is a generated symlink.
   Permanent changes belong in `modules/home/editors/`.
-- Custom skills use the flat `skills/<name>/SKILL.md` layout. Third-party skills
+- Custom skills use the flat `modules/home/agents/skills/<name>/SKILL.md` layout. Third-party skills
   need a pinned `flake.nix` input and an allowlisted source in `skills.nix`.
 - Prefer nixpkgs for CLI tools, Homebrew casks for GUI apps, and `masApps` for
   App Store apps. The existing `mas` formula is a bootstrap exception, not a

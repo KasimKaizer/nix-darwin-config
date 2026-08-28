@@ -62,7 +62,7 @@ let
     objects: "{\n" + lib.concatStringsSep ",\n" (map stripJsonObject objects) + "\n}\n";
 
   settingsContent = composeJsonObjects [
-    (builtins.readFile ./zed/agents.json)
+    (builtins.readFile ../agents/zed-agents.json)
     (builtins.readFile ./zed/settings.json)
   ];
 
