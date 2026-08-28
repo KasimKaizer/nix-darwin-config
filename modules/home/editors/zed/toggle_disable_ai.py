@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Flip the "disable_ai" boolean in the live Zed settings file.
 
 Bound to cmd-: / cmd-shift-; via keymap.json + tasks.json. Operates on the
