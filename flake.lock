@@ -56,6 +56,22 @@
         "type": "github"
       }
     },
+    "ast-grep-skill": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1781234824,
+        "narHash": "sha256-WpVghcCYMdkEUkRBFbmgh3HTr4rQs0YrpLLi9wuaDAk=",
+        "owner": "code-yeongyu",
+        "repo": "ast-grep-skill",
+        "rev": "3148c69c370a51afb661b9f37879c0bd7cf0cc3b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "code-yeongyu",
+        "repo": "ast-grep-skill",
+        "type": "github"
+      }
+    },
     "blueprint": {
       "inputs": {
         "nixpkgs": [
@@ -184,22 +200,6 @@
         "type": "github"
       }
     },
-    "mattpocock-skills": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1787581197,
-        "narHash": "sha256-N5tpUIHO2VFeJntBTl6/VLDIVpqoshwFxNJlfXXUwsQ=",
-        "owner": "mattpocock",
-        "repo": "skills",
-        "rev": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76",
-        "type": "github"
-      },
-      "original": {
-        "owner": "mattpocock",
-        "repo": "skills",
-        "type": "github"
-      }
-    },
     "nix-homebrew": {
       "inputs": {
         "brew-src": "brew-src"
@@ -239,12 +239,12 @@
         "agent-skills": "agent-skills",
         "agent-skills-nix": "agent-skills-nix",
         "anthropic-skills": "anthropic-skills",
+        "ast-grep-skill": "ast-grep-skill",
         "darwin": "darwin",
         "home-manager": "home-manager",
         "homebrew-bundle": "homebrew-bundle",
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
-        "mattpocock-skills": "mattpocock-skills",
         "nix-homebrew": "nix-homebrew",
         "nixpkgs": "nixpkgs",
         "sops-nix": "sops-nix",

@@ -45,8 +45,8 @@
       url = "github:obra/superpowers";
       flake = false;
     };
-    mattpocock-skills = {
-      url = "github:mattpocock/skills";
+    ast-grep-skill = {
+      url = "github:code-yeongyu/ast-grep-skill";
       flake = false;
     };
   };
