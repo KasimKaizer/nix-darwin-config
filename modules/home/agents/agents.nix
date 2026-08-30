@@ -8,15 +8,13 @@
 let
   homeDirectory = config.home.homeDirectory;
 
-  remote =
-    url: token:
-    {
-      transport = "http";
-      inherit url;
-      headers = lib.optionalAttrs (token != null) {
-        Authorization = "Bearer ${token}";
-      };
+  remote = url: token: {
+    transport = "http";
+    inherit url;
+    headers = lib.optionalAttrs (token != null) {
+      Authorization = "Bearer ${token}";
     };
+  };
 
   stdio = command: args: {
     transport = "stdio";
