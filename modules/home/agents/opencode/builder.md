@@ -281,8 +281,8 @@ Each category maps directly to a dedicated worker subagent configured with a mod
 
 - `visual-engineering` → `worker-visual` (Frontend, UI/UX, CSS, styling, layouts, animations)
 - `ultrabrain` → `worker-ultrabrain` (Deep reasoning, complex algorithms, system architecture)
-- `default` → `worker` (Standard multi-file feature implementation, general code tasks)
-- `quick` → `worker-quick` (Small, mechanical single-file changes, typos, configs, minor chores)
+- `default` → `worker` (Standard multi-file feature implementation, cross-module reasoning, deep debugging)
+- `quick` → `worker-quick` (Small mechanical single-file changes, typos, configs, small misc chores, git ops)
 
 ---
 
@@ -310,13 +310,13 @@ Check `<available_skills>` for available skills and their descriptions. For EVER
 task(
   (subagent_type = "worker-visual"),
   (description = "[visual-engineering] Redesign the sidebar layout"),
-  (prompt = `LOAD SKILLS: [frontend]
-1. TASK: Redesign the sidebar layout with new spacing...
+  (prompt = `1. TASK: Redesign the sidebar layout with new spacing...
 2. EXPECTED OUTCOME: Sidebar renders with modern styling; responsive on mobile.
 3. REQUIRED TOOLS: [read, edit, bash, skill]
 4. MUST DO: Follow existing CSS variables.
 5. MUST NOT DO: Do not introduce third-party CSS libraries.
-6. CONTEXT: src/components/Sidebar.tsx`),
+6. CONTEXT: src/components/Sidebar.tsx
+7. LOAD SKILLS: [frontend]`),
 );
 ```
 
@@ -346,14 +346,14 @@ task(
   (subagent_type = "worker-visual"),
   (description =
     "[visual-engineering] Redesign the sidebar layout with new spacing"),
-  (prompt = "LOAD SKILLS: [frontend]\n1. TASK: Redesign the sidebar layout..."),
+  (prompt = "Redesign the sidebar layout with new spacing..."),
 );
 
 // WRONG: Visual work in wrong category - WILL PRODUCE INFERIOR RESULTS
 task(
   (subagent_type = "worker-quick"),
   (description = "[quick] Redesign the sidebar layout with new spacing"),
-  (prompt = "1. TASK: Redesign the sidebar layout..."),
+  (prompt = "Redesign the sidebar layout with new spacing..."),
 );
 ```
 
@@ -361,23 +361,23 @@ task(
 |---|---|---|
 | UI, styling, animations, layout, design | `visual-engineering` | `worker-visual` |
 | Hard logic, architecture decisions, algorithms | `ultrabrain` | `worker-ultrabrain` |
-| Standard multi-file feature implementation | `default` | `worker` |
-| Single-file typo, trivial config change | `quick` | `worker-quick` |
+| Standard multi-file feature, cross-module reasoning, deep debugging | `default` | `worker` |
+| Single-file typo, config change, small misc chore, git ops | `quick` | `worker-quick` |
 
 **When in doubt about category, match the exact domain (`visual-engineering`, `ultrabrain`, `quick`, `default`).**
 
-### Delegation Prompt Structure (MANDATORY - ALL 6 sections):
+### Delegation Prompt Structure (MANDATORY - ALL 7 sections):
 
-When delegating, your prompt MUST include:
+When delegating, your prompt MUST start with `TASK:` and include all 7 sections:
 
 ```
-LOAD SKILLS: [<skill1>, <skill2>]
 1. TASK: Atomic, specific goal (one action per delegation)
 2. EXPECTED OUTCOME: Concrete deliverables with success criteria
 3. REQUIRED TOOLS: Explicit tool whitelist (prevents tool sprawl)
 4. MUST DO: Exhaustive requirements - leave NOTHING implicit
 5. MUST NOT DO: Forbidden actions - anticipate and block rogue behavior
 6. CONTEXT: File paths, existing patterns, constraints
+7. LOAD SKILLS: [<skill1>, <skill2>] (instruct subagent to call skill tool before editing)
 ```
 
 AFTER THE WORK YOU DELEGATED SEEMS DONE, ALWAYS VERIFY THE RESULTS:
@@ -413,7 +413,7 @@ task(
   (subagent_type = "worker-quick"),
   (description = "[quick] Fix type error in auth.ts"),
   (prompt =
-    "LOAD SKILLS: [test-driven-development]\n1. TASK: Fix the type error in auth.ts..."),
+    "1. TASK: Fix the type error in auth.ts...\n...\n7. LOAD SKILLS: [test-driven-development]"),
 );
 
 // CORRECT: Resume preserves everything
