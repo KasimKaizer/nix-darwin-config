@@ -87,7 +87,7 @@ If any condition fails, do research/clarification only, then wait.
 **Delegation Check (MANDATORY before acting directly):**
 
 1. Is there a specialized agent that perfectly matches this request?
-2. If not, is there a `task` category (which maps to a worker subagent) that best describes this task? (`quick`, `visual-engineering`, `ultrabrain`, `default`). What skills are available to equip the agent with?
+2. If not, is there a `task` category (which maps to a worker subagent) that best describes this task? (`quick`, `visual`, `ultra`, `deep`). What skills are available to equip the agent with?
 
 - MUST FIND skills to use: pass them under `LOAD SKILLS: [{skill1}, ...]` in the delegated task prompt.
 
@@ -279,9 +279,9 @@ STOP searching when:
 
 Each category maps directly to a dedicated worker subagent configured with a model optimized for that domain:
 
-- `visual-engineering` → `worker-visual` (Frontend, UI/UX, CSS, styling, layouts, animations)
-- `ultrabrain` → `worker-ultrabrain` (Deep reasoning, complex algorithms, system architecture)
-- `default` → `worker` (Standard multi-file feature implementation, cross-module reasoning, deep debugging)
+- `visual` → `worker-visual` (Frontend, UI/UX, CSS, styling, layouts, animations)
+- `ultra` → `worker-ultra` (Deep reasoning, complex algorithms, system architecture)
+- `deep` → `worker-deep` (Autonomous multi-file feature implementation, cross-module reasoning, deep debugging)
 - `quick` → `worker-quick` (Small mechanical single-file changes, typos, configs, small misc chores, git ops)
 
 ---
@@ -309,7 +309,7 @@ Check `<available_skills>` for available skills and their descriptions. For EVER
 ```typescript
 task(
   (subagent_type = "worker-visual"),
-  (description = "[visual-engineering] Redesign the sidebar layout"),
+  (description = "[visual] Redesign the sidebar layout"),
   (prompt = `1. TASK: Redesign the sidebar layout with new spacing...
 2. EXPECTED OUTCOME: Sidebar renders with modern styling; responsive on mobile.
 3. REQUIRED TOOLS: [read, edit, bash, skill]
@@ -324,7 +324,7 @@ task(
 
 ```typescript
 task(
-  (subagent_type = "worker"),
+  (subagent_type = "worker-deep"),
   (description = "Fix stuff"),
   (prompt = "Fix the file..."),
 ); // Missing category tag in description and skills without justification
@@ -336,16 +336,16 @@ task(
 
 Every delegation MUST use the category that matches the task's domain. Mismatched categories produce measurably worse output because each category runs on a model optimized for that specific domain.
 
-**VISUAL WORK = ALWAYS `visual-engineering`. NO EXCEPTIONS.**
+**VISUAL WORK = ALWAYS `visual`. NO EXCEPTIONS.**
 
-Any task involving UI, UX, CSS, styling, layout, animation, design, or frontend components MUST go to `visual-engineering` (`worker-visual`). Never delegate visual work to `quick`, `default`, or any other category.
+Any task involving UI, UX, CSS, styling, layout, animation, design, or frontend components MUST go to `visual` (`worker-visual`). Never delegate visual work to `quick`, `deep`, or any other category.
 
 ```typescript
-// CORRECT: Visual work → visual-engineering category
+// CORRECT: Visual work → visual category
 task(
   (subagent_type = "worker-visual"),
   (description =
-    "[visual-engineering] Redesign the sidebar layout with new spacing"),
+    "[visual] Redesign the sidebar layout with new spacing"),
   (prompt = "Redesign the sidebar layout with new spacing..."),
 );
 
@@ -359,12 +359,12 @@ task(
 
 | Task Domain | MUST Use Category | Subagent Type |
 |---|---|---|
-| UI, styling, animations, layout, design | `visual-engineering` | `worker-visual` |
-| Hard logic, architecture decisions, algorithms | `ultrabrain` | `worker-ultrabrain` |
-| Standard multi-file feature, cross-module reasoning, deep debugging | `default` | `worker` |
+| UI, styling, animations, layout, design | `visual` | `worker-visual` |
+| Hard logic, architecture decisions, algorithms | `ultra` | `worker-ultra` |
+| Autonomous multi-file feature, cross-module reasoning, deep debugging | `deep` | `worker-deep` |
 | Single-file typo, config change, small misc chore, git ops | `quick` | `worker-quick` |
 
-**When in doubt about category, match the exact domain (`visual-engineering`, `ultrabrain`, `quick`, `default`).**
+**When in doubt about category, match the exact domain (`visual`, `ultra`, `quick`, `deep`).**
 
 ### Delegation Prompt Structure (MANDATORY - ALL 7 sections):
 
@@ -437,7 +437,7 @@ task(
 
 ### Verification:
 
-Run `lsp_diagnostics` on changed files at:
+Run `lsp_diagnostics` (or Serena diagnostics via `serena_get_diagnostics_for_file`) on changed files at:
 
 - End of a logical task unit
 - Before marking a todo item complete
@@ -447,7 +447,7 @@ If project has build/test commands, run them at task completion.
 
 ### Evidence Requirements (task NOT complete without these):
 
-- **File edit** → `lsp_diagnostics` clean on changed files
+- **File edit** → Clean diagnostics on changed files via `lsp_diagnostics` (or `serena_get_diagnostics_for_file`)
 - **Build command** → Exit code 0
 - **Test run** → Pass (or explicit note of pre-existing failures)
 - **Delegation** → Agent result received and verified

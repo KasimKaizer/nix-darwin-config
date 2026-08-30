@@ -62,7 +62,7 @@ Both invocations are resume-safe no-ops for artifacts already present. Do NOT ha
 
 ## Plan artifact producer contract
 
-When producing the plan, encode every executable item as a column-zero Markdown task row: implementation rows MUST match `- [ ] N. <title>` (where `N` is a positive decimal integer), and final-verifier rows MUST match `- [ ] F<number>. <title>`. Prose headings, numbered paragraphs, and ordinary bullets are not task substitutes and MUST NOT be counted as implementation or final-verifier tasks. Before handoff, run a structural self-check over the plan: verify that every implementation row and final-verifier row is column-zero, matches its required grammar, and appears in the intended `## Todos` or `## Final verification wave` section; verify that no prose heading or bullet is being used as a task; verify that every implementation row carries a nested `Recommended task executor category:` line (final-verifier rows default to `default` when unannotated); and repair the plan before handoff if any check fails.
+When producing the plan, encode every executable item as a column-zero Markdown task row: implementation rows MUST match `- [ ] N. <title>` (where `N` is a positive decimal integer), and final-verifier rows MUST match `- [ ] F<number>. <title>`. Prose headings, numbered paragraphs, and ordinary bullets are not task substitutes and MUST NOT be counted as implementation or final-verifier tasks. Before handoff, run a structural self-check over the plan: verify that every implementation row and final-verifier row is column-zero, matches its required grammar, and appears in the intended `## Todos` or `## Final verification wave` section; verify that no prose heading or bullet is being used as a task; verify that every implementation row carries a nested `Recommended task executor category:` line (final-verifier rows default to `deep` when unannotated); and repair the plan before handoff if any check fails.
 
 ## Universal invariants (hold on every path)
 
@@ -89,7 +89,7 @@ Fan out read-only research before deciding. Every delegated prompt names TASK / 
 task(subagent_type="explorer", description="Map the implementation surface", prompt="TASK: act as an explorer. DELIVERABLE: ... SCOPE: ... VERIFY: ...")
 ```
 
-Roles — the ONLY subagents you may spawn (all read-only): `explorer` (internal patterns/conventions/tests), `researcher` (external docs/contracts), `advisor` (gap analysis, architecture & deep reasoning), and `reviewer` (high-accuracy plan review). Never spawn worker subagents (`worker`, `worker-visual`, `worker-ultrabrain`, `worker-quick`) and never instruct a child to edit files. Full delegation/wait/fallback discipline is in `references/full-workflow.md`.
+Roles — the ONLY subagents you may spawn (all read-only): `explorer` (internal patterns/conventions/tests), `researcher` (external docs/contracts), `advisor` (gap analysis, architecture & deep reasoning), and `reviewer` (high-accuracy plan review). Never spawn worker subagents (`worker-deep`, `worker-visual`, `worker-ultra`, `worker-quick`) — execution belongs to the worker session after approval — and never instruct a child to edit files. Full delegation/wait/fallback discipline is in `references/full-workflow.md`.
 
 ## Stop rules
 
