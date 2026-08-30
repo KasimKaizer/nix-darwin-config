@@ -8,13 +8,15 @@
 let
   homeDirectory = config.home.homeDirectory;
 
-  remote = url: token: {
-    transport = "http";
-    inherit url;
-    headers = {
-      Authorization = "Bearer ${token}";
+  remote =
+    url: token:
+    {
+      transport = "http";
+      inherit url;
+      headers = lib.optionalAttrs (token != null) {
+        Authorization = "Bearer ${token}";
+      };
     };
-  };
 
   stdio = command: args: {
     transport = "stdio";
@@ -44,6 +46,7 @@ let
     exa = remote "https://mcp.exa.ai/mcp" config.sops.placeholder.zed_exa_api_key;
     context7 = remote "https://mcp.context7.com/mcp" config.sops.placeholder.zed_context7_api_key;
     github = remote "https://api.githubcopilot.com/mcp/" config.sops.placeholder.zed_github_pat;
+    grep_app = remote "https://mcp.grep.app" null;
     "sequential-thinking" = stdio "npx" [
       "-y"
       "@modelcontextprotocol/server-sequential-thinking"
@@ -85,11 +88,17 @@ let
   toCodexMcp =
     name: server:
     if server.transport == "http" then
-      ''
-        [mcp_servers.${name}]
-        url = "${server.url}"
-        http_headers = { Authorization = "${server.headers.Authorization}" }
-      ''
+      if server.headers ? Authorization then
+        ''
+          [mcp_servers.${name}]
+          url = "${server.url}"
+          http_headers = { Authorization = "${server.headers.Authorization}" }
+        ''
+      else
+        ''
+          [mcp_servers.${name}]
+          url = "${server.url}"
+        ''
     else
       ''
         [mcp_servers.${name}]
