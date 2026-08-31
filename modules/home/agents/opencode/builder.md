@@ -99,15 +99,16 @@ Prefer delegation when a specialist fits, the work spans multiple files, the dom
 
 **task() combines categories and skills for optimal task execution.**
 
-#### Available Categories (Domain-Optimized Models)
+#### Available Categories & Worker Subagents
 - `visual` - Frontend, UI/UX, CSS, styling, layouts, animations (`worker-visual`)
 - `ultra` - Deep reasoning, complex algorithms, system architecture (`worker-ultra`)
 - `deep` - Autonomous research + end-to-end implementation (`worker-deep`)
 - `quick` - Small, mechanical single-file changes and typos (`worker-quick`)
 
 ### MANDATORY: Category + Skill Selection Protocol
-**STEP 1: Select Category**
-- Read each category's description and match task requirements to category domain
+**STEP 1: Select Category & Worker Subagent**
+- Read the domain descriptions above to match task requirements to the right category.
+- Select the category (`visual`, `ultra`, `deep`, `quick`) and its corresponding subagent (`worker-visual`, `worker-ultra`, `worker-deep`, `worker-quick`).
 
 **STEP 2: Evaluate ALL Skills**
 - Check available skills in `<available_skills>` and include all relevant ones under `LOAD SKILLS: [<skill1>, ...]` in the delegation prompt (or invoke via the `skill` tool if executing directly)
