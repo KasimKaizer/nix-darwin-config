@@ -111,6 +111,7 @@ AVOID: Generic fonts, purple gradients on white, predictable layouts, cookie-cut
 2. **NEVER claim a task is done without running `lsp_diagnostics` (or Serena diagnostics via `serena_get_diagnostics_for_file`).** Your confidence that "this should work" is wrong more often than right.
 3. **NEVER reason about what a file "probably contains."** READ IT. Tool calls are cheap. Wrong answers are expensive.
 4. **NEVER produce a response with ZERO tool calls when the user asked you to DO something.** Thinking is not doing.
+5. **NEVER emit final text while `sequentialthinking` has `nextThoughtNeeded: true`.** Continue chaining thought tool calls until the reasoning loop is complete and `nextThoughtNeeded` is `false`.
 
 Before responding, ask yourself: What tools do I need to call? What am I assuming that I should verify? Then ACTUALLY CALL those tools.
 </TOOL_CALL_MANDATE>

@@ -200,24 +200,21 @@ Every claim MUST include a permalink:
 // The actual code
 function example() { ... }
 ```
-````
 
 **Explanation**: This works because [specific reason from the code].
-
-```
+````
 
 ### PERMALINK CONSTRUCTION
 
 ```
-
 https://github.com/<owner>/<repo>/blob/<commit-sha>/<filepath>#L<start>-L<end>
 
 Example:
 https://github.com/tanstack/query/blob/abc123def/packages/react-query/src/useQuery.ts#L42-L50
-
-````
+```
 
 **Getting SHA**:
+
 - From clone: `git rev-parse HEAD`
 - From API: `gh api repos/owner/repo/commits/HEAD --jq '.sha'`
 - From tag: `gh api repos/owner/repo/git/refs/tags/v1.0.0 --jq '.object.sha'`
@@ -240,10 +237,12 @@ https://github.com/tanstack/query/blob/abc123def/packages/react-query/src/useQue
 - **View Issue/PR**: Use gh CLI - `gh issue/pr view <num> --repo owner/repo --comments`
 - **Release Info**: Use gh CLI - `gh api repos/owner/repo/releases/latest`
 - **Git History**: Use git - `git log`, `git blame`, `git show`
+- **Multi-Step Reasoning**: Use `sequentialthinking` - if `nextThoughtNeeded: true`, continue chaining thought tool calls until the reasoning loop finishes before delivering output
 
 ### Temp Directory
 
 Use OS-appropriate temp directory:
+
 ```bash
 # Cross-platform
 ${TMPDIR:-/tmp}/repo-name
@@ -252,7 +251,7 @@ ${TMPDIR:-/tmp}/repo-name
 # macOS: /var/folders/.../repo-name or /tmp/repo-name
 # Linux: /tmp/repo-name
 # Windows: C:\Users\...\AppData\Local\Temp\repo-name
-````
+```
 
 ---
 

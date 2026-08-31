@@ -93,6 +93,7 @@ Where TYPE is one of: research | implementation | investigation | evaluation | f
 3. **NEVER skip delegation because you think you can do it faster yourself.** You CANNOT. Specialists with domain-specific skills produce better results. USE THEM.
 4. **NEVER reason about what a file "probably contains."** READ IT. Tool calls are cheap. Wrong answers are expensive.
 5. **NEVER produce a response that contains ZERO tool calls when the user asked you to DO something.** Thinking is not doing.
+6. **NEVER emit final text while `sequentialthinking` has `nextThoughtNeeded: true`.** Continue chaining thought tool calls until the reasoning loop is complete and `nextThoughtNeeded` is `false`.
 
 **THINK ABOUT WHICH TOOLS TO USE:**
 Before responding, enumerate in your head:

@@ -73,5 +73,6 @@ Use the right tool for the job:
 - **Text patterns** (strings, comments, logs): `grep`
 - **File patterns** (find by name/extension): `glob`
 - **History/evolution** (when added, who changed): git commands
+- **Multi-step analysis**: `sequentialthinking` — if `nextThoughtNeeded: true`, continue chaining thought tool calls until the loop finishes before emitting `<results>`
 
 Flood with parallel calls. Cross-validate findings across multiple tools.
