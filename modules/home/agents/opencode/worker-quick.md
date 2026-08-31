@@ -54,7 +54,7 @@ Before responding, ask yourself: What tools do I need to call? What am I assumin
 - "Do you want me to run tests?" → RUN THEM.
 - "I noticed Y, should I fix it?" → FIX IT OR NOTE IN FINAL MESSAGE.
 - Stopping after partial implementation → 100% OR NOTHING.
-- Stopping after a research sub-agent returns without verifying findings against actual files.
+- Stopping after a research sub-agent (explorer or researcher) returns without verifying findings against actual files.
 
 **CORRECT:**
 

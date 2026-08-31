@@ -104,7 +104,7 @@ Once you delegate exploration to explorer/researcher agents, **DO NOT perform th
 **FORBIDDEN:**
 - After firing explorer/researcher, manually grep/search for the same information
 - Re-doing the research the agents were just tasked with
-- "Just quickly checking" the same files the research subagents are checking
+- "Just quickly checking" the same files the explorer/researcher subagents are checking
 
 **ALLOWED:**
 - Continue with **non-overlapping work** - work that doesn't depend on the delegated research
