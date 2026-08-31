@@ -16,28 +16,28 @@
 let
   addy = {
     enable = [
-      "idea-refine"
       "spec-driven-development"
       "planning-and-task-breakdown"
       "incremental-implementation"
       "test-driven-development"
-      "context-engineering"
       "source-driven-development"
       "doubt-driven-development"
       "api-and-interface-design"
       "debugging-and-error-recovery"
       "code-review-and-quality"
-      "code-simplification"
       "security-and-hardening"
       "git-workflow-and-versioning"
       "ci-cd-and-automation"
       "deprecation-and-migration"
       "documentation-and-adrs"
       "observability-and-instrumentation"
+      "frontend-ui-engineering"
+      "browser-testing-with-devtools"
+      "performance-optimization"
+      # "idea-refine"
       # "interview-me"
-      # "frontend-ui-engineering"
-      # "browser-testing-with-devtools"
-      # "performance-optimization"
+      # "code-simplification"
+      # "context-engineering"
       # "shipping-and-launch"
     ];
   };
@@ -47,7 +47,7 @@ let
       "pdf"
       "docx"
       "pptx"
-      # "xlsx"
+      "xlsx"
     ];
   };
 
