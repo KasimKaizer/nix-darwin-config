@@ -31,10 +31,16 @@ let
 
   # An isolated, headless browser avoids persisting sessions or opening windows.
   playwrightMcpServer = pkgs.writeShellScript "zed-playwright-mcp-server" ''
-    exec ${pkgs.nodejs}/bin/npx \
-      --yes "@playwright/mcp@0.0.76" \
+    exec ${pkgs.playwright-mcp}/bin/playwright-mcp \
       --isolated \
       --headless
+  '';
+
+  codegraphMcpServer = pkgs.writeShellScript "zed-codegraph-mcp-server" ''
+    export CODEGRAPH_TELEMETRY="0"
+    export DO_NOT_TRACK="1"
+    export CODEGRAPH_NO_DOWNLOAD="1"
+    exec ${pkgs.codegraph}/bin/codegraph serve --mcp
   '';
 
   # Non-secret files. Tokens are expanded now (build time); no secrets involved.
@@ -45,12 +51,14 @@ let
         "@NIX_MCP_SERVER@"
         "@SERENA_MCP_SERVER@"
         "@PLAYWRIGHT_MCP_SERVER@"
+        "@CODEGRAPH_MCP_SERVER@"
       ]
       [
         zedDir
         "${pkgs.mcp-nixos}/bin/mcp-nixos"
         (toString serenaMcpServer)
         (toString playwrightMcpServer)
+        (toString codegraphMcpServer)
       ];
 
   stripJsonObject =
@@ -80,7 +88,6 @@ in
   sops.secrets = {
     zed_exa_api_key = { };
     zed_context7_api_key = { };
-    zed_github_pat = { };
   };
 
   # Render settings.json with secrets substituted in-process by sops-nix
@@ -92,13 +99,11 @@ in
         [
           "@ZED_EXA_API_KEY@"
           "@ZED_CONTEXT7_API_KEY@"
-          "@ZED_GITHUB_PAT@"
           "@ZED_SSH_BOX_USER@"
         ]
         [
           config.sops.placeholder.zed_exa_api_key
           config.sops.placeholder.zed_context7_api_key
-          config.sops.placeholder.zed_github_pat
           config.sops.placeholder.ssh_box_user
         ]
         (subst settingsContent);

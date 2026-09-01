@@ -10,10 +10,10 @@
       "remote": false,
       "settings": { "context7_api_key": "@ZED_CONTEXT7_API_KEY@" }
     },
-    "mcp-server-github": {
+    "mcp-server-grep-app": {
       "enabled": true,
-      "remote": false,
-      "settings": { "github_personal_access_token": "@ZED_GITHUB_PAT@" }
+      "remote": true,
+      "url": "https://mcp.grep.app"
     },
     "mcp-server-sequential-thinking": {
       "enabled": true,
@@ -24,6 +24,11 @@
     "serena": { "command": "@SERENA_MCP_SERVER@", "args": [], "env": {} },
     "playwright": {
       "command": "@PLAYWRIGHT_MCP_SERVER@",
+      "args": [],
+      "env": {}
+    },
+    "codegraph": {
+      "command": "@CODEGRAPH_MCP_SERVER@",
       "args": [],
       "env": {}
     }
