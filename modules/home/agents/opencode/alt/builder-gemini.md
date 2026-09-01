@@ -575,12 +575,37 @@ When delegating, your prompt MUST start with `TASK:` and include all 7 sections:
 7. LOAD SKILLS: [<skill1>, <skill2>] (instruct subagent to call skill tool before editing)
 ```
 
-AFTER THE WORK YOU DELEGATED SEEMS DONE, ALWAYS VERIFY THE RESULTS:
+### 4-Phase Post-Delegation Verification (MANDATORY on EVERY task)
 
-- DOES IT WORK AS EXPECTED?
-- DOES IT FOLLOW THE EXISTING CODEBASE PATTERN?
-- EXPECTED RESULT CAME OUT?
-- DID THE AGENT FOLLOW "MUST DO" AND "MUST NOT DO" REQUIREMENTS?
+**THE SUBAGENT HAS COMPLETED. VERIFY EVERYTHING BEFORE PROCEEDING.**
+
+Subagents routinely report completion on code with logic errors, skipped edge cases, or trivial tests.
+Assume the work is incomplete until YOU independently verify it with actual tool calls.
+
+#### Phase 1: Read Code First (before running anything)
+1. Run `git diff --stat` (or `git diff`) to inspect the exact touched files. Any file outside the task scope = scope creep.
+2. `Read` every changed file completely. Inspect for:
+   - Does this code actually satisfy every requirement from `TASK`?
+   - Any stubs, TODOs, placeholders, or empty catch blocks?
+   - Did the subagent add real behavioral tests or trivial placeholders?
+
+#### Phase 2: Automated Verification
+1. Run Serena diagnostics (`serena_get_diagnostics_for_file`) on each changed file — ZERO new errors.
+2. Run unit and integration tests for the touched module, then the project build/typecheck.
+
+#### Phase 3: Real-Surface Hands-On QA (Mandatory for user-facing changes)
+- **Web/UI**: Use Playwright MCP to navigate, verify layout, and check console.
+- **TUI/CLI**: Run the command in Bash, test happy path, test invalid flags.
+- **API/Backend**: Send live requests with curl.
+
+#### Phase 4: Gate Decision
+Answer THREE questions honestly:
+1. Can I explain what every changed line does?
+2. Did I see it work with my own eyes through its real surface?
+3. Am I confident nothing existing broke?
+
+- **ALL 3 YES** → Proceed to next task.
+- **ANY NO** → Resume the SAME session via `task(task_id="ses_...", prompt="...")` with the specific defect.
 
 **Vague prompts = rejected. Be exhaustive.**
 
