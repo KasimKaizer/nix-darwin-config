@@ -32,10 +32,16 @@ let
 
   # An isolated, headless browser avoids persisting sessions or opening windows.
   playwrightMcpServer = pkgs.writeShellScript "playwright-mcp-server" ''
-    exec ${pkgs.nodejs}/bin/npx \
-      --yes "@playwright/mcp@0.0.76" \
+    exec ${pkgs.playwright-mcp}/bin/playwright-mcp \
       --isolated \
       --headless
+  '';
+
+  codegraphMcpServer = pkgs.writeShellScript "codegraph-mcp-server" ''
+    export CODEGRAPH_TELEMETRY="0"
+    export DO_NOT_TRACK="1"
+    export CODEGRAPH_NO_DOWNLOAD="1"
+    exec ${pkgs.codegraph}/bin/codegraph serve --mcp
   '';
 
   # Canonical definition for MCP servers shared by the agent clients.
@@ -43,16 +49,15 @@ let
   mcpServers = {
     exa = remote "https://mcp.exa.ai/mcp" config.sops.placeholder.zed_exa_api_key;
     context7 = remote "https://mcp.context7.com/mcp" config.sops.placeholder.zed_context7_api_key;
-    github = remote "https://api.githubcopilot.com/mcp/" config.sops.placeholder.zed_github_pat;
     grep_app = remote "https://mcp.grep.app" null;
-    "sequential-thinking" = stdio "npx" [
-      "-y"
-      "@modelcontextprotocol/server-sequential-thinking"
-    ];
+    "sequential-thinking" =
+      stdio "${pkgs.mcp-server-sequential-thinking}/bin/mcp-server-sequential-thinking"
+        [ ];
     # mcp-nixos includes nix-darwin and Home Manager option sources.
     nix = stdio "${pkgs.mcp-nixos}/bin/mcp-nixos" [ ];
     serena = stdio (toString serenaMcpServer) [ ];
     playwright = stdio (toString playwrightMcpServer) [ ];
+    codegraph = stdio (toString codegraphMcpServer) [ ];
   };
 
   toAntigravity =

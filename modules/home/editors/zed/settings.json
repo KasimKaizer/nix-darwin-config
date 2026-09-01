@@ -177,7 +177,6 @@
     // MCP / context servers
     "mcp-server-context7": true,
     "mcp-server-exa-search": true,
-    "mcp-server-github": true,
     "mcp-server-sequential-thinking": true,
     // Languages / grammars
     "bicep": true,
