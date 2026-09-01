@@ -49,6 +49,10 @@
       url = "github:code-yeongyu/ast-grep-skill";
       flake = false;
     };
+    oh-my-openagent = {
+      url = "github:code-yeongyu/oh-my-openagent";
+      flake = false;
+    };
   };
 
   outputs =

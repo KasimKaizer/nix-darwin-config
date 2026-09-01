@@ -100,6 +100,14 @@ in
         path = inputs.ast-grep-skill;
         filter.maxDepth = 1;
       };
+
+      omo = {
+        # github:code-yeongyu/oh-my-openagent
+        path = inputs.oh-my-openagent;
+        subdir = "packages/shared-skills/skills";
+        filter.maxDepth = 1;
+        filter.nameRegex = "^programming$";
+      };
     };
 
     skills = {
@@ -110,6 +118,7 @@ in
         ++ [
           "verification-before-completion"
           "ast-grep"
+          "programming"
         ];
     };
 

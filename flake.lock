@@ -234,6 +234,22 @@
         "type": "github"
       }
     },
+    "oh-my-openagent": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788262822,
+        "narHash": "sha256-kBIM8zNT4X55rhxnNxKcfDuy58MpgfQ/k5Eo1be2qyU=",
+        "owner": "code-yeongyu",
+        "repo": "oh-my-openagent",
+        "rev": "124d24ddc3cadfa12e83bc84c3d6b6a5f0a164e6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "code-yeongyu",
+        "repo": "oh-my-openagent",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "agent-skills": "agent-skills",
@@ -247,6 +263,7 @@
         "homebrew-core": "homebrew-core",
         "nix-homebrew": "nix-homebrew",
         "nixpkgs": "nixpkgs",
+        "oh-my-openagent": "oh-my-openagent",
         "sops-nix": "sops-nix",
         "superpowers": "superpowers"
       }
