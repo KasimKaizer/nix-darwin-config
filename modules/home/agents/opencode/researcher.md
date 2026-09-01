@@ -107,7 +107,7 @@ Tool 3: grep_app_searchGitHub(query: "usage pattern", language: ["TypeScript"])
 
 **Trigger**: "How does X implement...", "Show me the source...", "Internal logic of..."
 
-**Execute in sequence**:
+**Execute (Prefer `grep_app` first for instant search; use `gh` clone if full local context needed)**:
 
 ```
 Step 1: Clone to temp directory
