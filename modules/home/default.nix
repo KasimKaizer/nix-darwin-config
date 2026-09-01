@@ -44,12 +44,14 @@
       # General CLI utilities
       ast-grep
       bitwarden-cli
+      charm-freeze
       ffmpeg
       glow
       htop
       mole-cleaner
       moor
       p7zip
+      poppler-utils
       powershell
       rar
       rclone
