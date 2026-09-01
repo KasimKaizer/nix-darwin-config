@@ -12,7 +12,7 @@
   # or it won't be able to decrypt the committed secrets.
   sops.age.keyFile = "${config.home.homeDirectory}/.config/sops/age/keys.txt";
   sops.age.generateKey = false;
-  sops.defaultSopsFile = ../../../secrets/secrets.yaml;
+  sops.defaultSopsFile = "${inputs.nix-secrets}/secrets.yaml";
 
   sops.secrets = {
     aoc_session = { };
