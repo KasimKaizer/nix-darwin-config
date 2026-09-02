@@ -306,6 +306,7 @@ rec {
         plugin = [
           "cursor-opencode-provider"
           "@cortexkit/opencode-antigravity-auth@2.1.0"
+          "opencode-sandbox"
         ];
         provider = {
           cursor = {
