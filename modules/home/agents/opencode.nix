@@ -24,14 +24,6 @@ let
   mcpToolAccess = action: names: lib.genAttrs (map (name: "${name}_*") names) (_: action);
   allMcpToolsDisabled = mcpToolAccess false (builtins.attrNames mcpServers);
   allMcpToolsEnabled = mcpToolAccess true (builtins.attrNames mcpServers);
-  githubReadTools = {
-    "github_*" = false;
-    "github_get_*" = true;
-    "github_issue_read" = true;
-    "github_list_*" = true;
-    "github_pull_request_read" = true;
-    "github_search_*" = true;
-  };
   serenaReadTools = {
     "serena_*" = false;
     "serena_find_*" = true;
@@ -40,141 +32,25 @@ let
     "serena_read_file" = true;
     "serena_search_for_pattern" = true;
   };
-  ask = names: lib.genAttrs names (_: "ask");
-  builderBash = {
-    "*" = "allow";
-  }
-  // ask [
-    "sudo*"
-    "doas*"
-    "darwin-rebuild switch*"
-    "defaults write*"
-    "diskutil*"
-    "launchctl*"
-    "osascript*"
-    "rm*"
-    "rmdir*"
-    "unlink*"
-    "shred*"
-    "dd*"
-    "chmod*"
-    "chown*"
-    "kill*"
-    "pkill*"
-    "git commit*"
-    "git push*"
-    "git pull*"
-    "git checkout*"
-    "git switch*"
-    "git restore*"
-    "git reset*"
-    "git clean*"
-    "git rebase*"
-    "git merge*"
-    "git tag*"
-    "nix flake update*"
-    "nix profile*"
-    "nix-env*"
-    "nixswitch*"
-    "nixup*"
-    "nixgc*"
-    "nix-rollback*"
-    "brew install*"
-    "brew tap*"
-    "mas install*"
-    "npm install*"
-    "npm uninstall*"
-    "npm update*"
-    "pnpm add*"
-    "pnpm remove*"
-    "pnpm update*"
-    "yarn add*"
-    "yarn remove*"
-    "yarn upgrade*"
-    "bun add*"
-    "bun remove*"
-    "pip install*"
-    "pip uninstall*"
-    "uv add*"
-    "uv remove*"
-    "cargo install*"
-    "go install*"
-    "curl*"
-    "wget*"
-    "scp*"
-    "rsync*"
-    "ssh*"
-    "gh*"
-  ]
-  // {
+  minimalDeny = {
     "rm -rf /" = "deny";
     "rm -rf /*" = "deny";
   };
-  readOnlyBash = {
+  workerTask = {
     "*" = "deny";
-  }
-  // lib.genAttrs [ "git diff*" "git status*" "git log*" "rg*" ] (_: "allow");
-  plannerBash =
-    readOnlyBash
-    // lib.genAttrs [
-      "pwd"
-      "ls*"
-      "cat*"
-      "head*"
-      "tail*"
-      "wc*"
-      "git show*"
-      "git branch"
-      "git branch -a"
-      "git branch -r"
-      "git branch -v*"
-      "git branch --all"
-      "git branch --list*"
-      "git branch --show-current"
-      "git branch --verbose*"
-      "git rev-parse*"
-      "git ls-files*"
-      "git blame*"
-      "nix eval*"
-      "nix flake metadata*"
-    ] (_: "allow");
-  reviewerBash =
-    plannerBash
-    // lib.genAttrs [
-      "nix flake check --no-build*"
-      "nix eval*"
-      "npm test*"
-      "npm run test*"
-      "pnpm test*"
-      "pnpm run test*"
-      "yarn test*"
-      "yarn run test*"
-      "bun test*"
-      "bun run test*"
-      "pytest*"
-      "ruff check*"
-      "mypy*"
-      "uv run pytest*"
-      "uv run ruff check*"
-      "uv run mypy*"
-      "cargo test*"
-      "cargo check*"
-      "cargo clippy*"
-      "go test*"
-      "go vet*"
-    ] (_: "allow");
+    explorer = "allow";
+    researcher = "allow";
+  };
 in
 rec {
   inherit
     allMcpToolsDisabled
     allMcpToolsEnabled
-    builderBash
-    githubReadTools
     mcpToolAccess
-    plannerBash
-    reviewerBash
+    minimalDeny
     serenaReadTools
     toOpenCode
+    workerTask
     ;
   agent = {
     build.disable = true;
@@ -183,52 +59,63 @@ rec {
     explore.disable = true;
     scout.disable = true;
     builder = {
-      description = "Primary builder for implementing code, fixing bugs, and verifying changes";
+      description = "Primary orchestrator and lead builder for implementing code, fixing bugs, delegating to specialists, and verifying changes.";
       mode = "primary";
       # model = "cursor/grok-4.6";
+      # prompt = builtins.readFile ./opencode/builder-grok.md;
       model = "google/antigravity-gemini-3.7-flash";
-      prompt = builtins.readFile ./opencode/builder.md;
+      prompt = builtins.readFile ./opencode/alt/builder-gemini.md;
       tools = allMcpToolsEnabled;
       permission = {
-        bash = builderBash;
+        bash = {
+          "*" = "allow";
+        }
+        // minimalDeny;
         task = {
           "*" = "deny";
           planner = "allow";
           reviewer = "allow";
+          advisor = "allow";
           researcher = "allow";
-          nix-maintainer = "allow";
+          explorer = "allow";
+          "worker-deep" = "allow";
+          "worker-visual" = "allow";
+          "worker-ultra" = "allow";
+          "worker-quick" = "allow";
         };
-        "github_*" = "ask";
-        "github_get_*" = "allow";
-        "github_issue_read" = "allow";
-        "github_list_*" = "allow";
-        "github_pull_request_read" = "allow";
-        "github_search_*" = "allow";
         "playwright_*" = "ask";
       };
     };
     planner = {
-      description = "Explores requirements and writes durable implementation handoffs under docs/agent-handoffs without modifying product code";
+      description = "Explores requirements, performs gap analysis, and writes durable decision-complete work plans under docs/plans/ without modifying product code.";
       mode = "all";
-      # model = "cursor/claude-opus-5";
+      # model = "cursor/grok-4.6";
       model = "google/antigravity-gemini-3.7-flash";
       prompt = builtins.readFile ./opencode/planner.md;
       tools =
         (mcpToolAccess true [
+          "codegraph"
           "context7"
           "exa"
+          "grep_app"
           "nix"
           "sequential-thinking"
         ])
-        // githubReadTools;
+        // serenaReadTools;
       permission = {
         edit = {
           "*" = "deny";
-          "docs/agent-handoffs/**" = "allow";
+          "docs/plans" = "allow";
+          "docs/plans/**" = "allow";
         };
-        bash = plannerBash;
+        bash = {
+          "*" = "allow";
+        }
+        // minimalDeny;
         task = {
           "*" = "deny";
+          advisor = "allow";
+          explorer = "allow";
           researcher = "allow";
           reviewer = "allow";
         };
@@ -237,22 +124,80 @@ rec {
         websearch = "allow";
       };
     };
-    reviewer = {
-      description = "Performs adversarial, read-only code and diff reviews";
+    advisor = {
+      description = "Strategic technical advisor for architecture tradeoffs, security audits, and hard debugging. MUST BE USED for complex architecture design, after significant work, after 2+ failed fixes, or for unfamiliar patterns. Provides pragmatic minimalism, one clear path, and effort estimates (Quick/Short/Medium/Large). Read-only consultant.";
       mode = "all";
-      # model = "cursor/grok-4.6";
+      # model = "cursor/claude-opus-5";
       model = "google/antigravity-gemini-3.7-flash";
-      prompt = builtins.readFile ./opencode/reviewer.md;
+      prompt = builtins.readFile ./opencode/advisor-claude.md;
       tools =
         (mcpToolAccess true [
+          "codegraph"
           "context7"
+          "exa"
+          "grep_app"
+          "nix"
+          "sequential-thinking"
+        ])
+        // serenaReadTools;
+      permission = {
+        edit = "deny";
+        bash = {
+          "*" = "allow";
+        }
+        // minimalDeny;
+        task = "deny";
+        todowrite = "deny";
+        webfetch = "allow";
+        websearch = "allow";
+      };
+    };
+    explorer = {
+      description = ''Contextual grep for codebases. Answers "Where is X?", "Which file has Y?", "Find the code that does Z". Fire multiple in parallel for broad searches.'';
+      mode = "all";
+      model = "google/antigravity-gemini-3.7-flash";
+      prompt = builtins.readFile ./opencode/explorer.md;
+      tools =
+        (mcpToolAccess true [
+          "codegraph"
+          "sequential-thinking"
+        ])
+        // serenaReadTools;
+      permission = {
+        edit = "deny";
+        bash = {
+          "*" = "allow";
+        }
+        // minimalDeny;
+        task = "deny";
+        todowrite = "deny";
+        webfetch = "deny";
+        websearch = "deny";
+      };
+    };
+    reviewer = {
+      description = "Adversarial plan reviewer for executable work plans. MUST BE USED for high-accuracy review of docs/plans/*.md. Verifies references exist, tasks have executable QA scenarios, and no blocking contradictions. Returns OKAY or REJECT with max 3 blockers. Read-only, blocker-finder not perfectionist.";
+      mode = "all";
+      # model = "openai/gpt-5.6-terra";
+      model = "google/antigravity-gemini-3.7-flash";
+      prompt = builtins.readFile ./opencode/reviewer-gpt.md;
+      tools =
+        (mcpToolAccess true [
+          "codegraph"
+          "context7"
+          "exa"
+          "grep_app"
+          "nix"
           "sequential-thinking"
           "playwright"
         ])
         // serenaReadTools;
       permission = {
         edit = "deny";
-        bash = reviewerBash;
+        bash = {
+          "*" = "allow";
+        }
+        // minimalDeny;
         task = "deny";
         todowrite = "deny";
         webfetch = "allow";
@@ -261,44 +206,91 @@ rec {
       };
     };
     researcher = {
-      description = "Searches official documentation and upstream examples without mutating files";
+      description = "Specialized codebase understanding agent for multi-repository analysis, searching remote codebases, retrieving official documentation, and finding implementation examples using GitHub CLI, Context7, and Web Search. MUST BE USED when users ask to look up code in remote repositories, explain library internals, or find usage examples in open source.";
       mode = "all";
-      # model = "google/antigravity-gemini-3.7-flash";
       model = "google/antigravity-gemini-3.7-flash";
       prompt = builtins.readFile ./opencode/researcher.md;
-      tools =
-        (mcpToolAccess true [
-          "context7"
-          "exa"
-          "nix"
-          "sequential-thinking"
-        ])
-        // githubReadTools;
+      tools = mcpToolAccess true [
+        "context7"
+        "exa"
+        "grep_app"
+        "nix"
+        "sequential-thinking"
+      ];
       permission = {
         edit = "deny";
-        bash = "deny";
+        bash = {
+          "*" = "allow";
+        }
+        // minimalDeny;
         task = "deny";
         todowrite = "deny";
         webfetch = "allow";
         websearch = "allow";
       };
     };
-    nix-maintainer = {
-      description = "Specialist maintainer for this multi-host nix-darwin + Home Manager flake";
+    worker-deep = {
+      description = "Autonomous deep task executor for multi-file features, cross-module reasoning, and deep debugging. MUST BE USED for complex features spanning multiple files, architectural changes, and tasks requiring extensive codebase understanding.";
       mode = "all";
-      # model = "google/antigravity-gemini-3.7-flash";
+      # model = "cursor/grok-4.6";
+      # prompt = builtins.readFile ./opencode/worker-deep-grok.md;
       model = "google/antigravity-gemini-3.7-flash";
-      prompt = builtins.readFile ./opencode/nix-maintainer.md;
-      tools =
-        (mcpToolAccess true [
-          "context7"
-          "exa"
-          "nix"
-        ])
-        // serenaReadTools;
+      prompt = builtins.readFile ./opencode/alt/worker-deep-gemini.md;
+      tools = allMcpToolsEnabled;
       permission = {
-        bash = builderBash;
-        task = "deny";
+        bash = {
+          "*" = "allow";
+        }
+        // minimalDeny;
+        task = workerTask;
+        "playwright_*" = "ask";
+      };
+    };
+    worker-visual = {
+      description = "Visual engineering specialist for UI/UX, CSS, styling, layouts, animations, and frontend components. MUST BE USED for any task involving interfaces, design systems, responsive layouts, browser rendering, or Playwright visual QA.";
+      mode = "all";
+      model = "google/antigravity-gemini-3.7-flash";
+      prompt = builtins.readFile ./opencode/worker-visual-gemini.md;
+      tools = allMcpToolsEnabled;
+      permission = {
+        bash = {
+          "*" = "allow";
+        }
+        // minimalDeny;
+        task = workerTask;
+        "playwright_*" = "ask";
+      };
+    };
+    worker-ultra = {
+      description = "Deep reasoning specialist for complex algorithms, intricate state machines, concurrency, and high-stakes logic. MUST BE USED for the single hardest cohesive problem in a plan requiring heavy reasoning and architectural insight. Preserves shared insight by not splitting.";
+      mode = "all";
+      # model = "cursor/claude-opus-5";
+      # prompt = builtins.readFile ./opencode/worker-ultra-claude.md;
+      model = "google/antigravity-gemini-3.7-flash";
+      prompt = builtins.readFile ./opencode/alt/worker-ultra-gemini.md;
+      tools = allMcpToolsEnabled;
+      permission = {
+        bash = {
+          "*" = "allow";
+        }
+        // minimalDeny;
+        task = workerTask;
+        "playwright_*" = "ask";
+      };
+    };
+    worker-quick = {
+      description = "Fast mechanical worker for single-file edits, typos, trivial configs, and minor chores. MUST BE USED for quick, isolated mechanical changes, formatting, and git ops. Prefers many small parallel tasks.";
+      mode = "all";
+      model = "google/antigravity-gemini-3.7-flash";
+      prompt = builtins.readFile ./opencode/worker-quick-gemini.md;
+      tools = allMcpToolsEnabled;
+      permission = {
+        bash = {
+          "*" = "allow";
+        }
+        // minimalDeny;
+        task = workerTask;
+        "playwright_*" = "ask";
       };
     };
   };
