@@ -54,7 +54,6 @@
       poppler-utils
       powershell
       rar
-      rclone
       ripgrep
       sherlock
       wget

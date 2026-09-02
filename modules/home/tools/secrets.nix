@@ -18,11 +18,6 @@
     aoc_session = { };
     copilot_api_key = { };
     openrouter_api_key = { };
-
-    # NOTE: rclone rewrites this file when it refreshes the OAuth token. As a
-    # sops-managed symlink that refresh won't survive a rebuild; re-run the
-    # sops edit if the token is rotated.
-    rclone_conf.path = "${config.home.homeDirectory}/.config/rclone/rclone.conf";
   };
 
   # Single env file holding every SECRET environment variable, sourced by zsh
