@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   flakeDir,
@@ -117,8 +118,10 @@ let
     inherit
       config
       homeDirectory
+      inputs
       lib
       mcpServers
+      pkgs
       ;
   };
 in
@@ -137,11 +140,11 @@ in
       "${homeDirectory}/.copilot"
   '';
 
-  sops.templates = opencode.templates // {
-    "codex-config.toml" = {
-      path = "${homeDirectory}/.codex/config.toml";
-      mode = "0600";
-      content = ''
+  sops.templates = opencode.templates;
+
+  home.file = {
+    ".codex/config.toml" = {
+      text = ''
         plan_mode_reasoning_effort = "xhigh"
         model = "gpt-5.6-terra"
         model_reasoning_effort = "xhigh"
@@ -153,19 +156,13 @@ in
         ${codexMcpServers}
       '';
     };
-
-    "antigravity-mcp.json" = {
-      path = "${homeDirectory}/.gemini/config/mcp_config.json";
-      mode = "0600";
-      content = builtins.toJSON {
+    ".gemini/config/mcp_config.json" = {
+      text = builtins.toJSON {
         mcpServers = lib.mapAttrs toAntigravity mcpServers;
       };
     };
-
-    "copilot-mcp-config.json" = {
-      path = "${homeDirectory}/.copilot/mcp-config.json";
-      mode = "0600";
-      content = builtins.toJSON {
+    ".copilot/mcp-config.json" = {
+      text = builtins.toJSON {
         mcpServers = lib.mapAttrs toCopilot mcpServers;
       };
     };
