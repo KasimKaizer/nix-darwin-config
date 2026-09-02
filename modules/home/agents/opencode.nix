@@ -43,8 +43,8 @@ let
     explorer = "allow";
     researcher = "allow";
   };
-  # OMO Tier-0 hooks patched to docs/plans
-  omoHooksTier0 = pkgs.runCommand "omo-hooks-tier0" { } ''
+  # OMO core hooks patched to docs/plans
+  omoHooksCore = pkgs.runCommand "omo-hooks-core" { } ''
     cp -r ${inputs.oh-my-openagent} $out
     chmod -R u+w $out
     substituteInPlace $out/packages/omo-opencode/src/hooks/notepad-write-guard/index.ts --replace-fail ".sisyphus/notepads" "docs/plans/notepads" --replace ".omo/notepads" "docs/plans/notepads"
@@ -322,7 +322,7 @@ rec {
           "cursor-opencode-provider"
           "@cortexkit/opencode-antigravity-auth@2.1.0"
           "opencode-sandbox"
-          "${omoHooksTier0}/packages/omo-opencode"
+          "${omoHooksCore}/packages/omo-opencode"
         ];
         provider = {
           cursor = {
