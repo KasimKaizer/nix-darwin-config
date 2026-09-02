@@ -5,7 +5,7 @@ description: >-
   (~/.config/nix-darwin-config, host inferno, user ew). Use whenever the user
   adds or changes packages, Homebrew casks, formulae, masApps, taps, macOS
   defaults, Dock icons, login items, skhd hotkeys, fonts, zsh aliases,
-  Helix/Zed/VS Code, sops/age secrets, SSH, rclone, Agent Skills (including
+   Helix/Zed/VS Code, sops/age secrets, SSH, Agent Skills (including
   requests to create, modify, move, or install a skill, even when only `SKILL.md`
   is named), hosts, or mentions nixswitch, nixup, nixgc, nix-rollback,
   darwin-rebuild, home-manager,
@@ -43,8 +43,8 @@ Read more only when the task needs it:
 3. **Edit once**, in the module that already owns that concern. New module →
    create it, then append it to the matching `imports`. An unimported file is
    dead.
-4. Keep secrets out of Nix and JSON in git. Vault is `secrets/secrets.yaml`
-   via `sops`.
+4. Keep secrets out of Nix and JSON in git. Vault is `inputs.nix-secrets/secrets.yaml`
+   via `sops` (`inputs.nix-secrets`, `flake = false`).
 5. When adding multiple related packages to one `home.packages` profile, apply
    the package-profile collision check below before asking the user to switch.
 6. From the flake root: `nix fmt` and `nix flake check --no-build`.
@@ -99,7 +99,7 @@ Then the rest of the map:
 | Non-secret env vars | `home.sessionVariables` in `modules/home/default.nix` |
 | Extra PATH **directories** (not packages) | `home.sessionPath` in `modules/home/default.nix` |
 | Secret **env vars** | vault + `sops.secrets` + `secret-env` in `tools/secrets.nix` |
-| Secret **file** (ssh key, rclone.conf) | `sops.secrets.<name>.path` in the owning module |
+| Secret **file** (ssh key) | `sops.secrets.<name>.path` in the owning module |
 | Config that **contains** secrets | `sops.templates` + `config.sops.placeholder.*` |
 | Create or modify a custom Agent Skill | `modules/home/agents/skills/<name>/SKILL.md` — auto-installed into `~/.agents/skills/<name>` on switch |
 | Install / enable a third-party Agent Skill | `modules/home/agents/skills.nix` (`sources` + `skills.enable`) |
@@ -117,7 +117,7 @@ append to the existing `home.packages` list in the owning module (generic tools:
 
 **Add a GUI app**: App Store → `masApps` with `mas search`; otherwise a `casks` entry. If it should sit in the Dock, login at boot, or get a ⌘⌥ hotkey, update `dock-items.nix` / `loginItems` / `skhd.nix` in the same change. Never `brew install`.
 
-**Add a secret env var**: `sops secrets/secrets.yaml` (cheat sheet is the comments in `.sops.yaml`) → `sops.secrets.<name> = { };` in `tools/secrets.nix` → `export NAME="${config.sops.placeholder.<name>}"` on `sops.templates."secret-env"` → user runs `nixswitch && exec zsh`. Other secret shapes: [references/secrets.md](references/secrets.md).
+**Add a secret env var**: `sops secrets.yaml` in the private vault (`inputs.nix-secrets`, cheat sheet in its `.sops.yaml`) → `sops.secrets.<name> = { };` in `tools/secrets.nix` → `export NAME="${config.sops.placeholder.<name>}"` on `sops.templates."secret-env"` → `git push` in the vault repo, then `nix flake update nix-secrets && nixswitch && exec zsh` here. Other secret shapes: [references/secrets.md](references/secrets.md).
 
 **Create or modify a custom Agent Skill**: Treat `modules/home/agents/skills/<name>/SKILL.md` as the only editable source of truth. Use the flat `modules/home/agents/skills/<name>/` layout; do not create category subdirectories. For new or substantive skill content, use `skill-creator` after locating this source file. Local skills are auto-installed on `nixswitch` (`enableAll = [ "local" ]`) to Zed (`~/.agents/skills`), Cursor, Codex, OpenCode, Antigravity, and Copilot. Never create, edit, or duplicate a managed skill in an agent directory.
 

@@ -8,8 +8,7 @@ For secrets, see [references/secrets.md](references/secrets.md). For editors, se
 
 ```
 flake.nix                         hosts attrset, mkDarwin, formatter (nixfmt-tree)
-.sops.yaml                        age recipients + sops CLI cheat sheet
-secrets/secrets.yaml              encrypted vault (safe to commit)
+flake.lock                        pinned inputs (private vault `inputs.nix-secrets` via git+ssh)
 modules/home/agents/skills/<name>/SKILL.md  custom skills → ~/.agents/skills/<name> (auto)
 modules/home/agents/skills.nix              pin/allowlist third-party skills
 hosts/<hostname>/default.nix      platform, hostname, timezone, primaryUser, imports darwin
@@ -52,12 +51,12 @@ updated when you add one.
 1. Add `hosts.<hostname> = { system, username, timezone, ... };` in `flake.nix`.
    Attr key is the `darwin-rebuild --flake .#<hostname>` name.
 2. Copy `hosts/inferno` → `hosts/<hostname>/`.
-3. If a **new** age key: add the public key to `.sops.yaml` `keys` and
-   `creation_rules`, then `sops updatekeys secrets/secrets.yaml`. Skip if the
+3. If a **new** age key: add the public key to the private vault's `.sops.yaml` (`inputs.nix-secrets`) `keys` and
+   `creation_rules`, then `sops updatekeys secrets.yaml` inside that repo. Skip if the
    same key is reused.
 4. First boot: age private key at `~/.config/sops/age/keys.txt` **before**
    switch (`generateKey = false`). Command in README bootstrap (`darwin-rebuild`
-   is not on PATH yet).
+   is not on PATH yet). Private vault is `inputs.nix-secrets` (`flake = false`).
 5. Shared home modules (git identity, zsh brew path, Helix flake path) assume
    inferno-like defaults. Override or parameterize them if the new machine
    differs — do not silently inherit the wrong username/path.
@@ -78,6 +77,3 @@ something else, update that path too.
   `--delete-older-than 7d`. Rollback is not a long undo history.
 - Inputs track unstable / home-manager master. Treat `nixup` as potentially
   breaking.
-- rclone token refreshes rewrite `~/.config/rclone/rclone.conf`; the next
-  switch restores the vault copy. Put the new file back with the `sops set`
-  recipe in `.sops.yaml`.

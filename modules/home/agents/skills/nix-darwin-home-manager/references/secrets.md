@@ -1,14 +1,15 @@
 # Secrets
 
-Always: add the key in `sops secrets/secrets.yaml`, declare
+Always: add the key in the private vault (`inputs.nix-secrets`, `sops secrets.yaml`), declare
 `sops.secrets.<nixName>`, then consume it. Names in the vault must match the
 Nix attr.
 
-Run sops from the repo root. The comments at the top of `.sops.yaml` are the
-CLI cheat sheet (edit, extract, `sops set`, rclone rewrite, rotate recipients).
-After vault edits: commit the ciphertext, `nixswitch`, `exec zsh` if env vars
-changed. The encrypted vault is safe to commit; `~/.config/sops/age/keys.txt`
-is not.
+Run sops from the private vault repo root. The comments at the top of
+`.sops.yaml` are the CLI cheat sheet (edit, extract, `sops set`,
+rotate recipients). After vault edits: `git commit && git push`
+in the vault repo, then in this repo `nix flake update nix-secrets && nixswitch`
+(`exec zsh` if env vars changed). The encrypted vault lives in the private
+vault (`inputs.nix-secrets`); `~/.config/sops/age/keys.txt` is not.
 
 `sops.age.generateKey = false` in `tools/secrets.nix`. A missing age key must
 fail the switch, not mint a new key that cannot decrypt the committed vault.
@@ -28,7 +29,7 @@ sops.templates."secret-env".content = ''
 
 Append to the existing `secret-env` template; do not create a second env file.
 
-## Whole file (SSH private key, rclone.conf)
+## Whole file (SSH private key)
 
 ```nix
 sops.secrets."ssh_id_ed25519" = {
@@ -36,10 +37,6 @@ sops.secrets."ssh_id_ed25519" = {
   mode = "0600";
 };
 ```
-
-rclone.conf lives in `tools/secrets.nix` as `rclone_conf.path`. rclone rewrites
-that file on token refresh; that write is lost on the next switch. Copy it back
-with the `sops set` recipe in `.sops.yaml`.
 
 ## Rendered config (ssh `Host box`, exercism `user.json`, Zed `settings.json`)
 

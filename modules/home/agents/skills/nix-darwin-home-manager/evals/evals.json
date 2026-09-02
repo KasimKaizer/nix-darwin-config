@@ -30,14 +30,14 @@
     {
       "id": 3,
       "prompt": "I need OPENAI_API_KEY in my shell for CLI tools. Don't put the actual key in git. I'll paste the value into sops myself.",
-      "expected_output": "sops.secrets declaration plus secret-env export in tools/secrets.nix; instructions to add the key via sops secrets/secrets.yaml. Not home.sessionVariables. User told nixswitch && exec zsh.",
+      "expected_output": "sops.secrets declaration plus secret-env export in tools/secrets.nix; instructions to add the key via sops secrets.yaml in the private vault (inputs.nix-secrets), then nix flake update nix-secrets && nixswitch. Not home.sessionVariables. User told nixswitch && exec zsh.",
       "files": [],
       "expectations": [
         "sops.secrets gains an openai (or openai_api_key) entry in modules/home/tools/secrets.nix",
         "sops.templates.secret-env exports OPENAI_API_KEY via config.sops.placeholder",
         "OPENAI_API_KEY is not added to home.sessionVariables",
         "No plaintext API key is written into a Nix, JSON, or YAML file in the repo copy",
-        "The agent instructs the user to edit the vault with sops secrets/secrets.yaml and then nixswitch && exec zsh"
+        "The agent instructs the user to edit the vault with sops secrets.yaml in the private vault (inputs.nix-secrets), then nix flake update nix-secrets && nixswitch && exec zsh"
       ]
     },
     {
