@@ -111,6 +111,7 @@ let
       '';
 
   codexMcpServers = lib.concatStringsSep "\n" (lib.mapAttrsToList toCodexMcp mcpServers);
+
   cursorConfig = import ./cursor.nix {
     inherit lib homeDirectory mcpServers;
   };
@@ -144,6 +145,7 @@ in
 
   home.file = {
     ".codex/config.toml" = {
+      force = true;
       text = ''
         plan_mode_reasoning_effort = "xhigh"
         model = "gpt-5.6-terra"
@@ -157,14 +159,17 @@ in
       '';
     };
     ".gemini/config/mcp_config.json" = {
+      force = true;
       text = builtins.toJSON {
         mcpServers = lib.mapAttrs toAntigravity mcpServers;
       };
     };
     ".copilot/mcp-config.json" = {
+      force = true;
       text = builtins.toJSON {
         mcpServers = lib.mapAttrs toCopilot mcpServers;
       };
     };
-  };
+  }
+  // opencode.files;
 }
