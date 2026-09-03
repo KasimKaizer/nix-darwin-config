@@ -253,11 +253,11 @@
     "oh-my-openagent": {
       "flake": false,
       "locked": {
-        "lastModified": 1788417691,
-        "narHash": "sha256-CHqIjIkiEz/al/Ybaks21pdStRJ8CRW5HxaZFzs33ZY=",
+        "lastModified": 1788420595,
+        "narHash": "sha256-Ay8BYWUvlSBbIxj/kMDtRMAsIHOzAb4wZ5uuSKEBsL0=",
         "owner": "code-yeongyu",
         "repo": "oh-my-openagent",
-        "rev": "4aa3007307a1e000ab38e32d1af05548805fd9a4",
+        "rev": "65c55dc6b470e0b21f60ff3c16c8e9594d575cd8",
         "type": "github"
       },
       "original": {
