@@ -22,6 +22,10 @@ Multi-host macOS flake (`nix-darwin` + `home-manager` + `nix-homebrew` + `sops-n
 
 Details: `README.md` (bootstrap), `CAVEATS.md` (warnings).
 
+## Code Style
+
+Write readable, intuitive, followable, idiomatic code — not the shortest or smartest. A new team member should understand the change faster than the original.
+
 ## Guardrails
 
 - No `brew install`/`brew tap`/`mas install` — `cleanup = "zap"` will undo it.
