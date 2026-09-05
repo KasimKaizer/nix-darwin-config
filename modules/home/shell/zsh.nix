@@ -42,6 +42,8 @@
       nix-rollback = "sudo -H darwin-rebuild --rollback";
       nixgc = "sudo -H nix-collect-garbage -d && nix-collect-garbage -d";
       python = "python3";
+      oc = "sbx-opencode";
+      oc-clone = "sbx-opencode --clone";
     };
 
     profileExtra = ''

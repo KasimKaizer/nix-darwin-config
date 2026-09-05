@@ -125,9 +125,20 @@ let
       pkgs
       ;
   };
+  sandboxConfig = import ./sandbox.nix {
+    inherit
+      homeDirectory
+      lib
+      mcpServers
+      pkgs
+      ;
+  };
 in
 {
-  imports = [ cursorConfig ];
+  imports = [
+    cursorConfig
+    sandboxConfig
+  ];
 
   # sops-nix renders templates after this activation entry. Ensure target
   # directories exist even for clients that have not been launched yet.
