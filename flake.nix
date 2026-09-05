@@ -55,7 +55,7 @@
       flake = false;
     };
     oh-my-openagent = {
-      url = "github:code-yeongyu/oh-my-openagent";
+      url = "https://registry.npmjs.org/oh-my-opencode/-/oh-my-opencode-5.0.0-beta.38.tgz";
       flake = false;
     };
   };
