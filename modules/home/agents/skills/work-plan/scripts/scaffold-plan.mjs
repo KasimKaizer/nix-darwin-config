@@ -33,6 +33,40 @@ export const FINAL_VERIFICATION_ITEMS = [
   "F4. Scope fidelity",
 ];
 
+export const NOTEPAD_FILES = [
+  "learnings.md",
+  "decisions.md",
+  "issues.md",
+  "problems.md",
+];
+
+export const NOTEPAD_LABELS = {
+  "learnings.md": "Learnings",
+  "decisions.md": "Decisions",
+  "issues.md": "Issues",
+  "problems.md": "Problems",
+};
+
+export const NOTEPAD_PURPOSES = {
+  "learnings.md":
+    "Conventions, patterns, and successful approaches discovered during work on this plan.",
+  "decisions.md":
+    "Architectural choices and rationales discovered during work on this plan.",
+  "issues.md":
+    "Problems and gotchas encountered during work on this plan.",
+  "problems.md":
+    "Unresolved blockers and technical debt discovered during work on this plan.",
+};
+
+export const NOTEPAD_FOOTER =
+  "_Auto-scaffolded by work-plan. Append new entries below - never overwrite._";
+
+export function buildNotepadHeader(fileName, slug) {
+  const label = NOTEPAD_LABELS[fileName];
+  const purpose = NOTEPAD_PURPOSES[fileName];
+  return `# ${label} — ${slug}\n\n${purpose}\n\n${NOTEPAD_FOOTER}\n\n---\n`;
+}
+
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{0,79}$/;
 
 export function parseArgs(argv) {
@@ -277,6 +311,9 @@ Your next move: <fill - e.g. approve, or run a high-accuracy review>. Full execu
 ### Parallel execution waves
 > Target 5-8 todos per wave. Fewer than 3 (except the final) means you under-split.
 
+### Plan blackboard (session memory)
+> If \`docs/plans/notepads/${slug}/\` exists: before each delegation wave, read \`learnings.md\` and \`issues.md\` and fold inherited wisdom into the dispatched prompts (cap: those two files). If you implement todos directly rather than delegating, append your own discoveries to the notepads yourself.
+
 ### Dependency matrix
 | Todo | Depends on | Blocks | Can parallelize with |
 | --- | --- | --- | --- |
@@ -300,6 +337,32 @@ ${FINAL_VERIFICATION_ITEMS.map((item) => `- [ ] ${item}`).join("\n")}
 
 ## Success criteria
 `;
+}
+
+export async function scaffoldNotepads(cwd, slug) {
+  const results = [];
+  for (const fileName of NOTEPAD_FILES) {
+    const relPath = join("docs", "plans", "notepads", slug, fileName);
+    try {
+      // Never pass reset/force: notepads are append-only memory. An existing
+      // file (even hand-created) is kept as-is, mirroring upstream's `wx`.
+      results.push(
+        await writeGuarded(cwd, relPath, buildNotepadHeader(fileName, slug), {}),
+      );
+    } catch (err) {
+      // A same-named non-artifact file blocks the slot; treat as already
+      // present rather than failing the whole scaffold.
+      if (
+        err instanceof Error &&
+        err.message.includes("exists and is not a plan artifact")
+      ) {
+        results.push({ relPath, status: "exists" });
+        continue;
+      }
+      throw err;
+    }
+  }
+  return results;
 }
 
 export async function writeGuarded(
@@ -355,7 +418,8 @@ export async function scaffold(
     buildPlanSkeleton(slug, intent),
     { reset, force },
   );
-  return [draft, plan];
+  const notepads = await scaffoldNotepads(cwd, slug);
+  return [draft, plan, ...notepads];
 }
 
 async function main() {

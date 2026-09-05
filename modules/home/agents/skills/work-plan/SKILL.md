@@ -56,7 +56,7 @@ As soon as `<slug>` and intent are known, before recording draft state, RUN:
 node "<skill-root>/scripts/scaffold-plan.mjs" <slug> [--clear|--unclear] --draft-only [--review-required]
 ```
 
-(Replace `<skill-root>` with this skill's own directory; `bun` is accepted.) This creates only `docs/plans/drafts/<slug>.md`, the compaction-safe resume point; it does not create a plan before approval. Include `--review-required` when an explicit modifier requires review or the classified route is non-Trivial UNCLEAR, so the first durable write contains the complete pending review request. After approval, rerun without `--draft-only` to create `docs/plans/<slug>.md`, then **APPEND** task batches into `## Todos` - never rewrite script-emitted headers.
+(Replace `<skill-root>` with this skill's own directory; `bun` is accepted.) This creates only `docs/plans/drafts/<slug>.md`, the compaction-safe resume point; it does not create a plan before approval. Include `--review-required` when an explicit modifier requires review or the classified route is non-Trivial UNCLEAR, so the first durable write contains the complete pending review request. After approval, rerun without `--draft-only` to create `docs/plans/<slug>.md` plus append-only session memory at `docs/plans/notepads/<slug>/{learnings,issues,decisions,problems}.md` (scaffolded once, never overwritten — not even by `--reset`), then **APPEND** task batches into `## Todos` - never rewrite script-emitted headers.
 
 Both invocations are resume-safe no-ops for artifacts already present. Do NOT hand-build them; use `--reset` only for a structural reset (`--reset --force` discards edits). If a same-named non-artifact file exists, choose another slug.
 
