@@ -43,7 +43,7 @@ let
     explorer = "allow";
     researcher = "allow";
   };
-  inherit (import ./hooks.nix { inherit inputs pkgs; }) omoHooks omoDisabledHooks;
+  hooksPlugin = ./opencode/hooks;
 in
 rec {
   inherit
@@ -66,7 +66,7 @@ rec {
       mode = "primary";
       # model = "cursor/grok-4.6";
       model = "google/antigravity-gemini-3.8-flash";
-      prompt = builtins.readFile ./opencode/alt/builder-gemini.md;
+      prompt = builtins.readFile ./opencode/prompts/alt/builder-gemini.md;
       tools = allMcpToolsEnabled;
       permission = {
         bash = {
@@ -93,7 +93,7 @@ rec {
       mode = "all";
       # model = "cursor/grok-4.6";
       model = "google/antigravity-gemini-3.8-flash";
-      prompt = builtins.readFile ./opencode/planner.md;
+      prompt = builtins.readFile ./opencode/prompts/planner.md;
       tools =
         (mcpToolAccess true [
           "codegraph"
@@ -132,7 +132,7 @@ rec {
       hidden = true;
       # model = "cursor/claude-opus-5";
       model = "google/antigravity-gemini-3.8-flash";
-      prompt = builtins.readFile ./opencode/advisor-claude.md;
+      prompt = builtins.readFile ./opencode/prompts/advisor-claude.md;
       tools =
         (mcpToolAccess true [
           "codegraph"
@@ -160,7 +160,7 @@ rec {
       mode = "subagent";
       hidden = true;
       model = "google/antigravity-gemini-3.8-flash";
-      prompt = builtins.readFile ./opencode/explorer.md;
+      prompt = builtins.readFile ./opencode/prompts/explorer.md;
       tools =
         (mcpToolAccess true [
           "codegraph"
@@ -185,7 +185,7 @@ rec {
       hidden = true;
       # model = "openai/gpt-5.6-terra";
       model = "google/antigravity-gemini-3.8-flash";
-      prompt = builtins.readFile ./opencode/reviewer-gpt.md;
+      prompt = builtins.readFile ./opencode/prompts/reviewer-gpt.md;
       tools =
         (mcpToolAccess true [
           "codegraph"
@@ -215,7 +215,7 @@ rec {
       mode = "subagent";
       hidden = true;
       model = "google/antigravity-gemini-3.8-flash";
-      prompt = builtins.readFile ./opencode/researcher.md;
+      prompt = builtins.readFile ./opencode/prompts/researcher.md;
       tools = mcpToolAccess true [
         "context7"
         "exa"
@@ -241,7 +241,7 @@ rec {
       hidden = true;
       # model = "cursor/grok-4.6";
       model = "google/antigravity-gemini-3.8-flash";
-      prompt = builtins.readFile ./opencode/alt/worker-deep-gemini.md;
+      prompt = builtins.readFile ./opencode/prompts/alt/worker-deep-gemini.md;
       tools = allMcpToolsEnabled;
       permission = {
         bash = {
@@ -257,7 +257,7 @@ rec {
       mode = "subagent";
       hidden = true;
       model = "google/antigravity-gemini-3.8-flash";
-      prompt = builtins.readFile ./opencode/worker-visual-gemini.md;
+      prompt = builtins.readFile ./opencode/prompts/worker-visual-gemini.md;
       tools = allMcpToolsEnabled;
       permission = {
         bash = {
@@ -274,7 +274,7 @@ rec {
       hidden = true;
       # model = "cursor/claude-opus-5";
       model = "google/antigravity-gemini-3.8-flash";
-      prompt = builtins.readFile ./opencode/alt/worker-ultra-gemini.md;
+      prompt = builtins.readFile ./opencode/prompts/alt/worker-ultra-gemini.md;
       tools = allMcpToolsEnabled;
       permission = {
         bash = {
@@ -290,7 +290,7 @@ rec {
       mode = "subagent";
       hidden = true;
       model = "google/antigravity-gemini-3.8-flash";
-      prompt = builtins.readFile ./opencode/worker-quick-gemini.md;
+      prompt = builtins.readFile ./opencode/prompts/worker-quick-gemini.md;
       tools = allMcpToolsEnabled;
       permission = {
         bash = {
@@ -313,9 +313,8 @@ rec {
         subagent_depth = 2;
         plugin = [
           "cursor-opencode-provider"
-          "@cortexkit/opencode-antigravity-auth"
-          "opencode-sandbox"
-          "${omoHooks}/packages/omo-opencode"
+          "@cortexkit/opencode-antigravity-auth@2.2.0"
+          "${hooksPlugin}"
         ];
         provider = {
           cursor = {
@@ -337,25 +336,5 @@ rec {
     };
   };
   # Plain (non-secret) opencode files, merged into home.file by agents.nix.
-  files = {
-    # Read by the OMO opencode plugin on startup (no OMO CLI needed).
-    # Selects which of its 56 hooks run; list lives in hooks.nix.
-    ".omo/omo.jsonc" = {
-      text = builtins.toJSON {
-        "$schema" =
-          "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/omo.schema.json";
-        disabled_hooks = omoDisabledHooks;
-      };
-    };
-    # Sandbox config (outside the repo). Empty allowlist = all bash traffic blocked.
-    # MCP/model calls bypass the sandbox; allowUnixSockets keeps nix working.
-    ".config/opencode-sandbox/config.json" = {
-      text = builtins.toJSON {
-        network = {
-          allowedDomains = [ ];
-        };
-        allowUnixSockets = [ "/nix/var/nix/daemon-socket/socket" ];
-      };
-    };
-  };
+  files = { };
 }
