@@ -1,5 +1,5 @@
-// 4. edit-error-recovery
-// Upstream: packages/omo-opencode/src/hooks/edit-error-recovery/hook.ts
+// edit-error-recovery
+// (upstream: packages/omo-opencode/src/hooks/edit-error-recovery/hook.ts)
 // NOTE: `tool.execute.after` does NOT fire on failed native-tool calls in
 // opencode 1.18.x (verified live: successful `edit` logs after-hook, failed
 // `edit` with status=error never reaches it — the Effect failure
@@ -157,8 +157,8 @@ export function createEditErrorRecoveryHook(ctx) {
   };
 }
 
-// 5. json-error-recovery
-// Upstream: packages/omo-opencode/src/hooks/json-error-recovery/hook.ts
+// json-error-recovery
+// (upstream: packages/omo-opencode/src/hooks/json-error-recovery/hook.ts)
 export const JSON_ERROR_PATTERNS = [
   /json parse error/i,
   /failed to parse json/i,
@@ -247,8 +247,8 @@ export function createJsonErrorRecoveryHook() {
   };
 }
 
-// 6. empty-task-response-detector
-// Upstream: packages/omo-opencode/src/hooks/empty-task-response-detector.ts
+// empty-task-response-detector
+// (upstream: packages/omo-opencode/src/hooks/empty-task-response-detector.ts)
 export const EMPTY_RESPONSE_WARNING = `[Task Empty Response Warning]
 
 Task invocation completed but returned no response. This indicates the agent either:
@@ -289,8 +289,8 @@ export function createEmptyTaskResponseDetectorHook() {
   };
 }
 
-// 7. task-resume-info
-// Upstream: packages/omo-opencode/src/hooks/task-resume-info/hook.ts
+// task-resume-info
+// (upstream: packages/omo-opencode/src/hooks/task-resume-info/hook.ts)
 export const TASK_RESUME_TOOLS = new Set(["task", "task_tool"]);
 
 export function createTaskResumeInfoHook() {
@@ -314,8 +314,8 @@ export function createTaskResumeInfoHook() {
   };
 }
 
-// 8. tool-output-truncator
-// Upstream: packages/omo-opencode/src/hooks/tool-output-truncator.ts
+// tool-output-truncator
+// (upstream: packages/omo-opencode/src/hooks/tool-output-truncator.ts)
 const TRUNCATABLE_TOOLS = new Set(["grep", "safe_grep", "glob", "safe_glob", "webfetch", "lsp_diagnostics", "skill_mcp"]);
 const DEFAULT_MAX_CHARS = 200_000;
 const WEBFETCH_MAX_CHARS = 40_000;
@@ -338,12 +338,11 @@ export function createToolOutputTruncatorHook() {
   };
 }
 
-// 9. task-completion notepad reminder
-// Upstream: packages/omo-opencode/src/hooks/atlas/verification-reminders.ts
-// (STEP 5: READ SUBAGENT NOTEPAD). Ported without the boulder-state progress
-// machine, session-reuse routing, and plan-name resolution, which would
-// require an external progress-tracking database. Nudges the orchestrator
-// to read fresh notepad entries after each completed delegation.
+// task-completion notepad reminder
+// (upstream: .../atlas/verification-reminders.ts). Ported without the progress
+// machine, session-reuse routing, and plan-name resolution, which need an
+// external progress database. Nudges the orchestrator to read fresh notepad
+// entries after each completed delegation.
 export const NOTEPAD_READ_REMINDER_MARKER = "[READ SUBAGENT NOTEPAD]";
 
 export const NOTEPAD_READ_REMINDER = `

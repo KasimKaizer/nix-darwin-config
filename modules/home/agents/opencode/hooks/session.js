@@ -1,10 +1,15 @@
 import { existsSync, readFileSync } from "node:fs";
-import { isAbsolute, resolve } from "node:path";
-import { isNonBuilderSession, resolveFilePath } from "./guards.js";
+import { homedir } from "node:os";
+import { isAbsolute, join, resolve } from "node:path";
+import {
+  getTaskTargetAgent,
+  isNonBuilderSession,
+  isWorkerTargetAgent,
+  resolveFilePath,
+} from "./guards.js";
 
-// 10. plan-format-validator
-// Upstream: packages/omo-opencode/src/hooks/plan-format-validator/hook.ts
-// Warns if task checkbox syntax deviates from progress counter standards.
+// plan-format-validator (upstream: packages/omo-opencode/src/hooks/plan-format-validator/hook.ts):
+// warns when plan checkboxes deviate from the progress-counter format.
 const SECTION_BOUNDARY_HEADING = /^#{1,2}(?:[ \t]+|$)/;
 const HEADING_TODOS = /^##[ \t]+TODOs(?:[ \t]+#+)?[ \t]*$/i;
 const HEADING_FINAL_WAVE = /^##[ \t]+Final Verification Wave(?:[ \t]+#+)?[ \t]*$/i;
@@ -102,9 +107,8 @@ export function createPlanFormatValidatorHook(ctx) {
   };
 }
 
-// 11. notepad-directive
-// Upstream: packages/omo-opencode/src/hooks/sisyphus-junior-notepad/constants.ts
-// Injects notepad context directive into subagent prompt.
+// notepad-directive (upstream: packages/omo-opencode/src/hooks/sisyphus-junior-notepad/constants.ts):
+// prepends notepad context to worker subagent prompts.
 export const NOTEPAD_DIRECTIVE = `
 <Work_Context>
 ## Notepad Location (for recording learnings)
@@ -133,18 +137,62 @@ export function createNotepadDirectiveHook() {
     "tool.execute.before": async (input, output) => {
       if (input.tool?.toLowerCase() !== "task") return;
       if (isNonBuilderSession(input.sessionID)) return;
+      const targetAgent = getTaskTargetAgent(output?.args);
+      if (!isWorkerTargetAgent(targetAgent)) return;
       const prompt = output?.args?.prompt;
       if (typeof prompt !== "string") return;
       if (prompt.includes("<Work_Context>")) return;
+      // Mutate in place: output.args shares the tool's live args reference, so
+      // only property assignment propagates (see session/tools.ts).
       output.args.prompt = NOTEPAD_DIRECTIVE + "\n" + prompt;
     },
   };
 }
 
-// 12. compaction-todo-preserver
-// Upstream: packages/omo-opencode/src/hooks/compaction-todo-preserver/hook.ts
-// Preserves todos across compaction cycles.
-export function createCompactionTodoPreserverHook() {
+// compaction-todo-preserver (upstream: packages/omo-opencode/src/hooks/compaction-todo-preserver/hook.ts):
+// preserves open todos across compaction, falling back to SQLite so they survive restarts.
+export async function getStoredTodosFromSqlite(sessionID) {
+  if (!sessionID) return [];
+  const dataDir = process.env.XDG_DATA_HOME
+    ? join(process.env.XDG_DATA_HOME, "opencode")
+    : join(homedir(), ".local/share/opencode");
+  const candidates = [join(dataDir, "opencode-stable.db"), join(dataDir, "opencode.db")];
+  const dbPath = candidates.find((p) => existsSync(p));
+  if (!dbPath) return [];
+
+  // Try bun:sqlite first (runtime of opencode binary)
+  try {
+    const { Database } = await import("bun:sqlite");
+    const db = new Database(dbPath, { readonly: true });
+    try {
+      return db
+        .query(
+          "SELECT content, status FROM todo WHERE session_id = ? AND status != 'completed' AND status != 'cancelled' ORDER BY position ASC"
+        )
+        .all(sessionID);
+    } finally {
+      db.close();
+    }
+  } catch {}
+
+  // Try node:sqlite (when running under Node v22.5+)
+  try {
+    const { DatabaseSync } = await import("node:sqlite");
+    const db = new DatabaseSync(dbPath, { readOnly: true });
+    try {
+      const stmt = db.prepare(
+        "SELECT content, status FROM todo WHERE session_id = ? AND status != 'completed' AND status != 'cancelled' ORDER BY position ASC"
+      );
+      return stmt.all(sessionID);
+    } finally {
+      db.close();
+    }
+  } catch {}
+
+  return [];
+}
+
+export function createCompactionTodoPreserverHook(ctx) {
   const todoSnapshots = new Map();
   return {
     "tool.execute.before": async (input, output) => {
@@ -157,6 +205,25 @@ export function createCompactionTodoPreserverHook() {
         todoSnapshots.delete(event.properties.id);
       }
     },
-    getSnapshot: (sessionID) => todoSnapshots.get(sessionID),
+    getSnapshot: async (sessionID) => {
+      if (!sessionID) return [];
+      // 1. In-memory snapshot (active session uncommitted state)
+      const inMemory = todoSnapshots.get(sessionID);
+      if (Array.isArray(inMemory) && inMemory.length > 0) {
+        return inMemory;
+      }
+      // 2. OpenCode SDK client (if running in server context with client)
+      if (ctx?.client?.session?.todo) {
+        try {
+          const res = await ctx.client.session.todo({ path: { id: sessionID } });
+          const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+          if (list.length > 0) return list;
+        } catch {}
+      }
+      // 3. Fallback to OpenCode's SQLite database directly (survives restarts)
+      const dbRows = await getStoredTodosFromSqlite(sessionID);
+      if (dbRows.length > 0) return dbRows;
+      return inMemory ?? [];
+    },
   };
 }

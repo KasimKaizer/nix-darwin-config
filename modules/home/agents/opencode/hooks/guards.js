@@ -7,9 +7,8 @@ export function resolveFilePath(args) {
   return typeof raw === "string" ? raw : undefined;
 }
 
-// Session agent tracking. Trigger inputs for tool calls carry no agent
-// field, so the plugin records sessionID -> agent from "chat.message"
-// traffic (which does carry it) and gates builder-scoped hooks on it.
+// Tool calls carry no agent field, so sessionID -> agent is recorded from
+// "chat.message" traffic to gate builder-scoped hooks.
 const sessionAgents = new Map();
 
 export function recordSessionAgent(sessionID, agent) {
@@ -27,8 +26,23 @@ export function isNonBuilderSession(sessionID) {
   return agent !== undefined && agent !== "builder";
 }
 
-// 1. notepad-write-guard
-// Upstream: packages/omo-opencode/src/hooks/notepad-write-guard/index.ts
+export function getTaskTargetAgent(args) {
+  if (!args || typeof args !== "object" || Array.isArray(args)) return undefined;
+  for (const raw of [args.subagent_type, args.subagent, args.agent]) {
+    if (typeof raw === "string") {
+      const trimmed = raw.trim();
+      if (trimmed !== "") return trimmed;
+    }
+  }
+  return undefined;
+}
+
+export function isWorkerTargetAgent(name) {
+  if (typeof name !== "string") return false;
+  return /^worker-/i.test(name.trim());
+}
+
+// notepad-write-guard (upstream: packages/omo-opencode/src/hooks/notepad-write-guard/index.ts)
 const NOTEPAD_ROOT = normalize("docs/plans/notepads");
 
 export function isNotepadPath(filePath) {
@@ -46,9 +60,8 @@ export function createNotepadWriteGuardHook() {
       if (input.tool?.toLowerCase() !== "write") return;
       const filePath = resolveFilePath(output?.args);
       if (!filePath) return;
-      // Global: every agent's writes are policed. Notepad history must
-      // survive regardless of which session attempts the overwrite —
-      // especially worker subagents recording learnings via #11.
+      // Every agent's writes are policed: notepad history must survive any
+      // overwrite attempt, including workers appending learnings.
       if (isNotepadPath(filePath)) {
         throw new Error(
           `Refused: Write to ${filePath} is blocked because notepad files are append-only and Write would destroy history. Report the original Edit failure to the user and ask for guidance instead.`
@@ -58,8 +71,7 @@ export function createNotepadWriteGuardHook() {
   };
 }
 
-// 2. write-existing-file-guard
-// Upstream: packages/omo-opencode/src/hooks/write-existing-file-guard/hook.ts
+// write-existing-file-guard (upstream: packages/omo-opencode/src/hooks/write-existing-file-guard/hook.ts)
 function toCanonicalPath(absolutePath) {
   if (existsSync(absolutePath)) {
     try {
@@ -118,8 +130,7 @@ export function createWriteExistingFileGuardHook(ctx) {
   };
 }
 
-// 3. bash-file-read-guard
-// Upstream: packages/omo-opencode/src/hooks/bash-file-read-guard.ts
+// bash-file-read-guard (upstream: packages/omo-opencode/src/hooks/bash-file-read-guard.ts)
 export const FILE_READ_WARNING =
   "Prefer the Read tool over `cat`/`head`/`tail` for reading file contents. The Read tool provides line numbers and hash anchors for precise editing.";
 
