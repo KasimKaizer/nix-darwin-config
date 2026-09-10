@@ -119,10 +119,8 @@ let
     inherit
       config
       homeDirectory
-      inputs
       lib
       mcpServers
-      pkgs
       ;
   };
   sandboxConfig = import ./sandbox.nix {

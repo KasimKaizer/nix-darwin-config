@@ -1,10 +1,8 @@
 {
   config,
   homeDirectory,
-  inputs,
   lib,
   mcpServers,
-  pkgs,
 }:
 let
   toOpenCode =

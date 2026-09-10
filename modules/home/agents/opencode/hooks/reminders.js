@@ -40,7 +40,6 @@ export function createAgentUsageReminderHook() {
     let state = sessionStates.get(sessionID);
     if (!state) {
       state = {
-        agentUsed: false,
         reminderCount: 0,
       };
       sessionStates.set(sessionID, state);
@@ -58,14 +57,14 @@ export function createAgentUsageReminderHook() {
 
       if (toolLower === "task") {
         const state = getOrCreateState(input.sessionID);
-        state.agentUsed = true;
+        state.reminderCount = 0;
         return;
       }
 
       if (!isTargetTool(toolLower)) return;
 
       const state = getOrCreateState(input.sessionID);
-      if (state.agentUsed || state.reminderCount >= MAX_REMINDERS) return;
+      if (state.reminderCount >= MAX_REMINDERS) return;
       if (typeof output?.output !== "string") return;
       if (output.output.includes(AGENT_USAGE_REMINDER_MARKER)) return;
 
@@ -111,7 +110,9 @@ export function createTaskReminderHook(_ctx = {}, options = {}) {
   const sessionCounters = new Map();
   const threshold =
     options?.threshold ??
-    (typeof _ctx?.threshold === "number" ? _ctx.threshold : TASK_REMINDER_THRESHOLD);
+    (typeof _ctx?.threshold === "number"
+      ? _ctx.threshold
+      : TASK_REMINDER_THRESHOLD);
 
   return {
     "tool.execute.after": async (input, output) => {
@@ -126,7 +127,8 @@ export function createTaskReminderHook(_ctx = {}, options = {}) {
       }
 
       if (toolLower === "write" || toolLower === "edit") {
-        const filePath = resolveFilePath(output?.args) ?? resolveFilePath(input?.args);
+        const filePath =
+          resolveFilePath(output?.args) ?? resolveFilePath(input?.args);
         if (filePath && isPlanFilePath(filePath)) {
           sessionCounters.set(input.sessionID, 0);
           return;
@@ -165,6 +167,7 @@ export function createTaskReminderHook(_ctx = {}, options = {}) {
 // (upstream: packages/omo-opencode/src/hooks/category-skill-reminder/hook.ts)
 export const CATEGORY_SKILL_REMINDER_THRESHOLD = 3;
 export const CATEGORY_SKILL_REMINDER_MARKER = "[Category+Skill Reminder]";
+export const MAX_CATEGORY_REMINDERS = 3;
 
 export const CATEGORY_SKILL_REMINDER = `
 ${CATEGORY_SKILL_REMINDER_MARKER}
@@ -179,14 +182,7 @@ Review <available_skills> for domain skills to include in LOAD SKILLS: [...] whe
 Parallel delegation preserves your context window and keeps work organized.
 `.trim();
 
-const CATEGORY_DIRECT_TOOLS = new Set([
-  "edit",
-  "write",
-  "bash",
-  "read",
-  "grep",
-  "glob",
-]);
+const CATEGORY_DIRECT_TOOLS = new Set(["edit", "write", "bash"]);
 
 const CATEGORY_RESET_TOOLS = new Set(["task", "todowrite"]);
 
@@ -208,7 +204,8 @@ export function createCategorySkillReminderHook(_ctx = {}, options = {}) {
       state = {
         consecDirect: 0,
         pending: false,
-        shownAt: 0,
+        reminderCount: 0,
+        armed: true,
       };
       sessionStates.set(sessionID, state);
     }
@@ -237,6 +234,7 @@ export function createCategorySkillReminderHook(_ctx = {}, options = {}) {
       if (CATEGORY_RESET_TOOLS.has(toolLower)) {
         state.consecDirect = 0;
         state.pending = false;
+        state.armed = true;
         return;
       }
 
@@ -245,7 +243,11 @@ export function createCategorySkillReminderHook(_ctx = {}, options = {}) {
       }
 
       state.consecDirect += 1;
-      if (state.consecDirect >= threshold && !state.shownAt) {
+      if (
+        state.consecDirect >= threshold &&
+        state.armed &&
+        state.reminderCount < MAX_CATEGORY_REMINDERS
+      ) {
         state.pending = true;
       }
     },
@@ -262,7 +264,8 @@ export function createCategorySkillReminderHook(_ctx = {}, options = {}) {
 
         const sessionID = message.info?.sessionID ?? message.sessionID;
         const messageID = message.info?.id ?? message.id;
-        if (typeof sessionID !== "string" || typeof messageID !== "string") continue;
+        if (typeof sessionID !== "string" || typeof messageID !== "string")
+          continue;
 
         const state = sessionStates.get(sessionID);
         if (!state?.pending) continue;
@@ -271,7 +274,7 @@ export function createCategorySkillReminderHook(_ctx = {}, options = {}) {
         const alreadyInjected = parts.some(
           (p) =>
             typeof p?.id === "string" &&
-            p.id.startsWith("prt_category_skill_reminder_")
+            p.id.startsWith("prt_category_skill_reminder_"),
         );
         if (alreadyInjected) {
           state.pending = false;
@@ -279,7 +282,7 @@ export function createCategorySkillReminderHook(_ctx = {}, options = {}) {
         }
 
         const textPartIndex = parts.findLastIndex(
-          (part) => part?.type === "text" && !part?.synthetic
+          (part) => part?.type === "text" && !part?.synthetic,
         );
 
         if (textPartIndex === -1) continue;
@@ -296,7 +299,8 @@ export function createCategorySkillReminderHook(_ctx = {}, options = {}) {
         // Splice into the parts array in place; reassigning output.messages would not propagate.
         parts.splice(textPartIndex, 0, reminderPart);
         state.pending = false;
-        state.shownAt = Date.now();
+        state.reminderCount += 1;
+        state.armed = false;
         state.consecDirect = 0;
         break;
       }

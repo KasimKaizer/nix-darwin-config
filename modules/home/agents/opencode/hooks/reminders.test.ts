@@ -35,24 +35,44 @@ describe("agent-usage-reminder (C4a)", () => {
     expect(out.output).toContain("Explorer: task(subagent_type=\"explorer\"");
   });
 
-  it("(b) after a task call no reminder", async () => {
+  it("(b) re-arms after task call when cap was reached", async () => {
     const hook = createAgentUsageReminderHook();
     recordSessionAgent("s-builder-b", "builder");
 
+    // 3 direct grep calls trigger reminders (reminderCount = 3)
+    for (let i = 1; i <= 3; i++) {
+      const out = { output: `matched lines ${i}` };
+      await hook["tool.execute.after"](
+        { tool: "grep", sessionID: "s-builder-b", callID: `c${i}` },
+        out
+      );
+      expect(out.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+    }
+
+    // 4th direct grep call has no reminder (cap reached)
+    const out4 = { output: "matched lines 4" };
+    await hook["tool.execute.after"](
+      { tool: "grep", sessionID: "s-builder-b", callID: "c4" },
+      out4
+    );
+    expect(out4.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
+    expect(out4.output).toBe("matched lines 4");
+
+    // Calling task resets reminderCount
     const taskOut = { output: "Subagent completed work" };
     await hook["tool.execute.after"](
-      { tool: "task", sessionID: "s-builder-b", callID: "c1" },
+      { tool: "task", sessionID: "s-builder-b", callID: "c-task" },
       taskOut
     );
     expect(taskOut.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
 
-    const grepOut = { output: "matched lines in bar.txt" };
+    // 5th direct grep call appends reminder again
+    const out5 = { output: "matched lines 5" };
     await hook["tool.execute.after"](
-      { tool: "grep", sessionID: "s-builder-b", callID: "c2" },
-      grepOut
+      { tool: "grep", sessionID: "s-builder-b", callID: "c5" },
+      out5
     );
-    expect(grepOut.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
-    expect(grepOut.output).toBe("matched lines in bar.txt");
+    expect(out5.output).toContain(AGENT_USAGE_REMINDER_MARKER);
   });
 
   it("(c) 4th direct call in same session has no 4th reminder", async () => {
@@ -122,32 +142,73 @@ describe("agent-usage-reminder (C4a)", () => {
     const hook = createAgentUsageReminderHook();
     recordSessionAgent("s-builder-e", "builder");
 
-    // In session, call task to mark agentUsed
-    await hook["tool.execute.after"](
-      { tool: "task", sessionID: "s-builder-e", callID: "c1" },
-      { output: "done" }
-    );
+    // Reach MAX_REMINDERS = 3 via 3 direct grep calls
+    for (let i = 1; i <= 3; i++) {
+      const out = { output: `grep output ${i}` };
+      await hook["tool.execute.after"](
+        { tool: "grep", sessionID: "s-builder-e", callID: `c${i}` },
+        out
+      );
+      expect(out.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+    }
 
-    // Verify grep is suppressed
-    const out1 = { output: "grep output 1" };
+    // Verify 4th is silent (cap reached)
+    const out4 = { output: "grep output 4" };
     await hook["tool.execute.after"](
-      { tool: "grep", sessionID: "s-builder-e", callID: "c2" },
-      out1
+      { tool: "grep", sessionID: "s-builder-e", callID: "c4" },
+      out4
     );
-    expect(out1.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
+    expect(out4.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
 
     // Fire session.deleted event
     await hook.event({
       event: { type: "session.deleted", properties: { id: "s-builder-e" } },
     });
 
-    // Now grep should append reminder again because state was deleted
-    const out2 = { output: "grep output 2" };
+    // Now 5th direct grep should append reminder again because state was deleted
+    const out5 = { output: "grep output 5" };
     await hook["tool.execute.after"](
-      { tool: "grep", sessionID: "s-builder-e", callID: "c3" },
-      out2
+      { tool: "grep", sessionID: "s-builder-e", callID: "c5" },
+      out5
     );
-    expect(out2.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+    expect(out5.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+  });
+
+  it("calling task resets reminderCount to 0 when previously below MAX_REMINDERS", async () => {
+    const hook = createAgentUsageReminderHook();
+    recordSessionAgent("s-builder-reset", "builder");
+
+    // Call grep once (reminderCount = 1)
+    const out1 = { output: "grep 1" };
+    await hook["tool.execute.after"](
+      { tool: "grep", sessionID: "s-builder-reset", callID: "c1" },
+      out1
+    );
+    expect(out1.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+
+    // Call task to reset reminderCount to 0
+    await hook["tool.execute.after"](
+      { tool: "task", sessionID: "s-builder-reset", callID: "c2" },
+      { output: "subagent task done" }
+    );
+
+    // Now verify we can get 3 full reminders in this new cycle
+    for (let i = 3; i <= 5; i++) {
+      const out = { output: `grep ${i}` };
+      await hook["tool.execute.after"](
+        { tool: "grep", sessionID: "s-builder-reset", callID: `c${i}` },
+        out
+      );
+      expect(out.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+    }
+
+    // 4th call in this cycle (6th overall) is capped
+    const out6 = { output: "grep 6" };
+    await hook["tool.execute.after"](
+      { tool: "grep", sessionID: "s-builder-reset", callID: "c6" },
+      out6
+    );
+    expect(out6.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
   });
 
   it("appends reminder for untracked headless sessions", async () => {
@@ -242,6 +303,260 @@ describe("agent-usage-reminder (C4a)", () => {
       out
     );
     expect(out.output).toBe(original);
+  });
+
+  it("multi-session isolation: Session A at cap (3 nags) does not affect Session B at 0 nags", async () => {
+    const hook = createAgentUsageReminderHook();
+    recordSessionAgent("s-builder-iso-A", "builder");
+    recordSessionAgent("s-builder-iso-B", "builder");
+
+    // Session A reaches cap = 3 via 3 direct grep calls
+    for (let i = 1; i <= 3; i++) {
+      const out = { output: `grep A ${i}` };
+      await hook["tool.execute.after"](
+        { tool: "grep", sessionID: "s-builder-iso-A", callID: `c-a-${i}` },
+        out
+      );
+      expect(out.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+    }
+
+    // 4th call in Session A is silent (cap reached)
+    const outA4 = { output: "grep A 4" };
+    await hook["tool.execute.after"](
+      { tool: "grep", sessionID: "s-builder-iso-A", callID: "c-a-4" },
+      outA4
+    );
+    expect(outA4.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
+
+    // Session B is completely independent, starts at count 0, gets reminder on direct tool
+    for (let i = 1; i <= 3; i++) {
+      const outB = { output: `grep B ${i}` };
+      await hook["tool.execute.after"](
+        { tool: "grep", sessionID: "s-builder-iso-B", callID: `c-b-${i}` },
+        outB
+      );
+      expect(outB.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+    }
+
+    // 4th call in Session B is capped
+    const outB4 = { output: "grep B 4" };
+    await hook["tool.execute.after"](
+      { tool: "grep", sessionID: "s-builder-iso-B", callID: "c-b-4" },
+      outB4
+    );
+    expect(outB4.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
+  });
+
+  it("session.deleted purges Session A to fresh reminderCount: 0 while Session B remains unaffected", async () => {
+    const hook = createAgentUsageReminderHook();
+    recordSessionAgent("s-builder-del-A", "builder");
+    recordSessionAgent("s-builder-del-B", "builder");
+
+    // Session A reaches cap = 3
+    for (let i = 1; i <= 3; i++) {
+      const out = { output: `grep A ${i}` };
+      await hook["tool.execute.after"](
+        { tool: "grep", sessionID: "s-builder-del-A", callID: `c-a-${i}` },
+        out
+      );
+      expect(out.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+    }
+    const outA4 = { output: "grep A 4" };
+    await hook["tool.execute.after"](
+      { tool: "grep", sessionID: "s-builder-del-A", callID: "c-a-4" },
+      outA4
+    );
+    expect(outA4.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
+
+    // Session B is at count 1
+    const outB1 = { output: "grep B 1" };
+    await hook["tool.execute.after"](
+      { tool: "grep", sessionID: "s-builder-del-B", callID: "c-b-1" },
+      outB1
+    );
+    expect(outB1.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+
+    // Delete Session A
+    await hook.event({
+      event: { type: "session.deleted", properties: { id: "s-builder-del-A" } },
+    });
+
+    // Session A is fresh: can trigger 3 more reminders
+    for (let i = 1; i <= 3; i++) {
+      const outFresh = { output: `grep fresh ${i}` };
+      await hook["tool.execute.after"](
+        { tool: "grep", sessionID: "s-builder-del-A", callID: `c-fresh-${i}` },
+        outFresh
+      );
+      expect(outFresh.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+    }
+    const outFresh4 = { output: "grep fresh 4" };
+    await hook["tool.execute.after"](
+      { tool: "grep", sessionID: "s-builder-del-A", callID: "c-fresh-4" },
+      outFresh4
+    );
+    expect(outFresh4.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
+
+    // Session B was untouched: currently at count 1, so count 2 and count 3 trigger reminders, count 4 capped
+    const outB2 = { output: "grep B 2" };
+    await hook["tool.execute.after"](
+      { tool: "grep", sessionID: "s-builder-del-B", callID: "c-b-2" },
+      outB2
+    );
+    expect(outB2.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+
+    const outB3 = { output: "grep B 3" };
+    await hook["tool.execute.after"](
+      { tool: "grep", sessionID: "s-builder-del-B", callID: "c-b-3" },
+      outB3
+    );
+    expect(outB3.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+
+    const outB4 = { output: "grep B 4" };
+    await hook["tool.execute.after"](
+      { tool: "grep", sessionID: "s-builder-del-B", callID: "c-b-4" },
+      outB4
+    );
+    expect(outB4.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
+  });
+
+  it("session.deleted with unknown ID or malformed payload is safe and preserves active sessions", async () => {
+    const hook = createAgentUsageReminderHook();
+    recordSessionAgent("s-builder-active", "builder");
+
+    // Session active at count 2
+    for (let i = 1; i <= 2; i++) {
+      const out = { output: `grep ${i}` };
+      await hook["tool.execute.after"](
+        { tool: "grep", sessionID: "s-builder-active", callID: `c-${i}` },
+        out
+      );
+      expect(out.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+    }
+
+    // Delete unknown session
+    await hook.event({
+      event: { type: "session.deleted", properties: { id: "non-existent-session-id" } },
+    });
+    // Malformed event objects
+    await hook.event({
+      event: { type: "session.deleted", properties: {} },
+    });
+    await hook.event({
+      event: { type: "other.event", properties: { id: "s-builder-active" } },
+    });
+    await hook.event(null);
+    await hook.event(undefined);
+
+    // Active session still at count 2: 3rd call gets nag, 4th call capped
+    const out3 = { output: "grep 3" };
+    await hook["tool.execute.after"](
+      { tool: "grep", sessionID: "s-builder-active", callID: "c-3" },
+      out3
+    );
+    expect(out3.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+
+    const out4 = { output: "grep 4" };
+    await hook["tool.execute.after"](
+      { tool: "grep", sessionID: "s-builder-active", callID: "c-4" },
+      out4
+    );
+    expect(out4.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
+  });
+
+  it("session.deleted resolves sessionID from properties.id, properties.sessionID, or properties.info.id", async () => {
+    const hook = createAgentUsageReminderHook();
+    recordSessionAgent("s-prop-id", "builder");
+    recordSessionAgent("s-prop-sessionid", "builder");
+    recordSessionAgent("s-prop-info-id", "builder");
+
+    // Put all 3 at cap (3 nags)
+    for (const sid of ["s-prop-id", "s-prop-sessionid", "s-prop-info-id"]) {
+      for (let i = 1; i <= 3; i++) {
+        await hook["tool.execute.after"](
+          { tool: "grep", sessionID: sid, callID: `c-${sid}-${i}` },
+          { output: "grep" }
+        );
+      }
+      const outCap = { output: "capped" };
+      await hook["tool.execute.after"](
+        { tool: "grep", sessionID: sid, callID: `c-${sid}-cap` },
+        outCap
+      );
+      expect(outCap.output).toBe("capped");
+    }
+
+    // Delete using properties.id
+    await hook.event({
+      event: { type: "session.deleted", properties: { id: "s-prop-id" } },
+    });
+    // Delete using properties.sessionID
+    await hook.event({
+      event: { type: "session.deleted", properties: { sessionID: "s-prop-sessionid" } },
+    });
+    // Delete using properties.info.id
+    await hook.event({
+      event: { type: "session.deleted", properties: { info: { id: "s-prop-info-id" } } },
+    });
+
+    // All 3 should be fresh again
+    for (const sid of ["s-prop-id", "s-prop-sessionid", "s-prop-info-id"]) {
+      const outFresh = { output: "fresh" };
+      await hook["tool.execute.after"](
+        { tool: "grep", sessionID: sid, callID: `c-${sid}-fresh` },
+        outFresh
+      );
+      expect(outFresh.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+    }
+  });
+
+  it("non-builder sessions never receive reminders and cannot modify builder session state", async () => {
+    const hook = createAgentUsageReminderHook();
+    recordSessionAgent("s-builder-main", "builder");
+    recordSessionAgent("s-worker-subagent", "worker-quick");
+
+    // Builder gets 2 nags
+    for (let i = 1; i <= 2; i++) {
+      const out = { output: `builder grep ${i}` };
+      await hook["tool.execute.after"](
+        { tool: "grep", sessionID: "s-builder-main", callID: `c-b-${i}` },
+        out
+      );
+      expect(out.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+    }
+
+    // Non-builder worker calls grep - must NEVER receive nag
+    for (let i = 1; i <= 5; i++) {
+      const workerOut = { output: `worker grep ${i}` };
+      await hook["tool.execute.after"](
+        { tool: "grep", sessionID: "s-worker-subagent", callID: `c-w-${i}` },
+        workerOut
+      );
+      expect(workerOut.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
+      expect(workerOut.output).toBe(`worker grep ${i}`);
+    }
+
+    // Non-builder calls task - must NOT reset builder's session state
+    await hook["tool.execute.after"](
+      { tool: "task", sessionID: "s-worker-subagent", callID: "c-w-task" },
+      { output: "worker finished task" }
+    );
+
+    // Builder's 3rd grep is nag #3 (not reset to #1)
+    const out3 = { output: "builder grep 3" };
+    await hook["tool.execute.after"](
+      { tool: "grep", sessionID: "s-builder-main", callID: "c-b-3" },
+      out3
+    );
+    expect(out3.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+
+    // Builder's 4th grep is capped
+    const out4 = { output: "builder grep 4" };
+    await hook["tool.execute.after"](
+      { tool: "grep", sessionID: "s-builder-main", callID: "c-b-4" },
+      out4
+    );
+    expect(out4.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
   });
 });
 
