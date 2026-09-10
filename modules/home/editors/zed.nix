@@ -122,7 +122,7 @@ in
     # TypeScript / JavaScript
     nodejs
     prettier
-    typescript-go
+    typescript
     # Markdown
     marksman
     # Azure IaC
