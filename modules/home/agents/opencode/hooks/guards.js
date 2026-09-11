@@ -26,6 +26,13 @@ export function isNonBuilderSession(sessionID) {
   return agent !== undefined && agent !== "builder";
 }
 
+// Explorer and researcher search as their job. Untracked sessions are
+// treated as callers (headless `opencode run` has no agent field).
+export function shouldRunAgentUsageReminder(sessionID) {
+  const agent = sessionAgents.get(sessionID);
+  return agent !== "explorer" && agent !== "researcher";
+}
+
 export function getTaskTargetAgent(args) {
   if (!args || typeof args !== "object" || Array.isArray(args)) return undefined;
   for (const raw of [args.subagent_type, args.subagent, args.agent]) {

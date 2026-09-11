@@ -3,6 +3,8 @@ import { recordSessionAgent } from "./guards.js";
 import {
   AGENT_USAGE_REMINDER,
   AGENT_USAGE_REMINDER_MARKER,
+  RESEARCHER_USAGE_REMINDER,
+  RESEARCHER_USAGE_REMINDER_MARKER,
   createAgentUsageReminderHook,
   createTaskReminderHook,
   isPlanFilePath,
@@ -11,13 +13,17 @@ import {
 
 describe("agent-usage-reminder (C4a)", () => {
   it("never references forbidden OMO terms in reminder copy", () => {
-    const lower = AGENT_USAGE_REMINDER.toLowerCase();
-    expect(lower).not.toContain("sisyphus");
-    expect(lower).not.toContain("atlas");
-    expect(lower).not.toContain("call_omo_agent");
-    expect(lower).not.toContain("explore-as-omo");
-    expect(AGENT_USAGE_REMINDER).toContain('task(subagent_type=');
-    expect(AGENT_USAGE_REMINDER).toContain("3 times");
+    for (const copy of [AGENT_USAGE_REMINDER, RESEARCHER_USAGE_REMINDER]) {
+      const lower = copy.toLowerCase();
+      expect(lower).not.toContain("sisyphus");
+      expect(lower).not.toContain("atlas");
+      expect(lower).not.toContain("call_omo_agent");
+      expect(lower).not.toContain("explore-as-omo");
+      expect(copy).toContain("As the caller, delegate");
+      expect(copy).toContain("3 times");
+    }
+    expect(AGENT_USAGE_REMINDER).toContain('task(subagent_type="explorer"');
+    expect(RESEARCHER_USAGE_REMINDER).toContain('task(subagent_type="researcher"');
   });
 
   it("(a) builder grep without prior task appends reminder", async () => {
@@ -108,34 +114,24 @@ describe("agent-usage-reminder (C4a)", () => {
     expect(out5.output).toBe("result 5");
   });
 
-  it("(d) explorer-tracked caller gets no reminder", async () => {
+  it("(d) nags planner/advisor/reviewer; explorer and researcher stay silent", async () => {
     const hook = createAgentUsageReminderHook();
-    recordSessionAgent("s-explorer-d", "explorer");
 
-    const out = { output: "matched pattern in baz.ts" };
-    await hook["tool.execute.after"](
-      { tool: "grep", sessionID: "s-explorer-d", callID: "c1" },
-      out
-    );
-    expect(out.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
-    expect(out.output).toBe("matched pattern in baz.ts");
+    for (const agent of ["planner", "advisor", "reviewer"]) {
+      const sessionID = `s-${agent}-d`;
+      recordSessionAgent(sessionID, agent);
+      const out = { output: `${agent} grep` };
+      await hook["tool.execute.after"]({ tool: "grep", sessionID, callID: "c1" }, out);
+      expect(out.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+    }
 
-    // Other non-builder agents should also get none
-    recordSessionAgent("s-worker-d", "worker-deep");
-    const workerOut = { output: "worker grep output" };
-    await hook["tool.execute.after"](
-      { tool: "grep", sessionID: "s-worker-d", callID: "c2" },
-      workerOut
-    );
-    expect(workerOut.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
-
-    recordSessionAgent("s-researcher-d", "researcher");
-    const resOut = { output: "researcher doc results" };
-    await hook["tool.execute.after"](
-      { tool: "grep", sessionID: "s-researcher-d", callID: "c3" },
-      resOut
-    );
-    expect(resOut.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
+    for (const agent of ["explorer", "researcher"]) {
+      const sessionID = `s-${agent}-d`;
+      recordSessionAgent(sessionID, agent);
+      const out = { output: `${agent} grep` };
+      await hook["tool.execute.after"]({ tool: "grep", sessionID, callID: "c1" }, out);
+      expect(out.output).toBe(`${agent} grep`);
+    }
   });
 
   it("(e) session.deleted resets counter and state", async () => {
@@ -222,18 +218,8 @@ describe("agent-usage-reminder (C4a)", () => {
     expect(out.output).toContain(AGENT_USAGE_REMINDER_MARKER);
   });
 
-  it("handles target tools: glob, webfetch, and prefix tools", async () => {
-    recordSessionAgent("s-builder-tools", "builder");
-
-    const tools = [
-      "glob",
-      "webfetch",
-      "exa_web_search_exa",
-      "context7_query-docs",
-      "grep_app_searchgithub",
-      "mcp-gateway_browser_click",
-      "codegraph_explore",
-    ];
+  it("handles immediate search tools: glob, webfetch, and codegraph", async () => {
+    const tools = ["glob", "webfetch", "codegraph_explore"];
 
     for (const tool of tools) {
       const hookInstance = createAgentUsageReminderHook();
@@ -244,6 +230,153 @@ describe("agent-usage-reminder (C4a)", () => {
       );
       expect(out.output).toContain(AGENT_USAGE_REMINDER_MARKER);
     }
+  });
+
+  it("does not nag on the first two consecutive research searches", async () => {
+    const hook = createAgentUsageReminderHook();
+    recordSessionAgent("s-builder-research-quiet", "builder");
+
+    for (const tool of ["exa_web_search_exa", "context7_query-docs"]) {
+      const out = { output: `output for ${tool}` };
+      await hook["tool.execute.after"](
+        { tool, sessionID: "s-builder-research-quiet", callID: tool },
+        out
+      );
+      expect(out.output).toBe(`output for ${tool}`);
+    }
+  });
+
+  it("nags on the third consecutive research search without task", async () => {
+    const hook = createAgentUsageReminderHook();
+    recordSessionAgent("s-builder-research-third", "builder");
+
+    const tools = [
+      "mcp-gateway_web_search_exa",
+      "mcp-gateway_query-docs",
+      "mcp-gateway_searchGitHub",
+    ];
+    for (const [index, tool] of tools.entries()) {
+      const out = { output: `output for ${tool}` };
+      await hook["tool.execute.after"](
+        { tool, sessionID: "s-builder-research-third", callID: tool },
+        out
+      );
+      if (index === 2) {
+        expect(out.output).toContain(RESEARCHER_USAGE_REMINDER_MARKER);
+        expect(out.output).toContain('Researcher: task(subagent_type="researcher"');
+        expect(out.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
+      } else {
+        expect(out.output).not.toContain(RESEARCHER_USAGE_REMINDER_MARKER);
+        expect(out.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
+      }
+    }
+  });
+
+  it("treats CallDynamicTool namespace+toolName research calls as the inner search tool", async () => {
+    const hook = createAgentUsageReminderHook();
+    recordSessionAgent("s-builder-dynamic", "builder");
+
+    const calls = [
+      { namespace: "mcp-gateway", toolName: "web_search_exa" },
+      { namespace: "mcp-gateway", toolName: "query-docs" },
+      { namespace: "mcp-gateway", toolName: "google_search" },
+    ];
+
+    for (const [index, args] of calls.entries()) {
+      const out = { output: `dynamic ${index}` };
+      await hook["tool.execute.after"](
+        {
+          tool: "CallDynamicTool",
+          sessionID: "s-builder-dynamic",
+          callID: `c${index}`,
+          args,
+        },
+        out
+      );
+      if (index === 2) {
+        expect(out.output).toContain(RESEARCHER_USAGE_REMINDER_MARKER);
+        expect(out.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
+      } else {
+        expect(out.output).not.toContain(RESEARCHER_USAGE_REMINDER_MARKER);
+        expect(out.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
+      }
+    }
+  });
+
+  it("resets the research streak when a non-search tool runs in between", async () => {
+    const hook = createAgentUsageReminderHook();
+    recordSessionAgent("s-builder-streak-break", "builder");
+
+    for (const tool of ["google_search", "custom_websearch"]) {
+      const out = { output: tool };
+      await hook["tool.execute.after"](
+        { tool, sessionID: "s-builder-streak-break", callID: tool },
+        out
+      );
+      expect(out.output).toBe(tool);
+    }
+
+    const bashOut = { output: "ls" };
+    await hook["tool.execute.after"](
+      { tool: "bash", sessionID: "s-builder-streak-break", callID: "bash" },
+      bashOut
+    );
+    expect(bashOut.output).toBe("ls");
+
+    const third = { output: "searchGitHub" };
+    await hook["tool.execute.after"](
+      { tool: "searchGitHub", sessionID: "s-builder-streak-break", callID: "gh" },
+      third
+    );
+    expect(third.output).toBe("searchGitHub");
+  });
+
+  it("ignores mcp-gateway browser and other non-research gateway tools", async () => {
+    const hook = createAgentUsageReminderHook();
+    recordSessionAgent("s-builder-gateway-noise", "builder");
+
+    for (const tool of [
+      "mcp-gateway_browser_click",
+      "mcp-gateway_browser_navigate",
+      "mcp-gateway_nix",
+    ]) {
+      const out = { output: tool };
+      await hook["tool.execute.after"](
+        { tool, sessionID: "s-builder-gateway-noise", callID: tool },
+        out
+      );
+      expect(out.output).toBe(tool);
+    }
+  });
+
+  it("task resets the research streak so three more searches are required", async () => {
+    const hook = createAgentUsageReminderHook();
+    recordSessionAgent("s-builder-research-task-reset", "builder");
+
+    for (const tool of ["exa_web_search_exa", "grep_app_searchGitHub"]) {
+      const out = { output: tool };
+      await hook["tool.execute.after"](
+        { tool, sessionID: "s-builder-research-task-reset", callID: tool },
+        out
+      );
+      expect(out.output).toBe(tool);
+    }
+
+    await hook["tool.execute.after"](
+      { tool: "task", sessionID: "s-builder-research-task-reset", callID: "task" },
+      { output: "delegated" }
+    );
+
+    const afterTask = { output: "context7_resolve-library-id" };
+    await hook["tool.execute.after"](
+      {
+        tool: "context7_resolve-library-id",
+        sessionID: "s-builder-research-task-reset",
+        callID: "c7",
+      },
+      afterTask
+    );
+    expect(afterTask.output).toBe("context7_resolve-library-id");
   });
 
   it("is case-insensitive on tool names", async () => {
@@ -510,12 +643,11 @@ describe("agent-usage-reminder (C4a)", () => {
     }
   });
 
-  it("non-builder sessions never receive reminders and cannot modify builder session state", async () => {
+  it("worker sessions receive explorer nags without resetting builder state", async () => {
     const hook = createAgentUsageReminderHook();
     recordSessionAgent("s-builder-main", "builder");
     recordSessionAgent("s-worker-subagent", "worker-quick");
 
-    // Builder gets 2 nags
     for (let i = 1; i <= 2; i++) {
       const out = { output: `builder grep ${i}` };
       await hook["tool.execute.after"](
@@ -525,24 +657,18 @@ describe("agent-usage-reminder (C4a)", () => {
       expect(out.output).toContain(AGENT_USAGE_REMINDER_MARKER);
     }
 
-    // Non-builder worker calls grep - must NEVER receive nag
-    for (let i = 1; i <= 5; i++) {
-      const workerOut = { output: `worker grep ${i}` };
-      await hook["tool.execute.after"](
-        { tool: "grep", sessionID: "s-worker-subagent", callID: `c-w-${i}` },
-        workerOut
-      );
-      expect(workerOut.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
-      expect(workerOut.output).toBe(`worker grep ${i}`);
-    }
+    const workerOut = { output: "worker grep output" };
+    await hook["tool.execute.after"](
+      { tool: "grep", sessionID: "s-worker-subagent", callID: "c-w-1" },
+      workerOut
+    );
+    expect(workerOut.output).toContain(AGENT_USAGE_REMINDER_MARKER);
 
-    // Non-builder calls task - must NOT reset builder's session state
     await hook["tool.execute.after"](
       { tool: "task", sessionID: "s-worker-subagent", callID: "c-w-task" },
       { output: "worker finished task" }
     );
 
-    // Builder's 3rd grep is nag #3 (not reset to #1)
     const out3 = { output: "builder grep 3" };
     await hook["tool.execute.after"](
       { tool: "grep", sessionID: "s-builder-main", callID: "c-b-3" },
@@ -550,7 +676,6 @@ describe("agent-usage-reminder (C4a)", () => {
     );
     expect(out3.output).toContain(AGENT_USAGE_REMINDER_MARKER);
 
-    // Builder's 4th grep is capped
     const out4 = { output: "builder grep 4" };
     await hook["tool.execute.after"](
       { tool: "grep", sessionID: "s-builder-main", callID: "c-b-4" },
@@ -558,6 +683,80 @@ describe("agent-usage-reminder (C4a)", () => {
     );
     expect(out4.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
   });
+
+  it("explorer nags stay independent from researcher nags", async () => {
+    const hook = createAgentUsageReminderHook();
+    recordSessionAgent("s-builder-independent", "builder");
+
+    for (let i = 1; i <= 3; i++) {
+      const out = { output: `grep ${i}` };
+      await hook["tool.execute.after"](
+        { tool: "grep", sessionID: "s-builder-independent", callID: `g${i}` },
+        out
+      );
+      expect(out.output).toContain(AGENT_USAGE_REMINDER_MARKER);
+      expect(out.output).toContain('Explorer: task(subagent_type="explorer"');
+      expect(out.output).not.toContain(RESEARCHER_USAGE_REMINDER_MARKER);
+    }
+
+    const tools = [
+      "mcp-gateway_web_search_exa",
+      "mcp-gateway_query-docs",
+      "mcp-gateway_searchGitHub",
+    ];
+    for (const [index, tool] of tools.entries()) {
+      const out = { output: `research ${index}` };
+      await hook["tool.execute.after"](
+        { tool, sessionID: "s-builder-independent", callID: tool },
+        out
+      );
+      if (index === 2) {
+        expect(out.output).toContain(RESEARCHER_USAGE_REMINDER_MARKER);
+        expect(out.output).toContain('Researcher: task(subagent_type="researcher"');
+        expect(out.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
+      } else {
+        expect(out.output).toBe(`research ${index}`);
+      }
+    }
+  });
+
+  it("injects a researcher reminder via transform when live MCP parts never hit after", async () => {
+    const hook = createAgentUsageReminderHook();
+    recordSessionAgent("s-builder-mcp-transform", "builder");
+    const sessionID = "s-builder-mcp-transform";
+    const messageID = "msg-mcp-1";
+    const tools = [
+      "mcp-gateway_web_search_exa",
+      "mcp-gateway_query-docs",
+      "mcp-gateway_searchGitHub",
+    ];
+    const toolParts = tools.map((tool, index) => ({
+      type: "tool",
+      tool,
+      callID: `c${index}`,
+      state: { status: "completed", input: {}, output: `mcp result ${index}` },
+    }));
+    const originalText = { type: "text", text: "continue" };
+    const originalMessages = [
+      {
+        info: { id: messageID, sessionID, role: "assistant" },
+        parts: [...toolParts, originalText],
+      },
+    ];
+    const output = { messages: originalMessages };
+
+    await hook["experimental.chat.messages.transform"]({}, output);
+
+    expect(output.messages).toBe(originalMessages);
+    const parts = output.messages[0].parts;
+    expect(parts.some((part) => part.text?.includes(RESEARCHER_USAGE_REMINDER_MARKER))).toBe(
+      true
+    );
+    expect(parts.some((part) => part.synthetic && part.id?.startsWith("prt_researcher_usage_"))).toBe(
+      true
+    );
+  });
+
 });
 
 describe("createTaskReminderHook (C4c task-reminder)", () => {

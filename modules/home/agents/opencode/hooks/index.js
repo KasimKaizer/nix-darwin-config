@@ -26,6 +26,8 @@ import {
   AGENT_USAGE_REMINDER_MARKER,
   CATEGORY_SKILL_REMINDER,
   CATEGORY_SKILL_REMINDER_MARKER,
+  RESEARCHER_USAGE_REMINDER,
+  RESEARCHER_USAGE_REMINDER_MARKER,
   createAgentUsageReminderHook,
   createCategorySkillReminderHook,
   createTaskReminderHook,
@@ -55,6 +57,8 @@ export {
   JSON_ERROR_REMINDER,
   NOTEPAD_DIRECTIVE,
   NOTEPAD_READ_REMINDER,
+  RESEARCHER_USAGE_REMINDER,
+  RESEARCHER_USAGE_REMINDER_MARKER,
   RETRY_GUIDANCE_MARKER,
   TASK_REMINDER_MARKER,
   TASK_REMINDER_MESSAGE,
@@ -118,6 +122,7 @@ export default {
       },
 
       "experimental.chat.messages.transform": async (input, output) => {
+        await agentUsageReminder["experimental.chat.messages.transform"](input, output);
         await categorySkillReminder["experimental.chat.messages.transform"](input, output);
       },
 

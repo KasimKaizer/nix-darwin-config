@@ -2,6 +2,8 @@ import { describe, expect, it } from "bun:test";
 import plugin, {
   AGENT_USAGE_REMINDER,
   AGENT_USAGE_REMINDER_MARKER,
+  RESEARCHER_USAGE_REMINDER,
+  RESEARCHER_USAGE_REMINDER_MARKER,
   CATEGORY_SKILL_REMINDER,
   CATEGORY_SKILL_REMINDER_MARKER,
   EDIT_ERROR_REMINDER,
@@ -23,7 +25,7 @@ describe("opencode-hooks plugin assembly & dispatch (batch 2)", () => {
     directory: "/tmp/hooks-test-assembly",
     client: {
       tui: {
-        showToast: async (opts) => {},
+        showToast: async () => {},
       },
     },
   };
@@ -49,6 +51,8 @@ describe("opencode-hooks plugin assembly & dispatch (batch 2)", () => {
     expect(RETRY_GUIDANCE_MARKER).toBeString();
     expect(AGENT_USAGE_REMINDER_MARKER).toBeString();
     expect(AGENT_USAGE_REMINDER).toBeString();
+    expect(RESEARCHER_USAGE_REMINDER_MARKER).toBeString();
+    expect(RESEARCHER_USAGE_REMINDER).toBeString();
     expect(TASK_REMINDER_MARKER).toBeString();
     expect(TASK_REMINDER_MESSAGE).toBeString();
     expect(CATEGORY_SKILL_REMINDER_MARKER).toBeString();

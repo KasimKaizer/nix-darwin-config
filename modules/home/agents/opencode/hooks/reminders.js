@@ -1,91 +1,23 @@
 import { normalize, sep } from "node:path";
 import { isNonBuilderSession, resolveFilePath } from "./guards.js";
+import {
+  AGENT_USAGE_REMINDER,
+  AGENT_USAGE_REMINDER_MARKER,
+  RESEARCHER_USAGE_REMINDER,
+  RESEARCHER_USAGE_REMINDER_MARKER,
+  RESEARCH_SEARCH_STREAK,
+  createAgentUsageReminderHook,
+} from "./reminders-search.js";
 
-export const AGENT_USAGE_REMINDER_MARKER = "[Agent Usage Reminder]";
+export {
+  AGENT_USAGE_REMINDER,
+  AGENT_USAGE_REMINDER_MARKER,
+  RESEARCHER_USAGE_REMINDER,
+  RESEARCHER_USAGE_REMINDER_MARKER,
+  RESEARCH_SEARCH_STREAK,
+  createAgentUsageReminderHook,
+};
 
-export const AGENT_USAGE_REMINDER = `
-${AGENT_USAGE_REMINDER_MARKER}
-You called a search/fetch tool directly without leveraging specialized subagents.
-As the builder orchestrator, prefer delegating exploration and research via the task tool:
-- Explorer: task(subagent_type="explorer", prompt="Find files/code matching ...")
-- Researcher: task(subagent_type="researcher", prompt="Investigate docs/library internals for ...")
-- Worker: task(subagent_type="worker-quick" | "worker-deep" | "worker-ultra", prompt="...")
-
-Parallel delegation preserves your context window and keeps work organized.
-(Notice: this reminder is shown at most 3 times per session).
-`;
-
-const TARGET_TOOL_NAMES = new Set(["grep", "glob", "webfetch"]);
-const TARGET_TOOL_PREFIXES = [
-  "exa_",
-  "context7_",
-  "grep_app_",
-  "mcp-gateway_",
-  "codegraph_",
-];
-
-const MAX_REMINDERS = 3;
-
-function isTargetTool(toolLower) {
-  return (
-    TARGET_TOOL_NAMES.has(toolLower) ||
-    TARGET_TOOL_PREFIXES.some((prefix) => toolLower.startsWith(prefix))
-  );
-}
-
-export function createAgentUsageReminderHook() {
-  const sessionStates = new Map();
-
-  function getOrCreateState(sessionID) {
-    let state = sessionStates.get(sessionID);
-    if (!state) {
-      state = {
-        reminderCount: 0,
-      };
-      sessionStates.set(sessionID, state);
-    }
-    return state;
-  }
-
-  return {
-    "tool.execute.after": async (input, output) => {
-      if (!input?.sessionID) return;
-      if (isNonBuilderSession(input.sessionID)) return;
-      if (typeof input?.tool !== "string") return;
-
-      const toolLower = input.tool.toLowerCase();
-
-      if (toolLower === "task") {
-        const state = getOrCreateState(input.sessionID);
-        state.reminderCount = 0;
-        return;
-      }
-
-      if (!isTargetTool(toolLower)) return;
-
-      const state = getOrCreateState(input.sessionID);
-      if (state.reminderCount >= MAX_REMINDERS) return;
-      if (typeof output?.output !== "string") return;
-      if (output.output.includes(AGENT_USAGE_REMINDER_MARKER)) return;
-
-      output.output = `${output.output.trimEnd()}\n${AGENT_USAGE_REMINDER}`;
-      state.reminderCount++;
-    },
-
-    event: async (input) => {
-      const event = input?.event ?? input;
-      if (event?.type === "session.deleted") {
-        const props = event?.properties;
-        const sessionID = props?.id ?? props?.sessionID ?? props?.info?.id;
-        if (sessionID) {
-          sessionStates.delete(sessionID);
-        }
-      }
-    },
-  };
-}
-
-// task-reminder: nudges todowrite discipline after turns without progress tracking
 // (upstream: packages/omo-opencode/src/hooks/task-reminder/hook.ts)
 export const TASK_REMINDER_THRESHOLD = 10;
 export const TASK_REMINDER_MARKER = "[TASK REMINDER]";
@@ -163,7 +95,6 @@ export function createTaskReminderHook(_ctx = {}, options = {}) {
   };
 }
 
-// category-skill-reminder with experimental transform (spliced in place)
 // (upstream: packages/omo-opencode/src/hooks/category-skill-reminder/hook.ts)
 export const CATEGORY_SKILL_REMINDER_THRESHOLD = 3;
 export const CATEGORY_SKILL_REMINDER_MARKER = "[Category+Skill Reminder]";
@@ -220,7 +151,6 @@ export function createCategorySkillReminderHook(_ctx = {}, options = {}) {
       const sessionID = input.sessionID;
       const toolLower = input.tool.toLowerCase();
 
-      // Non-builder caller sessions (worker-deep, explorer, researcher) are bypassed
       if (isNonBuilderSession(sessionID)) {
         const state = sessionStates.get(sessionID);
         if (state) {
@@ -270,7 +200,6 @@ export function createCategorySkillReminderHook(_ctx = {}, options = {}) {
         const state = sessionStates.get(sessionID);
         if (!state?.pending) continue;
 
-        // Skip if a reminder part is already present.
         const alreadyInjected = parts.some(
           (p) =>
             typeof p?.id === "string" &&
