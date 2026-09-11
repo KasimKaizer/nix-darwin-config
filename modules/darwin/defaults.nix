@@ -97,7 +97,7 @@ in
     };
 
     hitoolbox = {
-      AppleFnUsageType = "Change Input Source";
+      AppleFnUsageType = "Show Emoji & Symbols";
     };
 
     loginwindow = {

@@ -29,8 +29,23 @@
   ];
 
   persistentOthers = [
-    { folder = "${homeDirectory}/Documents/Education"; }
-    { folder = "${homeDirectory}/Developer"; }
-    { folder = "${homeDirectory}/Downloads"; }
+    {
+      folder = {
+        path = "${homeDirectory}/Documents/Education";
+        arrangement = "date-added";
+      };
+    }
+    {
+      folder = {
+        path = "${homeDirectory}/Developer";
+        arrangement = "date-added";
+      };
+    }
+    {
+      folder = {
+        path = "${homeDirectory}/Downloads";
+        arrangement = "date-added";
+      };
+    }
   ];
 }
