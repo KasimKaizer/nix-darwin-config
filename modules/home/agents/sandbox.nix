@@ -60,11 +60,42 @@ let
       ;
     hooksPlugin = ./opencode/hooks;
   };
+
+  # Any `sbx` command starts sandboxd. This turns it off again: stop every
+  # sandbox the daemon still knows, then the daemon itself.
+  sbxOff = pkgs.writeShellScriptBin "sbx-off" ''
+    PATH="${
+      lib.makeBinPath [
+        pkgs.docker-sbx
+        pkgs.coreutils
+      ]
+    }:$PATH"
+
+    status="$(sbx daemon status 2>/dev/null || true)"
+    case "$status" in
+      *"Status: running"*) ;;
+      *)
+        echo "sbx daemon is already stopped"
+        exit 0
+        ;;
+    esac
+
+    names="$(sbx ls -q 2>/dev/null || true)"
+    if [ -n "$names" ]; then
+      printf '%s\n' "$names" | while IFS= read -r name; do
+        [ -n "$name" ] || continue
+        sbx stop "$name" || true
+      done
+    fi
+
+    sbx daemon stop
+  '';
 in
 {
   home.packages = [
     pkgs.docker-sbx
     sbxOpencode
+    sbxOff
   ];
 
   home.file = dockerSbxMcpFiles;

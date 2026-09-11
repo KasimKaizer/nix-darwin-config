@@ -1,3 +1,5 @@
+# noqa: SIZE_OK — one sequential sandbox launcher; splitting would add
+# pass-through files with a single caller.
 {
   lib,
   pkgs,
@@ -8,8 +10,7 @@
 let
   staticMcpList = lib.concatStringsSep "," (builtins.attrNames gatewayServers);
 
-  # Serena revision mirrors agents.nix (host). In-container launch via uv,
-  # confined strictly to the container workspace and mounted paths.
+  # Serena pin mirrors agents.nix. uv launch stays inside the container.
   serenaContainerCmd = builtins.toJSON [
     "uv"
     "tool"
@@ -47,23 +48,55 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
   DIR_HASH="$(printf '%s' "$WORKSPACE_DIR" | sha256sum | cut -c 1-8)"
   SANDBOX_NAME="oc-''${DIR_BASENAME:-default}-''${DIR_HASH}"
 
+  # Do not `exec` the agent: EXIT must run so the nerdbox VM does not linger.
+  # Leave sandboxd up only if some other sandbox is still running.
+  stop_on_exit() {
+    trap - EXIT
+    sbx stop "$SANDBOX_NAME" >/dev/null 2>&1 || true
+    if sbx ls --json 2>/dev/null | jq -e --arg name "$SANDBOX_NAME" '
+      [.sandboxes[]?
+        | select((.name // "") != $name)
+        | select((.status // .state // "") | ascii_downcase == "running")]
+      | length > 0
+    ' >/dev/null; then
+      return 0
+    fi
+    sbx daemon stop >/dev/null 2>&1 || true
+  }
+  trap stop_on_exit EXIT
+
   CONFIG_FILE="${homeDirectory}/.config/opencode/opencode.jsonc"
   SERENA_CMD='${serenaContainerCmd}'
   ENV_ARGS=()
   if [ -f "$CONFIG_FILE" ]; then
-    # Strip host-local servers (Mach-O paths can't spawn in Linux), retain mcp-gateway,
-    # add in-container serena, and set mcp_timeout to allow uv to fetch on first run.
-    FILTERED_CONFIG="$(jq --argjson serena_cmd "$SERENA_CMD" '
-      del(.mcp[]? | select(.type == "local"))
-      | .mcp["mcp-gateway"] = {type: "remote", url: "http://mcp-gateway.docker.internal/mcp", enabled: true, headers: {Authorization: "Bearer proxy-managed"}}
-      | .mcp.serena = {type: "local", command: $serena_cmd, enabled: true}
+    # Host OpenRouter keys and MCP remotes stay off the container. Gateway
+    # already exposes grep.app as searchGitHub — do not add a duplicate
+    # grep_app remote. Host tools maps list grep_app_*, so every agent
+    # must enable mcp-gateway_* and serena_*. Skip injection if jq fails
+    # so a partial parse cannot leak secrets.
+    if FILTERED_CONFIG="$(jq --argjson serena_cmd "$SERENA_CMD" '
+      .provider.openrouter.options.apiKey = "proxy-managed"
+      | .mcp = {
+          "mcp-gateway": {type: "remote", url: "http://mcp-gateway.docker.internal/mcp", enabled: true, headers: {Authorization: "Bearer proxy-managed"}},
+          serena: {type: "local", command: $serena_cmd, enabled: true}
+        }
+      | .tools["mcp-gateway_*"] = true
+      | .tools["serena_*"] = true
+      | (.agent // {}) |= with_entries(
+          .value |= (
+            if type == "object" then
+              .tools["mcp-gateway_*"] = true
+              | .tools["serena_*"] = true
+            else . end
+          )
+        )
       | .experimental.mcp_timeout = 120000
-    ' "$CONFIG_FILE")"
-    ENV_ARGS+=(-e "OPENCODE_CONFIG_CONTENT=$FILTERED_CONFIG")
+    ' "$CONFIG_FILE")"; then
+      ENV_ARGS+=(-e "OPENCODE_CONFIG_CONTENT=$FILTERED_CONFIG")
+    fi
   fi
 
-  # Ensure container PATH includes toolchain binaries without dropping
-  # image-provided bins (opencode itself lives under npm-global/bin).
+  # Keep image bins (opencode under npm-global/bin) on PATH.
   ENV_ARGS+=(-e "PATH=/nix/var/nix/profiles/default/bin:/home/agent/go/bin:/home/agent/.cargo/bin:/home/agent/.npm-global/bin:/home/agent/.local/bin:/usr/local/share/npm-global/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin")
   # uv defaults to hardlinking, which fails under bulk load on the virtiofs
   # bind mount (ENOENT linking into builds-v0). Copy mode keeps the shared
@@ -72,6 +105,8 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
   # Redirect global npm installs into the persisted cache below. Never mount
   # over /usr/local/share/npm-global: the image's own opencode binary lives there.
   ENV_ARGS+=(-e "NPM_CONFIG_PREFIX=/home/agent/.npm-global")
+  ENV_ARGS+=(-e "OPENROUTER_API_KEY=proxy-managed")
+  ENV_ARGS+=(-e "GEMINI_API_KEY=proxy-managed")
 
   SKILLS_CACHE="${homeDirectory}/.cache/sbx/skills"
   if [ -d "${homeDirectory}/.agents/skills" ]; then
@@ -80,46 +115,84 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
   fi
 
   AUTH_CACHE="${homeDirectory}/.cache/sbx/auth"
-  if [ -f "${homeDirectory}/.config/opencode/antigravity-accounts.json" ]; then
-    mkdir -p "$AUTH_CACHE"
-    cp "${homeDirectory}/.config/opencode/antigravity"*.json "$AUTH_CACHE/"
-    chmod 644 "$AUTH_CACHE"/*.json
+  mkdir -p "$AUTH_CACHE"
+  # Cursor Run is HTTP/2 Connect-RPC, so proxy sentinels cannot replace
+  # tokens: copy only host .cursor. Google stays a sentinel. Drop leftovers
+  # first so a prior staging cannot leak through virtiofs.
+  rm -f "$AUTH_CACHE/auth.json" "$AUTH_CACHE/antigravity.json" "$AUTH_CACHE/antigravity-accounts.json"
+  HOST_AUTH="${homeDirectory}/.local/share/opencode/auth.json"
+  if ! jq -n --slurpfile host "$HOST_AUTH" '
+    {
+      google: {
+        type: "oauth",
+        access: "proxy-managed-google-token",
+        refresh: "dummy",
+        expires: 9999999999999
+      }
+    }
+    + (
+      if ($host | length) > 0 and ($host[0] | type == "object") and ($host[0].cursor | type == "object") then
+        {cursor: $host[0].cursor}
+      else
+        {}
+      end
+    )
+  ' > "$AUTH_CACHE/auth.json" 2>/dev/null; then
+    jq -n '{
+      google: {
+        type: "oauth",
+        access: "proxy-managed-google-token",
+        refresh: "dummy",
+        expires: 9999999999999
+      }
+    }' > "$AUTH_CACHE/auth.json"
   fi
+  chmod 644 "$AUTH_CACHE/auth.json"
+  jq -n '{
+    version: 4,
+    accounts: [
+      {
+        email: "proxy-managed@example.invalid",
+        refreshToken: "proxy-managed",
+        addedAt: 1,
+        lastUsed: 1,
+        enabled: true,
+        cachedQuota: {
+          gemini: {
+            remainingFraction: 1,
+            resetTime: "2099-12-31T23:59:59Z",
+            modelCount: 1
+          }
+        }
+      }
+    ],
+    activeIndex: 0,
+    activeIndexByFamily: { claude: 0, gemini: 0 }
+  }' > "$AUTH_CACHE/antigravity-accounts.json"
+  chmod 644 "$AUTH_CACHE/antigravity-accounts.json"
   if [ -f "${homeDirectory}/.config/opencode/tui.json" ]; then
-    mkdir -p "$AUTH_CACHE"
     cp -L "${homeDirectory}/.config/opencode/tui.json" "$AUTH_CACHE/tui.json"
     chmod 644 "$AUTH_CACHE/tui.json"
   fi
   if [ -f "${homeDirectory}/.config/opencode/tui-preferences.jsonc" ]; then
-    mkdir -p "$AUTH_CACHE"
     cp -L "${homeDirectory}/.config/opencode/tui-preferences.jsonc" "$AUTH_CACHE/tui-preferences.jsonc"
     chmod 644 "$AUTH_CACHE/tui-preferences.jsonc"
-  fi
-  # opencode-native google OAuth (written by `opencode auth login`). The
-  # sandbox needs it: without auth.json the provider has no credential and
-  # every antigravity call fails with "API key not valid". Stage google only.
-  if jq -e '.google' "${homeDirectory}/.local/share/opencode/auth.json" >/dev/null 2>&1; then
-    mkdir -p "$AUTH_CACHE"
-    jq '{google}' "${homeDirectory}/.local/share/opencode/auth.json" > "$AUTH_CACHE/auth.json"
-    chmod 644 "$AUTH_CACHE/auth.json"
   fi
 
   UV_CACHE="${homeDirectory}/.cache/sbx/uv"
   mkdir -p "$UV_CACHE"
+  # virtiofs: container UID 1000 is "other" on host-owned files. Caches
+  # need write, unlike 0644 auth copies which only need read.
+  chmod -R a+rwX "$UV_CACHE" 2>/dev/null || true
 
-  # User-owned npm prefix. Persisting it keeps plain `npm i -g
-  # <language-server>` (bash-language-server, pyright,
-  # vscode-langservers-extracted, typescript-language-server, ...) across
-  # sandboxes; opencode resolves LSP binaries from PATH. The lib dir must
-  # pre-exist: npm errors ENOENT on a bare prefix.
+  # Persist npm -g LSPs across sandboxes. mkdir lib: npm ENOENT on a bare prefix.
   NPM_GLOBAL="${homeDirectory}/.cache/sbx/npm-global"
   mkdir -p "$NPM_GLOBAL/bin" "$NPM_GLOBAL/lib"
+  chmod -R a+rwX "$NPM_GLOBAL" 2>/dev/null || true
 
-  # Snapshot (never bind-mount) the pinned plugin packages. Host opencode
-  # mutates ~/.cache/opencode/packages concurrently, and containers observe
-  # stale or partial views through the shared mount: plugins silently stop
-  # loading (missing models, API key errors). Plain -a keeps .bin symlinks
-  # intact; -L would dereference them into breakage.
+  # Snapshot plugins; a shared bind sees host opencode mutate the cache
+  # (stale/partial views, silent plugin load failures). -a keeps .bin
+  # symlinks; -L would dereference them.
   PLUGIN_CACHE="${homeDirectory}/.cache/sbx/opencode-packages"
   for pkg in cursor-opencode-provider @cortexkit; do
     if [ -d "${homeDirectory}/.cache/opencode/packages/$pkg" ]; then
@@ -145,14 +218,19 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
   sbx exec "$SANDBOX_NAME" true >/dev/null 2>&1 || true
 
   bind_mount() {
-    sbx mount "$SANDBOX_NAME" "$1" >/dev/null 2>&1 || true
+    spec="$1"
+    i=0
+    while [ "$i" -lt 3 ]; do
+      if sbx mount "$SANDBOX_NAME" "$spec" >/dev/null 2>&1; then
+        return 0
+      fi
+      sbx exec "$SANDBOX_NAME" true >/dev/null 2>&1 || true
+      i=$((i + 1))
+    done
   }
 
-  # Staged 0644 copies: host 0600 files are unreadable by container UID 1000,
-  # and single-file bind mounts go stale on the plugin's atomic rewrites.
-  if [ -f "$AUTH_CACHE/antigravity.json" ]; then
-    bind_mount "$AUTH_CACHE/antigravity.json:/home/agent/.config/opencode/antigravity.json"
-  fi
+  # Staged 0644 copies: host 0600 files are unreadable by UID 1000, and
+  # single-file binds go stale on the plugin's atomic rewrites.
   if [ -f "$AUTH_CACHE/antigravity-accounts.json" ]; then
     bind_mount "$AUTH_CACHE/antigravity-accounts.json:/home/agent/.config/opencode/antigravity-accounts.json"
   fi
@@ -166,9 +244,6 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
     bind_mount "$AUTH_CACHE/auth.json:/home/agent/.local/share/opencode/auth.json"
   fi
 
-  if [ -d "${homeDirectory}/.gemini" ]; then
-    bind_mount "${homeDirectory}/.gemini:/home/agent/.gemini"
-  fi
   if [ -d "${homeDirectory}/.config/opencode/node_modules" ]; then
     bind_mount "${homeDirectory}/.config/opencode/node_modules:/home/agent/.config/opencode/node_modules"
   fi
@@ -182,39 +257,38 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
   bind_mount "$UV_CACHE:/home/agent/.cache/uv"
   bind_mount "$NPM_GLOBAL:/home/agent/.npm-global"
 
-  # Language toolchain caches: auto-detected per workspace and mounted persistently
   TOOLCHAIN_BASE="${homeDirectory}/.cache/sbx/toolchains"
+  mkdir -p "$TOOLCHAIN_BASE"
+  chmod a+rwX "$TOOLCHAIN_BASE" 2>/dev/null || true
 
-  # Go (go.mod or Go source files present)
   if [ -f "$WORKSPACE_DIR/go.mod" ] || [ -n "$(find "$WORKSPACE_DIR" -maxdepth 2 -name '*.go' -print -quit 2>/dev/null)" ]; then
     mkdir -p "$TOOLCHAIN_BASE/go"
+    chmod -R a+rwX "$TOOLCHAIN_BASE/go" 2>/dev/null || true
     bind_mount "$TOOLCHAIN_BASE/go:/home/agent/go"
   fi
 
-  # Rust (Cargo.toml present)
   if [ -f "$WORKSPACE_DIR/Cargo.toml" ]; then
     mkdir -p "$TOOLCHAIN_BASE/cargo" "$TOOLCHAIN_BASE/rustup"
+    chmod -R a+rwX "$TOOLCHAIN_BASE/cargo" "$TOOLCHAIN_BASE/rustup" 2>/dev/null || true
     bind_mount "$TOOLCHAIN_BASE/cargo:/home/agent/.cargo"
     bind_mount "$TOOLCHAIN_BASE/rustup:/home/agent/.rustup"
   fi
 
-  # Python uses uv for everything (UV_CACHE above covers downloads and
-  # `uvx` runs), so no pip cache mount is needed.
+  # Python: UV_CACHE covers uv/uvx; no pip cache.
 
-  # Node / TypeScript (package.json present)
   if [ -f "$WORKSPACE_DIR/package.json" ]; then
     mkdir -p "$TOOLCHAIN_BASE/npm"
+    chmod -R a+rwX "$TOOLCHAIN_BASE/npm" 2>/dev/null || true
     bind_mount "$TOOLCHAIN_BASE/npm:/home/agent/.npm"
   fi
 
-  # Java / Kotlin (Gradle or Maven present)
   if [ -f "$WORKSPACE_DIR/pom.xml" ] || [ -f "$WORKSPACE_DIR/build.gradle" ] || [ -f "$WORKSPACE_DIR/build.gradle.kts" ]; then
     mkdir -p "$TOOLCHAIN_BASE/gradle" "$TOOLCHAIN_BASE/m2"
+    chmod -R a+rwX "$TOOLCHAIN_BASE/gradle" "$TOOLCHAIN_BASE/m2" 2>/dev/null || true
     bind_mount "$TOOLCHAIN_BASE/gradle:/home/agent/.gradle"
     bind_mount "$TOOLCHAIN_BASE/m2:/home/agent/.m2"
   fi
 
-  # Nix (flake.nix or default.nix present)
   if [ -f "$WORKSPACE_DIR/flake.nix" ] || [ -f "$WORKSPACE_DIR/default.nix" ]; then
     if ! sbx exec "$SANDBOX_NAME" test -f /nix/var/nix/profiles/default/bin/nix >/dev/null 2>&1; then
       sbx exec -u root "$SANDBOX_NAME" sh -c '
@@ -226,18 +300,18 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
   fi
 
   if [ "$1" = "acp" ]; then
-    exec sbx exec -i "''${ENV_ARGS[@]}" "$SANDBOX_NAME" -- opencode acp "''${@:2}"
+    sbx exec -i "''${ENV_ARGS[@]}" "$SANDBOX_NAME" -- opencode acp "''${@:2}"
   elif [ "$1" = "--clone" ]; then
     if [ $# -gt 1 ]; then
-      exec sbx run --name "$SANDBOX_NAME" "''${ENV_ARGS[@]}" opencode -- "''${@:2}"
+      sbx run --name "$SANDBOX_NAME" "''${ENV_ARGS[@]}" opencode -- "''${@:2}"
     else
-      exec sbx run --name "$SANDBOX_NAME" "''${ENV_ARGS[@]}" opencode
+      sbx run --name "$SANDBOX_NAME" "''${ENV_ARGS[@]}" opencode
     fi
   else
     if [ $# -gt 0 ]; then
-      exec sbx run --name "$SANDBOX_NAME" "''${ENV_ARGS[@]}" opencode -- "$@"
+      sbx run --name "$SANDBOX_NAME" "''${ENV_ARGS[@]}" opencode -- "$@"
     else
-      exec sbx run --name "$SANDBOX_NAME" "''${ENV_ARGS[@]}" opencode
+      sbx run --name "$SANDBOX_NAME" "''${ENV_ARGS[@]}" opencode
     fi
   fi
 ''
