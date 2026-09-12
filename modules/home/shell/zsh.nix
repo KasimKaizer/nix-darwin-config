@@ -44,6 +44,8 @@
       python = "python3";
       oc = "sbx-opencode";
       oc-clone = "sbx-opencode --clone";
+      om = "sbx-omp";
+      om-clone = "sbx-omp --clone";
     };
 
     profileExtra = ''

@@ -51,14 +51,34 @@ let
       }
   ) gatewayServers;
 
+  # Shell blocks both launchers share (sandbox naming, mount retry, shared
+  # caches, toolchain mounts). Kept in one place so the two cannot drift.
+  sbxLib = import ./sbx-lib.nix {
+    inherit
+      lib
+      pkgs
+      homeDirectory
+      ;
+  };
+
   sbxOpencode = import ./opencode/sbx-opencode.nix {
     inherit
       lib
       pkgs
       homeDirectory
       gatewayServers
+      sbxLib
       ;
     hooksPlugin = ./opencode/hooks;
+  };
+
+  sbxOmp = import ./omp/sbx-omp.nix {
+    inherit
+      pkgs
+      homeDirectory
+      sbxLib
+      ;
+    kitDir = ./omp/sbx-kit;
   };
 
   # Any `sbx` command starts sandboxd. This turns it off again: stop every
@@ -95,6 +115,7 @@ in
   home.packages = [
     pkgs.docker-sbx
     sbxOpencode
+    sbxOmp
     sbxOff
   ];
 

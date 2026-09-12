@@ -60,15 +60,15 @@ describe("sbx-opencode wrapper invariants", () => {
     expect(src).not.toContain("proxy-managed-cursor-token");
   });
 
-  it("retries bind mounts three times and world-writes caches, not auth", () => {
-    expect(src).toMatch(/while \[ "\$i" -lt 3 \]/);
-    expect(src).toMatch(/chmod -R a\+rwX "\$UV_CACHE"/);
-    expect(src).toMatch(/chmod -R a\+rwX "\$NPM_GLOBAL"/);
+  it("stages auth read-only and never world-writes it", () => {
     expect(src).toContain('chmod 644 "$AUTH_CACHE/auth.json"');
     expect(src).not.toMatch(/chmod -R a\+rwX "\$AUTH_CACHE"/);
     expect(src).toContain(
       'rm -f "$AUTH_CACHE/auth.json" "$AUTH_CACHE/antigravity.json" "$AUTH_CACHE/antigravity-accounts.json"',
     );
+    // Cache widening lives in ../sbx-lib.nix behind a once-per-directory guard;
+    // an unconditional recursive chmod here cost ~4.6s per launch.
+    expect(src).not.toMatch(/chmod -R a\+rwX/);
   });
 
   it("pins in-container serena and skips config injection unless jq succeeds", () => {

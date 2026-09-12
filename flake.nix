@@ -58,6 +58,8 @@
       url = "https://registry.npmjs.org/oh-my-opencode/-/oh-my-opencode-5.0.0-beta.38.tgz";
       flake = false;
     };
+
+    omp.url = "github:can1357/oh-my-pi";
   };
 
   outputs =

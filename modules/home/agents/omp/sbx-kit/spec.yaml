@@ -1,0 +1,32 @@
+schemaVersion: "2"
+kind: sandbox
+name: omp
+
+sandbox:
+  image: docker/sandbox-templates:shell-docker
+  entrypoint: [/home/agent/.local/bin/omp]
+
+setup:
+  # Runs once at create time, where a failure is visible and the sandbox can be
+  # recreated — not on the attach path. `user: "1000"` is required: install
+  # defaults to root, which would drop the binary in root's home instead.
+  install:
+    - command: |
+        set -eu
+        case "$(uname -m)" in
+          arm64|aarch64) OMP_ARCH=arm64 ;;
+          x86_64|amd64) OMP_ARCH=x64 ;;
+          *)
+            echo "unsupported architecture: $(uname -m)" >&2
+            exit 1
+            ;;
+        esac
+        mkdir -p /home/agent/.local/bin
+        # Stage, verify, then move into place. A partial download must never end
+        # up at the final path: the launcher treats an executable there as
+        # installed, so a truncated binary would wedge the sandbox permanently.
+        curl -fsSL "https://github.com/can1357/oh-my-pi/releases/latest/download/omp-linux-${OMP_ARCH}" -o /home/agent/.local/bin/omp.staged
+        chmod +x /home/agent/.local/bin/omp.staged
+        /home/agent/.local/bin/omp.staged --version
+        mv /home/agent/.local/bin/omp.staged /home/agent/.local/bin/omp
+      user: "1000"

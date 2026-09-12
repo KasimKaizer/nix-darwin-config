@@ -89,6 +89,19 @@ let
         tools = [ "*" ];
       };
 
+  toOmp =
+    _: server:
+    if server.transport == "http" then
+      {
+        type = "http";
+        inherit (server) url headers;
+      }
+    else
+      {
+        type = "stdio";
+        inherit (server) command args;
+      };
+
   toCodexMcp =
     name: server:
     if server.transport == "http" then
@@ -115,6 +128,17 @@ let
   cursorConfig = import ./cursor.nix {
     inherit lib homeDirectory mcpServers;
   };
+  ompConfig = import ./omp.nix {
+    inherit
+      config
+      inputs
+      lib
+      pkgs
+      homeDirectory
+      mcpServers
+      toOmp
+      ;
+  };
   opencode = import ./opencode.nix {
     inherit
       config
@@ -135,6 +159,7 @@ in
 {
   imports = [
     cursorConfig
+    ompConfig
     sandboxConfig
   ];
 
@@ -147,7 +172,8 @@ in
       "${homeDirectory}/.cursor/rules" \
       "${homeDirectory}/.codex" \
       "${homeDirectory}/.gemini/config" \
-      "${homeDirectory}/.copilot"
+      "${homeDirectory}/.copilot" \
+      "${homeDirectory}/.omp/agent"
   '';
 
   sops.templates = opencode.templates;
