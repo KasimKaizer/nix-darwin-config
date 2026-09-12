@@ -308,7 +308,7 @@ rec {
         subagent_depth = 2;
         plugin = [
           "cursor-opencode-provider"
-          "@cortexkit/opencode-antigravity-auth@2.2.0"
+          "@cortexkit/opencode-antigravity-auth@latest"
           "${hooksPlugin}"
         ];
         provider = {
