@@ -107,6 +107,9 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
   ENV_ARGS+=(-e "NPM_CONFIG_PREFIX=/home/agent/.npm-global")
   ENV_ARGS+=(-e "OPENROUTER_API_KEY=proxy-managed")
   ENV_ARGS+=(-e "GEMINI_API_KEY=proxy-managed")
+  # Same as the nixpkgs opencode wrapper: keep the auto-update checker (which
+  # logs to stdout) off the ACP pipe.
+  ENV_ARGS+=(-e "OPENCODE_DISABLE_AUTOUPDATE=true")
 
   SKILLS_CACHE="${homeDirectory}/.cache/sbx/skills"
   if [ -d "${homeDirectory}/.agents/skills" ]; then
@@ -201,21 +204,24 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
     fi
   done
 
+  # stdin belongs to the ACP client (or the TUI user): every setup-time sbx
+  # call takes </dev/null so setup can never swallow client bytes. `sbx exec`
+  # without -i demonstrably drains stdin, which used to eat Zed's `initialize`.
   if ! sbx inspect "$SANDBOX_NAME" >/dev/null 2>&1; then
     CREATE_FLAGS=(--name "$SANDBOX_NAME" --static-mcp "${staticMcpList}" "''${ENV_ARGS[@]}")
     if [ "$1" = "--clone" ]; then
       CREATE_FLAGS=(--clone "''${CREATE_FLAGS[@]}")
     fi
     if [ "$1" = "acp" ]; then
-      sbx create "''${CREATE_FLAGS[@]}" opencode "$WORKSPACE_DIR" "${hooksPlugin}:ro" >&2
+      sbx create "''${CREATE_FLAGS[@]}" opencode "$WORKSPACE_DIR" "${hooksPlugin}:ro" </dev/null >&2
     else
-      sbx create "''${CREATE_FLAGS[@]}" opencode "$WORKSPACE_DIR" "${hooksPlugin}:ro"
+      sbx create "''${CREATE_FLAGS[@]}" opencode "$WORKSPACE_DIR" "${hooksPlugin}:ro" </dev/null
     fi
   fi
 
   # Mounts require a running sandbox (409 Conflict otherwise). The idle
   # auto-stop means it is stopped more often than not; exec auto-starts it.
-  sbx exec "$SANDBOX_NAME" true >/dev/null 2>&1 || true
+  sbx exec "$SANDBOX_NAME" true </dev/null >/dev/null 2>&1 || true
 
   bind_mount() {
     spec="$1"
@@ -224,9 +230,11 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
       if sbx mount "$SANDBOX_NAME" "$spec" >/dev/null 2>&1; then
         return 0
       fi
-      sbx exec "$SANDBOX_NAME" true >/dev/null 2>&1 || true
+      sbx exec "$SANDBOX_NAME" true </dev/null >/dev/null 2>&1 || true
       i=$((i + 1))
     done
+    echo "sbx-opencode: WARNING: mount failed after retries: $spec" >&2
+    return 1
   }
 
   # Staged 0644 copies: host 0600 files are unreadable by UID 1000, and
@@ -289,17 +297,31 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
     bind_mount "$TOOLCHAIN_BASE/m2:/home/agent/.m2"
   fi
 
+  # ACP (Zed) must answer `initialize` on stdout fast. A synchronous
+  # Determinate Nix install blocks the handshake for minutes with zero
+  # output, so Zed shows loading forever and eventually SIGKILLs us (137).
+  # Background it in acp mode; keep it synchronous for interactive use.
   if [ -f "$WORKSPACE_DIR/flake.nix" ] || [ -f "$WORKSPACE_DIR/default.nix" ]; then
-    if ! sbx exec "$SANDBOX_NAME" test -f /nix/var/nix/profiles/default/bin/nix >/dev/null 2>&1; then
-      sbx exec -u root "$SANDBOX_NAME" sh -c '
-        curl -fsSL https://install.determinate.systems/nix | sh -s -- install linux --no-confirm --init none >/dev/null 2>&1 || true
-        /nix/var/nix/profiles/default/bin/nix profile add --extra-experimental-features "nix-command flakes" nixpkgs#nixd >/dev/null 2>&1 || true
-        chown -R agent:agent /nix/var/nix >/dev/null 2>&1 || true
-      ' >/dev/null 2>&1 || true
+    if ! sbx exec "$SANDBOX_NAME" test -f /nix/var/nix/profiles/default/bin/nix </dev/null >/dev/null 2>&1; then
+      if [ "$1" = "acp" ]; then
+        echo "sbx-opencode: Nix not present in sandbox; bootstrapping in background, nixd appears shortly..." >&2
+        sbx exec -u root "$SANDBOX_NAME" sh -c '
+          curl -fsSL https://install.determinate.systems/nix | sh -s -- install linux --no-confirm --init none >/dev/null 2>&1 || true
+          /nix/var/nix/profiles/default/bin/nix profile add --extra-experimental-features "nix-command flakes" nixpkgs#nixd >/dev/null 2>&1 || true
+          chown -R agent:agent /nix/var/nix >/dev/null 2>&1 || true
+        ' >/dev/null 2>&1 </dev/null || true &
+      else
+        sbx exec -u root "$SANDBOX_NAME" sh -c '
+          curl -fsSL https://install.determinate.systems/nix | sh -s -- install linux --no-confirm --init none >/dev/null 2>&1 || true
+          /nix/var/nix/profiles/default/bin/nix profile add --extra-experimental-features "nix-command flakes" nixpkgs#nixd >/dev/null 2>&1 || true
+          chown -R agent:agent /nix/var/nix >/dev/null 2>&1 || true
+        ' >/dev/null 2>&1 || true
+      fi
     fi
   fi
 
   if [ "$1" = "acp" ]; then
+    echo "sbx-opencode: starting opencode acp in $SANDBOX_NAME..." >&2
     sbx exec -i "''${ENV_ARGS[@]}" "$SANDBOX_NAME" -- opencode acp "''${@:2}"
   elif [ "$1" = "--clone" ]; then
     if [ $# -gt 1 ]; then

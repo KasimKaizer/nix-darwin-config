@@ -182,6 +182,19 @@ describe("sbx-opencode wrapper invariants", () => {
     expect(fallbackOut).toEqual({ google: GOOGLE_SENTINEL });
   });
 
+  it("answers ACP fast: nix bootstrap is backgrounded and progress stays off stdout", () => {
+    expect(src).toContain('bootstrapping in background, nixd appears shortly..." >&2');
+    expect(src).toContain("</dev/null || true &");
+    expect(src).toContain('echo "sbx-opencode: starting opencode acp in $SANDBOX_NAME..." >&2');
+  });
+
+  it("keeps client stdin intact: setup-time sbx calls take </dev/null", () => {
+    expect(src).toContain("true </dev/null >/dev/null");
+    expect(src).toContain("bin/nix </dev/null >/dev/null");
+    expect(src).toContain('"${hooksPlugin}:ro" </dev/null');
+    expect(src).toContain("OPENCODE_DISABLE_AUTOUPDATE=true");
+  });
+
   it("stages antigravity accounts as sentinels", async () => {
     const filter = extractJqProgram('chmod 644 "$AUTH_CACHE/auth.json"\n  jq -n');
     const out = (await jq(filter, undefined, ["-n"])) as {
