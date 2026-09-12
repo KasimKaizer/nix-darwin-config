@@ -62,7 +62,7 @@ rec {
     builder = {
       description = "Primary orchestrator and lead builder for implementing code, fixing bugs, delegating to specialists, and verifying changes.";
       mode = "primary";
-      model = "cursor/grok-4.6";
+      model = "opencode/muse-spark-1.3-contributor-free";
       prompt = builtins.readFile ./opencode/prompts/builder-grok.md;
       tools = allMcpToolsEnabled;
       permission = {
@@ -88,7 +88,7 @@ rec {
     planner = {
       description = "Explores requirements, performs gap analysis, and writes durable decision-complete work plans under docs/plans/ without modifying product code. MUST BE USED for any multi-step, ambiguous, or architecture-scale task before implementation. Grounds in codebase, asks only genuine owner-decisions, researchs to best practice when fuzzy, waits for explicit approval, then writes one plan workers execute with zero interview.";
       mode = "all";
-      model = "cursor/grok-4.6";
+      model = "opencode/muse-spark-1.3-contributor-free";
       prompt = builtins.readFile ./opencode/prompts/planner.md;
       tools =
         (mcpToolAccess true [
@@ -126,8 +126,8 @@ rec {
       description = "Strategic technical advisor for architecture tradeoffs, security audits, and hard debugging. MUST BE USED for complex architecture design, after significant work, after 2+ failed fixes, or for unfamiliar patterns. Provides pragmatic minimalism, one clear path, and effort estimates (Quick/Short/Medium/Large). Read-only consultant.";
       mode = "subagent";
       hidden = true;
-      # Cursor Other Models (~$20 API). Rare read-only consults. Fallback: google/antigravity-claude-opus-4-6-thinking
-      model = "cursor/claude-opus-5";
+      # OpenCode Zen free. Rare read-only consults. Fallback: google/antigravity-claude-opus-4-6-thinking
+      model = "opencode/muse-spark-1.3-contributor-free";
       prompt = builtins.readFile ./opencode/prompts/advisor-claude.md;
       tools =
         (mcpToolAccess true [
@@ -179,8 +179,8 @@ rec {
       description = "Adversarial plan reviewer for executable work plans. MUST BE USED for high-accuracy review of docs/plans/*.md. Verifies references exist, tasks have executable QA scenarios, and no blocking contradictions. Returns OKAY or REJECT with max 3 blockers. Read-only, blocker-finder not perfectionist.";
       mode = "subagent";
       hidden = true;
-      # Cursor Other Models, infrequent. Different lab from grok planner. Fallback: google/antigravity-claude-sonnet-4-6-thinking
-      model = "cursor/gpt-5.6-terra";
+      # OpenCode Zen free, infrequent. Different lab from Muse Spark planner. Fallback: google/antigravity-claude-sonnet-4-6-thinking
+      model = "opencode/muse-spark-1.3-contributor-free";
       prompt = builtins.readFile ./opencode/prompts/reviewer-gpt.md;
       tools =
         (mcpToolAccess true [
@@ -267,8 +267,8 @@ rec {
       description = "Deep reasoning specialist for complex algorithms, intricate state machines, concurrency, and high-stakes logic. MUST BE USED for the single hardest cohesive problem in a plan requiring heavy reasoning and architectural insight. Preserves shared insight by not splitting.";
       mode = "subagent";
       hidden = true;
-      # Cursor Other Models. Single hardest problem only. Fallback: google/antigravity-claude-opus-4-6-thinking or cursor/grok-4.6
-      model = "cursor/claude-opus-5";
+      # OpenCode Zen free. Single hardest problem only. Fallback: google/antigravity-claude-opus-4-6-thinking
+      model = "opencode/muse-spark-1.3-contributor-free";
       prompt = builtins.readFile ./opencode/prompts/worker-ultra-claude.md;
       tools = allMcpToolsEnabled;
       permission = {
