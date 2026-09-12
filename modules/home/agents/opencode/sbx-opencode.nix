@@ -76,6 +76,7 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
     # so a partial parse cannot leak secrets.
     if FILTERED_CONFIG="$(jq --argjson serena_cmd "$SERENA_CMD" '
       .provider.openrouter.options.apiKey = "proxy-managed"
+      | .provider.inferx.options.apiKey = "proxy-managed"
       | .mcp = {
           "mcp-gateway": {type: "remote", url: "http://mcp-gateway.docker.internal/mcp", enabled: true, headers: {Authorization: "Bearer proxy-managed"}},
           serena: {type: "local", command: $serena_cmd, enabled: true}
@@ -106,6 +107,7 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
   # over /usr/local/share/npm-global: the image's own opencode binary lives there.
   ENV_ARGS+=(-e "NPM_CONFIG_PREFIX=/home/agent/.npm-global")
   ENV_ARGS+=(-e "OPENROUTER_API_KEY=proxy-managed")
+  ENV_ARGS+=(-e "INFERX_API_KEY=proxy-managed")
   ENV_ARGS+=(-e "GEMINI_API_KEY=proxy-managed")
   # Same as the nixpkgs opencode wrapper: keep the auto-update checker (which
   # logs to stdout) off the ACP pipe.

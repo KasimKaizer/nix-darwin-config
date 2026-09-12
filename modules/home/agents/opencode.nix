@@ -318,6 +318,19 @@ rec {
             models = { };
           };
           openrouter.options.apiKey = config.sops.placeholder.openrouter_api_key;
+          inferx = {
+            npm = "@ai-sdk/openai-compatible";
+            name = "InferX";
+            options = {
+              baseURL = "https://model.inferx.net/endpoints/v1";
+              apiKey = config.sops.placeholder.inferx_api_key;
+            };
+            models = {
+              "deepseek-v4.1-flash" = {
+                name = "DeepSeek V4.1 Flash";
+              };
+            };
+          };
         };
         mcp = lib.mapAttrs toOpenCode mcpServers;
         tools = allMcpToolsDisabled;

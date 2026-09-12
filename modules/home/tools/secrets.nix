@@ -17,6 +17,7 @@
   sops.secrets = {
     aoc_session = { };
     copilot_api_key = { };
+    inferx_api_key = { };
     openrouter_api_key = { };
   };
 
@@ -26,6 +27,7 @@
   sops.templates."secret-env".content = ''
     export AOC_SESSION="${config.sops.placeholder.aoc_session}"
     export COPILOT_API_KEY="${config.sops.placeholder.copilot_api_key}"
+    export INFERX_API_KEY="${config.sops.placeholder.inferx_api_key}"
     export OPENROUTER_API_KEY="${config.sops.placeholder.openrouter_api_key}"
   '';
 

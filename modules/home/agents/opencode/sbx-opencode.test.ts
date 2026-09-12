@@ -56,6 +56,7 @@ describe("sbx-opencode wrapper invariants", () => {
 
   it("exports sentinel provider env vars", () => {
     expect(src).toContain('OPENROUTER_API_KEY=proxy-managed');
+    expect(src).toContain('INFERX_API_KEY=proxy-managed');
     expect(src).toContain('GEMINI_API_KEY=proxy-managed');
     expect(src).not.toContain("proxy-managed-cursor-token");
   });
@@ -86,7 +87,12 @@ describe("sbx-opencode wrapper invariants", () => {
     const out = (await jq(
       filter,
       {
-        provider: { openrouter: { options: { apiKey: "sk-or-TEST" } } },
+        provider: {
+          openrouter: { options: { apiKey: "sk-or-TEST" } },
+          inferx: {
+            options: { baseURL: "https://model.inferx.net/endpoints/v1", apiKey: "sk-inferx-TEST" },
+          },
+        },
         mcp: {
           exa: { type: "remote", headers: { Authorization: "Bearer sk-exa" } },
           grep_app: { type: "remote", url: "https://mcp.grep.app" },
@@ -101,7 +107,10 @@ describe("sbx-opencode wrapper invariants", () => {
       },
       ["--argjson", "serena_cmd", '["uv","tool","run"]'],
     )) as {
-      provider: { openrouter: { options: { apiKey: string } } };
+      provider: {
+        openrouter: { options: { apiKey: string } };
+        inferx: { options: { apiKey: string; baseURL: string } };
+      };
       mcp: { serena: { command: string[] } } & Record<string, unknown>;
       tools: Record<string, boolean>;
       agent: {
@@ -112,6 +121,8 @@ describe("sbx-opencode wrapper invariants", () => {
       experimental: { mcp_timeout: number };
     };
     expect(out.provider.openrouter.options.apiKey).toBe("proxy-managed");
+    expect(out.provider.inferx.options.apiKey).toBe("proxy-managed");
+    expect(out.provider.inferx.options.baseURL).toBe("https://model.inferx.net/endpoints/v1");
     expect(Object.keys(out.mcp).sort()).toEqual(["mcp-gateway", "serena"]);
     expect(JSON.stringify(out)).not.toContain("sk-");
     expect(out.mcp.serena.command).toEqual(["uv", "tool", "run"]);
