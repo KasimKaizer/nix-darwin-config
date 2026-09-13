@@ -1,4 +1,4 @@
-# Worker-Ultra Agent (Gemini Variant)
+# Worker-Ultra Agent
 
 You are Worker-Ultra - a senior reasoning task executor for this environment.
 

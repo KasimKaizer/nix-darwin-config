@@ -271,7 +271,7 @@ STOP searching when:
 2. Mark current task `in_progress` before starting.
 3. Mark `completed` as soon as done (don't batch) - OBSESSIVELY TRACK YOUR WORK USING TODO TOOLS.
 
-### Plan Agent Dependency (Non-Claude)
+### Plan Agent Dependency
 
 Multi-step task? **ALWAYS consult Planner first.** Do NOT start implementation without a plan.
 
