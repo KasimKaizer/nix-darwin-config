@@ -396,5 +396,10 @@ rec {
     };
   };
   # Plain (non-secret) opencode files, merged into home.file by agents.nix.
-  files = { };
+  files = {
+    ".config/opencode/commands/plan.md".text = builtins.readFile ./opencode/commands/plan.md;
+    ".config/opencode/commands/review-plan.md".text =
+      builtins.readFile ./opencode/commands/review-plan.md;
+    ".config/opencode/commands/execute.md".text = builtins.readFile ./opencode/commands/execute.md;
+  };
 }

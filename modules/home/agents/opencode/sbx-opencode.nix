@@ -264,6 +264,9 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
     bind_mount "$SKILLS_CACHE:/home/agent/.config/opencode/skills:ro"
     bind_mount "$SKILLS_CACHE:/home/agent/.agents/skills:ro"
   fi
+  if [ -d "${homeDirectory}/.config/opencode/commands" ]; then
+    bind_mount "${homeDirectory}/.config/opencode/commands:/home/agent/.config/opencode/commands:ro"
+  fi
   bind_mount "$UV_CACHE:/home/agent/.cache/uv"
   bind_mount "$NPM_GLOBAL:/home/agent/.npm-global"
 
