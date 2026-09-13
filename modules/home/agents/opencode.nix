@@ -87,7 +87,8 @@ rec {
       description = "Primary orchestrator and lead builder for implementing code, fixing bugs, delegating to specialists, and verifying changes.";
       mode = "primary";
       model = "opencode/muse-spark-1.3-contributor-free";
-      prompt = builtins.readFile ./opencode/prompts/builder-grok.md;
+      variant = "xhigh";
+      prompt = builtins.readFile ./opencode/prompts/alt/builder-claude.md;
       tools = allMcpToolsEnabled;
       permission = {
         bash = {
@@ -114,6 +115,7 @@ rec {
       description = "Explores requirements, performs gap analysis, and writes durable decision-complete work plans under docs/plans/ without modifying product code. MUST BE USED for any multi-step, ambiguous, or architecture-scale task before implementation. Grounds in codebase, asks only genuine owner-decisions, researchs to best practice when fuzzy, waits for explicit approval, then writes one plan workers execute with zero interview.";
       mode = "all";
       model = "opencode/muse-spark-1.3-contributor-free";
+      variant = "xhigh";
       prompt = builtins.readFile ./opencode/prompts/planner.md;
       tools =
         (mcpToolAccess true [
@@ -154,6 +156,7 @@ rec {
       hidden = true;
       # OpenCode Zen free. Rare read-only consults. Fallback: google/antigravity-claude-opus-4-6-thinking
       model = "opencode/muse-spark-1.3-contributor-free";
+      variant = "xhigh";
       prompt = builtins.readFile ./opencode/prompts/advisor-claude.md;
       tools =
         (mcpToolAccess true [
@@ -183,6 +186,7 @@ rec {
       mode = "subagent";
       hidden = true;
       model = "google/antigravity-gemini-3.8-flash";
+      variant = "high";
       prompt = builtins.readFile ./opencode/prompts/explorer.md;
       tools =
         (mcpToolAccess true [
@@ -209,6 +213,7 @@ rec {
       hidden = true;
       # OpenCode Zen free, infrequent. Different lab from Muse Spark planner. Fallback: google/antigravity-claude-sonnet-4-6-thinking
       model = "opencode/muse-spark-1.3-contributor-free";
+      variant = "xhigh";
       prompt = builtins.readFile ./opencode/prompts/reviewer-gpt.md;
       tools =
         (mcpToolAccess true [
@@ -240,6 +245,7 @@ rec {
       mode = "subagent";
       hidden = true;
       model = "google/antigravity-gemini-3.8-flash";
+      variant = "high";
       prompt = builtins.readFile ./opencode/prompts/researcher.md;
       tools = mcpToolAccess true [
         "context7"
@@ -267,7 +273,7 @@ rec {
       hidden = true;
       # Code specialist; effort pinned per role via inferx variants.
       model = "inferx/deepseek-v4.1-flash";
-      variant = "high";
+      variant = "low";
       prompt = builtins.readFile ./opencode/prompts/alt/worker-deep-gpt.md;
       tools = allMcpToolsEnabled;
       permission = {
@@ -285,6 +291,7 @@ rec {
       mode = "subagent";
       hidden = true;
       model = "google/antigravity-gemini-3.8-flash";
+      variant = "high";
       prompt = builtins.readFile ./opencode/prompts/worker-visual-gemini.md;
       tools = allMcpToolsEnabled;
       permission = {
@@ -322,6 +329,7 @@ rec {
       mode = "subagent";
       hidden = true;
       model = "google/antigravity-gemini-3.8-flash";
+      variant = "high";
       prompt = builtins.readFile ./opencode/prompts/worker-quick-gemini.md;
       tools = allMcpToolsEnabled;
       permission = {
