@@ -7,22 +7,34 @@ import {
   RETRY_GUIDANCE_MARKER,
 } from "./retry.js";
 
-const VALID_LOCAL_SUBAGENTS = [
-  "worker-deep",
-  "worker-visual",
-  "worker-ultra",
-  "worker-quick",
-  "planner",
-  "reviewer",
-  "advisor",
-  "explorer",
-  "researcher",
-];
+const opencodeConfig = await Bun.file(new URL("../../opencode.nix", import.meta.url)).text();
+
+function builderTaskAllowlist(config: string): string[] {
+  const match = config.match(
+    /builder = \{[\s\S]*?permission = \{[\s\S]*?task = \{([\s\S]*?)\n        \};/,
+  );
+  if (!match) throw new Error("Could not find Builder's task permission allowlist.");
+
+  return [...match[1].matchAll(/^\s+"?([a-z][a-z-]+)"? = "allow";$/gm)].map(
+    ([, name]) => name,
+  );
+}
+
+const VALID_LOCAL_SUBAGENTS = builderTaskAllowlist(opencodeConfig);
 
 describe("C3 delegate-task-retry (pre-dispatch validator)", () => {
   describe("LOCAL_SUBAGENTS", () => {
     it("matches the configured local roster", () => {
       expect([...LOCAL_SUBAGENTS].sort()).toEqual([...VALID_LOCAL_SUBAGENTS].sort());
+    });
+
+    it("detects a divergent configured roster fixture", () => {
+      const divergentConfig = opencodeConfig.replace(
+        '          "worker-quick" = "allow";',
+        '          "worker-new" = "allow";',
+      );
+
+      expect(builderTaskAllowlist(divergentConfig)).not.toEqual(LOCAL_SUBAGENTS);
     });
   });
 
