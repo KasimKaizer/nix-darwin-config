@@ -35,6 +35,30 @@ let
   minimalDeny = {
     "rm -rf /" = "deny";
     "rm -rf /*" = "deny";
+    "git reset --hard *" = "deny";
+    "git clean -f*" = "deny";
+    "git clean --force*" = "deny";
+    "git push --force*" = "deny";
+    "git push -f*" = "deny";
+    "sudo *" = "deny";
+    "curl * | sh" = "deny";
+    "curl * | bash" = "deny";
+    "wget * | sh" = "deny";
+    "wget * | bash" = "deny";
+  };
+  consequentialAsk = {
+    "git commit *" = "ask";
+    "git push *" = "ask";
+    "npm publish *" = "ask";
+    "pnpm publish *" = "ask";
+    "bun publish *" = "ask";
+    "cargo publish *" = "ask";
+    "twine upload *" = "ask";
+    "nixswitch *" = "ask";
+    "vercel *" = "ask";
+    "flyctl deploy *" = "ask";
+    "kubectl apply *" = "ask";
+    "terraform apply *" = "ask";
   };
   workerTask = {
     "*" = "deny";
@@ -69,7 +93,8 @@ rec {
         bash = {
           "*" = "allow";
         }
-        // minimalDeny;
+        // minimalDeny
+        // consequentialAsk;
         task = {
           "*" = "deny";
           planner = "allow";
@@ -109,7 +134,8 @@ rec {
         bash = {
           "*" = "allow";
         }
-        // minimalDeny;
+        // minimalDeny
+        // consequentialAsk;
         task = {
           "*" = "deny";
           advisor = "allow";
@@ -144,7 +170,8 @@ rec {
         bash = {
           "*" = "allow";
         }
-        // minimalDeny;
+        // minimalDeny
+        // consequentialAsk;
         task = workerTask;
         todowrite = "deny";
         webfetch = "allow";
@@ -168,7 +195,8 @@ rec {
         bash = {
           "*" = "allow";
         }
-        // minimalDeny;
+        // minimalDeny
+        // consequentialAsk;
         task = "deny";
         todowrite = "deny";
         webfetch = "deny";
@@ -198,7 +226,8 @@ rec {
         bash = {
           "*" = "allow";
         }
-        // minimalDeny;
+        // minimalDeny
+        // consequentialAsk;
         task = workerTask;
         todowrite = "deny";
         webfetch = "allow";
@@ -224,7 +253,8 @@ rec {
         bash = {
           "*" = "allow";
         }
-        // minimalDeny;
+        // minimalDeny
+        // consequentialAsk;
         task = "deny";
         todowrite = "deny";
         webfetch = "allow";
@@ -244,7 +274,8 @@ rec {
         bash = {
           "*" = "allow";
         }
-        // minimalDeny;
+        // minimalDeny
+        // consequentialAsk;
         task = workerTask;
         "playwright_*" = "ask";
       };
@@ -260,7 +291,8 @@ rec {
         bash = {
           "*" = "allow";
         }
-        // minimalDeny;
+        // minimalDeny
+        // consequentialAsk;
         task = workerTask;
         "playwright_*" = "ask";
       };
@@ -279,7 +311,8 @@ rec {
         bash = {
           "*" = "allow";
         }
-        // minimalDeny;
+        // minimalDeny
+        // consequentialAsk;
         task = workerTask;
         "playwright_*" = "ask";
       };
@@ -295,7 +328,8 @@ rec {
         bash = {
           "*" = "allow";
         }
-        // minimalDeny;
+        // minimalDeny
+        // consequentialAsk;
         task = workerTask;
         "playwright_*" = "ask";
       };
