@@ -235,7 +235,9 @@ rec {
       description = "Autonomous deep task executor for multi-file features, cross-module reasoning, and deep debugging. MUST BE USED for complex features spanning multiple files, architectural changes, and tasks requiring extensive codebase understanding.";
       mode = "subagent";
       hidden = true;
-      model = "opencode/muse-spark-1.3-contributor-free";
+      # Code specialist; effort pinned per role via inferx variants.
+      model = "inferx/deepseek-v4.1-flash";
+      variant = "high";
       prompt = builtins.readFile ./opencode/prompts/alt/worker-deep-gpt.md;
       tools = allMcpToolsEnabled;
       permission = {
@@ -268,8 +270,10 @@ rec {
       mode = "subagent";
       hidden = true;
       # OpenCode Zen free. Single hardest problem only. Fallback: google/antigravity-claude-opus-4-6-thinking
-      model = "opencode/muse-spark-1.3-contributor-free";
-      prompt = builtins.readFile ./opencode/prompts/worker-ultra-claude.md;
+      # Code specialist at max effort; GPT-family prompt is the most explicit fit for DeepSeek.
+      model = "inferx/deepseek-v4.1-flash";
+      variant = "max";
+      prompt = builtins.readFile ./opencode/prompts/alt/worker-ultra-gpt.md;
       tools = allMcpToolsEnabled;
       permission = {
         bash = {
@@ -328,6 +332,20 @@ rec {
             models = {
               "deepseek-v4.1-flash" = {
                 name = "DeepSeek V4.1 Flash";
+                variants = {
+                  max = {
+                    reasoningEffort = "max";
+                  };
+                  high = {
+                    reasoningEffort = "high";
+                  };
+                  low = {
+                    reasoningEffort = "low";
+                  };
+                  none = {
+                    reasoningEffort = "none";
+                  };
+                };
               };
             };
           };
