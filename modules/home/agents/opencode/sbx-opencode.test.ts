@@ -3,7 +3,9 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const src = await Bun.file(new URL("./sbx-opencode.nix", import.meta.url)).text();
+const src = await Bun.file(
+  new URL("./sbx-opencode.nix", import.meta.url),
+).text();
 
 const GOOGLE_SENTINEL = {
   type: "oauth",
@@ -22,7 +24,11 @@ function extractJqProgram(after: string): string {
   return src.slice(open + 1, close);
 }
 
-async function jq(filter: string, input?: unknown, extra: string[] = []): Promise<unknown> {
+async function jq(
+  filter: string,
+  input?: unknown,
+  extra: string[] = [],
+): Promise<unknown> {
   const proc = Bun.spawn(["jq", "-c", ...extra, filter], {
     stdin: input === undefined ? "ignore" : "pipe",
     stdout: "pipe",
@@ -44,20 +50,24 @@ async function jq(filter: string, input?: unknown, extra: string[] = []): Promis
 function writeJson(name: string, value: unknown): string {
   const dir = mkdtempSync(join(tmpdir(), "sbx-opencode-"));
   const path = join(dir, name);
-  writeFileSync(path, typeof value === "string" ? value : JSON.stringify(value));
+  writeFileSync(
+    path,
+    typeof value === "string" ? value : JSON.stringify(value),
+  );
   return path;
 }
 
 describe("sbx-opencode wrapper invariants", () => {
   it("does not bind-mount host ~/.gemini or host auth.json", () => {
     expect(src).not.toMatch(/bind_mount.*\.gemini/);
-    expect(src).not.toMatch(/\$\{homeDirectory\}\/\.local\/share\/opencode\/auth\.json:/);
+    expect(src).not.toMatch(
+      /\$\{homeDirectory\}\/\.local\/share\/opencode\/auth\.json:/,
+    );
   });
 
   it("exports sentinel provider env vars", () => {
-    expect(src).toContain('OPENROUTER_API_KEY=proxy-managed');
-    expect(src).toContain('INFERX_API_KEY=proxy-managed');
-    expect(src).toContain('GEMINI_API_KEY=proxy-managed');
+    expect(src).toContain("OPENROUTER_API_KEY=proxy-managed");
+    expect(src).toContain("GEMINI_API_KEY=proxy-managed");
     expect(src).not.toContain("proxy-managed-cursor-token");
   });
 
@@ -89,9 +99,6 @@ describe("sbx-opencode wrapper invariants", () => {
       {
         provider: {
           openrouter: { options: { apiKey: "sk-or-TEST" } },
-          inferx: {
-            options: { baseURL: "https://model.inferx.net/endpoints/v1", apiKey: "sk-inferx-TEST" },
-          },
         },
         mcp: {
           exa: { type: "remote", headers: { Authorization: "Bearer sk-exa" } },
@@ -109,7 +116,6 @@ describe("sbx-opencode wrapper invariants", () => {
     )) as {
       provider: {
         openrouter: { options: { apiKey: string } };
-        inferx: { options: { apiKey: string; baseURL: string } };
       };
       mcp: { serena: { command: string[] } } & Record<string, unknown>;
       tools: Record<string, boolean>;
@@ -121,8 +127,6 @@ describe("sbx-opencode wrapper invariants", () => {
       experimental: { mcp_timeout: number };
     };
     expect(out.provider.openrouter.options.apiKey).toBe("proxy-managed");
-    expect(out.provider.inferx.options.apiKey).toBe("proxy-managed");
-    expect(out.provider.inferx.options.baseURL).toBe("https://model.inferx.net/endpoints/v1");
     expect(Object.keys(out.mcp).sort()).toEqual(["mcp-gateway", "serena"]);
     expect(JSON.stringify(out)).not.toContain("sk-");
     expect(out.mcp.serena.command).toEqual(["uv", "tool", "run"]);
@@ -137,12 +141,21 @@ describe("sbx-opencode wrapper invariants", () => {
 
   it("does not emit partial secrets when host config is malformed", async () => {
     const filter = extractJqProgram('jq --argjson serena_cmd "$SERENA_CMD"');
-    const bad = writeJson("bad.json", '{ "provider": { "openrouter": { "options": { "apiKey": "sk-or-LEAK" } } }\n');
-    const proc = Bun.spawn(["jq", "--argjson", "serena_cmd", '["uv"]', filter, bad], {
-      stdout: "pipe",
-      stderr: "pipe",
-    });
-    const [stdout, exitCode] = await Promise.all([new Response(proc.stdout).text(), proc.exited]);
+    const bad = writeJson(
+      "bad.json",
+      '{ "provider": { "openrouter": { "options": { "apiKey": "sk-or-LEAK" } } }\n',
+    );
+    const proc = Bun.spawn(
+      ["jq", "--argjson", "serena_cmd", '["uv"]', filter, bad],
+      {
+        stdout: "pipe",
+        stderr: "pipe",
+      },
+    );
+    const [stdout, exitCode] = await Promise.all([
+      new Response(proc.stdout).text(),
+      proc.exited,
+    ]);
     expect(exitCode).not.toBe(0);
     expect(stdout).not.toContain("sk-or-LEAK");
   });
@@ -154,7 +167,12 @@ describe("sbx-opencode wrapper invariants", () => {
       cursor: { type: "oauth", access: "eyJ.REAL", refresh: "cr", expires: 9 },
       openai: { type: "api", key: "sk-leak" },
     });
-    const out = (await jq(filter, undefined, ["-n", "--slurpfile", "host", host])) as {
+    const out = (await jq(filter, undefined, [
+      "-n",
+      "--slurpfile",
+      "host",
+      host,
+    ])) as {
       google: typeof GOOGLE_SENTINEL;
       cursor: { access: string };
     };
@@ -169,34 +187,60 @@ describe("sbx-opencode wrapper invariants", () => {
     const filter = extractJqProgram('jq -n --slurpfile host "$HOST_AUTH"');
     const fallback = extractJqProgram("2>/dev/null; then\n    jq -n");
 
-    const missing = Bun.spawn(["jq", "-n", "--slurpfile", "host", join(tmpdir(), "no-such-auth.json"), filter], {
-      stdout: "pipe",
-      stderr: "pipe",
-    });
+    const missing = Bun.spawn(
+      [
+        "jq",
+        "-n",
+        "--slurpfile",
+        "host",
+        join(tmpdir(), "no-such-auth.json"),
+        filter,
+      ],
+      {
+        stdout: "pipe",
+        stderr: "pipe",
+      },
+    );
     expect(await missing.exited).not.toBe(0);
 
     const malformed = writeJson("auth.json", "{ not json");
-    const bad = Bun.spawn(["jq", "-n", "--slurpfile", "host", malformed, filter], {
-      stdout: "pipe",
-      stderr: "pipe",
-    });
+    const bad = Bun.spawn(
+      ["jq", "-n", "--slurpfile", "host", malformed, filter],
+      {
+        stdout: "pipe",
+        stderr: "pipe",
+      },
+    );
     expect(await bad.exited).not.toBe(0);
 
-    const emptyHost = writeJson("auth.json", { google: { access: "ya29.REAL" } });
-    const noCursor = (await jq(filter, undefined, ["-n", "--slurpfile", "host", emptyHost])) as {
+    const emptyHost = writeJson("auth.json", {
+      google: { access: "ya29.REAL" },
+    });
+    const noCursor = (await jq(filter, undefined, [
+      "-n",
+      "--slurpfile",
+      "host",
+      emptyHost,
+    ])) as {
       google: typeof GOOGLE_SENTINEL;
       cursor?: unknown;
     };
     expect(noCursor).toEqual({ google: GOOGLE_SENTINEL });
 
-    const fallbackOut = (await jq(fallback, undefined, ["-n"])) as { google: typeof GOOGLE_SENTINEL };
+    const fallbackOut = (await jq(fallback, undefined, ["-n"])) as {
+      google: typeof GOOGLE_SENTINEL;
+    };
     expect(fallbackOut).toEqual({ google: GOOGLE_SENTINEL });
   });
 
   it("answers ACP fast: nix bootstrap is backgrounded and progress stays off stdout", () => {
-    expect(src).toContain('bootstrapping in background, nixd appears shortly..." >&2');
+    expect(src).toContain(
+      'bootstrapping in background, nixd appears shortly..." >&2',
+    );
     expect(src).toContain("</dev/null || true &");
-    expect(src).toContain('echo "sbx-opencode: starting opencode acp in $SANDBOX_NAME..." >&2');
+    expect(src).toContain(
+      'echo "sbx-opencode: starting opencode acp in $SANDBOX_NAME..." >&2',
+    );
   });
 
   it("keeps client stdin intact: setup-time sbx calls take </dev/null", () => {
@@ -206,13 +250,40 @@ describe("sbx-opencode wrapper invariants", () => {
     expect(src).toContain("OPENCODE_DISABLE_AUTOUPDATE=true");
   });
 
-  it("stages antigravity accounts as sentinels", async () => {
-    const filter = extractJqProgram('chmod 644 "$AUTH_CACHE/auth.json"\n  jq -n');
+  it("stages antigravity accounts as sentinels with access and far-future expiry", async () => {
+    const filter = extractJqProgram(
+      'chmod 644 "$AUTH_CACHE/auth.json"\n  jq -n',
+    );
     const out = (await jq(filter, undefined, ["-n"])) as {
-      accounts: Array<{ email: string; refreshToken: string }>;
+      accounts: Array<{
+        email: string;
+        refreshToken: string;
+        access: string;
+        expires: number;
+      }>;
     };
     expect(out.accounts[0]?.email).toBe("proxy-managed@example.invalid");
     expect(out.accounts[0]?.refreshToken).toBe("proxy-managed");
+    expect(out.accounts[0]?.access).toBe("proxy-managed-google-token");
+    expect(out.accounts[0]?.expires).toBe(9999999999999);
     expect(JSON.stringify(out)).not.toMatch(/ya29\.|sk-|eyJ/);
+  });
+
+  it("stages google sentinels with proxy access and far-future expiry in source", () => {
+    expect(src).toContain('access: "proxy-managed-google-token"');
+    expect(src).toContain("expires: 9999999999999");
+  });
+
+  it("preserves hooks, MCP gateway, and skills mounts", () => {
+    expect(src).toContain('"${hooksPlugin}:ro"');
+    expect(src).toContain("--static-mcp");
+    expect(src).toContain("staticMcpList");
+    expect(src).toContain(
+      "$SKILLS_CACHE:/home/agent/.config/opencode/skills:ro",
+    );
+    expect(src).toContain("$SKILLS_CACHE:/home/agent/.agents/skills:ro");
+    expect(src).toContain(
+      'rsync -aL --delete "${homeDirectory}/.agents/skills/" "$SKILLS_CACHE/"',
+    );
   });
 });

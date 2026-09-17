@@ -271,10 +271,9 @@ rec {
       description = "Autonomous deep task executor for multi-file features, cross-module reasoning, and deep debugging. MUST BE USED for complex features spanning multiple files, architectural changes, and tasks requiring extensive codebase understanding.";
       mode = "subagent";
       hidden = true;
-      # Code specialist; effort pinned per role via inferx variants.
-      model = "inferx/deepseek-v4.1-flash";
-      variant = "low";
-      prompt = builtins.readFile ./opencode/prompts/alt/worker-deep-gpt.md;
+      model = "opencode/muse-spark-1.3-contributor-free";
+      variant = "xhigh";
+      prompt = builtins.readFile ./opencode/prompts/alt/worker-deep-claude.md;
       tools = allMcpToolsEnabled;
       permission = {
         bash = {
@@ -309,10 +308,9 @@ rec {
       mode = "subagent";
       hidden = true;
       # OpenCode Zen free. Single hardest problem only. Fallback: google/antigravity-claude-opus-4-6-thinking
-      # Code specialist at max effort; GPT-family prompt is the most explicit fit for DeepSeek.
-      model = "inferx/deepseek-v4.1-flash";
-      variant = "max";
-      prompt = builtins.readFile ./opencode/prompts/alt/worker-ultra-gpt.md;
+      model = "opencode/muse-spark-1.3-contributor-free";
+      variant = "xhigh";
+      prompt = builtins.readFile ./opencode/prompts/worker-ultra-claude.md;
       tools = allMcpToolsEnabled;
       permission = {
         bash = {
@@ -364,33 +362,6 @@ rec {
             models = { };
           };
           openrouter.options.apiKey = config.sops.placeholder.openrouter_api_key;
-          inferx = {
-            npm = "@ai-sdk/openai-compatible";
-            name = "InferX";
-            options = {
-              baseURL = "https://model.inferx.net/endpoints/v1";
-              apiKey = config.sops.placeholder.inferx_api_key;
-            };
-            models = {
-              "deepseek-v4.1-flash" = {
-                name = "DeepSeek V4.1 Flash";
-                variants = {
-                  max = {
-                    reasoningEffort = "max";
-                  };
-                  high = {
-                    reasoningEffort = "high";
-                  };
-                  low = {
-                    reasoningEffort = "low";
-                  };
-                  none = {
-                    reasoningEffort = "none";
-                  };
-                };
-              };
-            };
-          };
         };
         mcp = lib.mapAttrs toOpenCode mcpServers;
         tools = allMcpToolsDisabled;

@@ -76,7 +76,6 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
     # so a partial parse cannot leak secrets.
     if FILTERED_CONFIG="$(jq --argjson serena_cmd "$SERENA_CMD" '
       .provider.openrouter.options.apiKey = "proxy-managed"
-      | .provider.inferx.options.apiKey = "proxy-managed"
       | .mcp = {
           "mcp-gateway": {type: "remote", url: "http://mcp-gateway.docker.internal/mcp", enabled: true, headers: {Authorization: "Bearer proxy-managed"}},
           serena: {type: "local", command: $serena_cmd, enabled: true}
@@ -107,7 +106,6 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
   # over /usr/local/share/npm-global: the image's own opencode binary lives there.
   ENV_ARGS+=(-e "NPM_CONFIG_PREFIX=/home/agent/.npm-global")
   ENV_ARGS+=(-e "OPENROUTER_API_KEY=proxy-managed")
-  ENV_ARGS+=(-e "INFERX_API_KEY=proxy-managed")
   ENV_ARGS+=(-e "GEMINI_API_KEY=proxy-managed")
   # Same as the nixpkgs opencode wrapper: keep the auto-update checker (which
   # logs to stdout) off the ACP pipe.
@@ -159,6 +157,8 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
       {
         email: "proxy-managed@example.invalid",
         refreshToken: "proxy-managed",
+        access: "proxy-managed-google-token",
+        expires: 9999999999999,
         addedAt: 1,
         lastUsed: 1,
         enabled: true,
@@ -269,38 +269,6 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
   fi
   bind_mount "$UV_CACHE:/home/agent/.cache/uv"
   bind_mount "$NPM_GLOBAL:/home/agent/.npm-global"
-
-  TOOLCHAIN_BASE="${homeDirectory}/.cache/sbx/toolchains"
-  mkdir -p "$TOOLCHAIN_BASE"
-  chmod a+rwX "$TOOLCHAIN_BASE" 2>/dev/null || true
-
-  if [ -f "$WORKSPACE_DIR/go.mod" ] || [ -n "$(find "$WORKSPACE_DIR" -maxdepth 2 -name '*.go' -print -quit 2>/dev/null)" ]; then
-    mkdir -p "$TOOLCHAIN_BASE/go"
-    chmod -R a+rwX "$TOOLCHAIN_BASE/go" 2>/dev/null || true
-    bind_mount "$TOOLCHAIN_BASE/go:/home/agent/go"
-  fi
-
-  if [ -f "$WORKSPACE_DIR/Cargo.toml" ]; then
-    mkdir -p "$TOOLCHAIN_BASE/cargo" "$TOOLCHAIN_BASE/rustup"
-    chmod -R a+rwX "$TOOLCHAIN_BASE/cargo" "$TOOLCHAIN_BASE/rustup" 2>/dev/null || true
-    bind_mount "$TOOLCHAIN_BASE/cargo:/home/agent/.cargo"
-    bind_mount "$TOOLCHAIN_BASE/rustup:/home/agent/.rustup"
-  fi
-
-  # Python: UV_CACHE covers uv/uvx; no pip cache.
-
-  if [ -f "$WORKSPACE_DIR/package.json" ]; then
-    mkdir -p "$TOOLCHAIN_BASE/npm"
-    chmod -R a+rwX "$TOOLCHAIN_BASE/npm" 2>/dev/null || true
-    bind_mount "$TOOLCHAIN_BASE/npm:/home/agent/.npm"
-  fi
-
-  if [ -f "$WORKSPACE_DIR/pom.xml" ] || [ -f "$WORKSPACE_DIR/build.gradle" ] || [ -f "$WORKSPACE_DIR/build.gradle.kts" ]; then
-    mkdir -p "$TOOLCHAIN_BASE/gradle" "$TOOLCHAIN_BASE/m2"
-    chmod -R a+rwX "$TOOLCHAIN_BASE/gradle" "$TOOLCHAIN_BASE/m2" 2>/dev/null || true
-    bind_mount "$TOOLCHAIN_BASE/gradle:/home/agent/.gradle"
-    bind_mount "$TOOLCHAIN_BASE/m2:/home/agent/.m2"
-  fi
 
   # ACP (Zed) must answer `initialize` on stdout fast. A synchronous
   # Determinate Nix install blocks the handshake for minutes with zero
