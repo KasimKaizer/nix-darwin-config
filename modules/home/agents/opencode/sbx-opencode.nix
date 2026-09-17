@@ -106,7 +106,6 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
   # over /usr/local/share/npm-global: the image's own opencode binary lives there.
   ENV_ARGS+=(-e "NPM_CONFIG_PREFIX=/home/agent/.npm-global")
   ENV_ARGS+=(-e "OPENROUTER_API_KEY=proxy-managed")
-  ENV_ARGS+=(-e "GEMINI_API_KEY=proxy-managed")
   # Same as the nixpkgs opencode wrapper: keep the auto-update checker (which
   # logs to stdout) off the ACP pipe.
   ENV_ARGS+=(-e "OPENCODE_DISABLE_AUTOUPDATE=true")
@@ -119,62 +118,12 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
 
   AUTH_CACHE="${homeDirectory}/.cache/sbx/auth"
   mkdir -p "$AUTH_CACHE"
-  # Cursor Run is HTTP/2 Connect-RPC, so proxy sentinels cannot replace
-  # tokens: copy only host .cursor. Google stays a sentinel. Drop leftovers
-  # first so a prior staging cannot leak through virtiofs.
   rm -f "$AUTH_CACHE/auth.json" "$AUTH_CACHE/antigravity.json" "$AUTH_CACHE/antigravity-accounts.json"
-  HOST_AUTH="${homeDirectory}/.local/share/opencode/auth.json"
-  if ! jq -n --slurpfile host "$HOST_AUTH" '
-    {
-      google: {
-        type: "oauth",
-        access: "proxy-managed-google-token",
-        refresh: "dummy",
-        expires: 9999999999999
-      }
-    }
-    + (
-      if ($host | length) > 0 and ($host[0] | type == "object") and ($host[0].cursor | type == "object") then
-        {cursor: $host[0].cursor}
-      else
-        {}
-      end
-    )
-  ' > "$AUTH_CACHE/auth.json" 2>/dev/null; then
-    jq -n '{
-      google: {
-        type: "oauth",
-        access: "proxy-managed-google-token",
-        refresh: "dummy",
-        expires: 9999999999999
-      }
-    }' > "$AUTH_CACHE/auth.json"
+
+  if [ -f "${homeDirectory}/.config/opencode/antigravity-accounts.json" ]; then
+    cp "${homeDirectory}/.config/opencode/antigravity"*.json "$AUTH_CACHE/"
+    chmod 644 "$AUTH_CACHE"/*.json
   fi
-  chmod 644 "$AUTH_CACHE/auth.json"
-  jq -n '{
-    version: 4,
-    accounts: [
-      {
-        email: "proxy-managed@example.invalid",
-        refreshToken: "proxy-managed",
-        access: "proxy-managed-google-token",
-        expires: 9999999999999,
-        addedAt: 1,
-        lastUsed: 1,
-        enabled: true,
-        cachedQuota: {
-          gemini: {
-            remainingFraction: 1,
-            resetTime: "2099-12-31T23:59:59Z",
-            modelCount: 1
-          }
-        }
-      }
-    ],
-    activeIndex: 0,
-    activeIndexByFamily: { claude: 0, gemini: 0 }
-  }' > "$AUTH_CACHE/antigravity-accounts.json"
-  chmod 644 "$AUTH_CACHE/antigravity-accounts.json"
   if [ -f "${homeDirectory}/.config/opencode/tui.json" ]; then
     cp -L "${homeDirectory}/.config/opencode/tui.json" "$AUTH_CACHE/tui.json"
     chmod 644 "$AUTH_CACHE/tui.json"
@@ -182,6 +131,24 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
   if [ -f "${homeDirectory}/.config/opencode/tui-preferences.jsonc" ]; then
     cp -L "${homeDirectory}/.config/opencode/tui-preferences.jsonc" "$AUTH_CACHE/tui-preferences.jsonc"
     chmod 644 "$AUTH_CACHE/tui-preferences.jsonc"
+  fi
+
+  # Stage OAuth credentials for google and cursor only. Other host keys (like
+  # openrouter or openai) stay off the container.
+  HOST_AUTH="${homeDirectory}/.local/share/opencode/auth.json"
+  if [ -f "$HOST_AUTH" ]; then
+    if ! jq -n --slurpfile host "$HOST_AUTH" '
+      if ($host | length) > 0 and ($host[0] | type == "object") then
+        ($host[0] | {google, cursor} | del(.[] | nulls))
+      else
+        {}
+      end
+    ' > "$AUTH_CACHE/auth.json" 2>/dev/null; then
+      rm -f "$AUTH_CACHE/auth.json"
+    fi
+    if [ -f "$AUTH_CACHE/auth.json" ]; then
+      chmod 644 "$AUTH_CACHE/auth.json"
+    fi
   fi
 
   UV_CACHE="${homeDirectory}/.cache/sbx/uv"
@@ -241,6 +208,9 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
 
   # Staged 0644 copies: host 0600 files are unreadable by UID 1000, and
   # single-file binds go stale on the plugin's atomic rewrites.
+  if [ -f "$AUTH_CACHE/antigravity.json" ]; then
+    bind_mount "$AUTH_CACHE/antigravity.json:/home/agent/.config/opencode/antigravity.json"
+  fi
   if [ -f "$AUTH_CACHE/antigravity-accounts.json" ]; then
     bind_mount "$AUTH_CACHE/antigravity-accounts.json:/home/agent/.config/opencode/antigravity-accounts.json"
   fi
