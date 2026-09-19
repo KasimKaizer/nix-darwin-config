@@ -130,11 +130,20 @@ let
       pkgs
       ;
   };
+  feynmanConfig = import ./feynman.nix {
+    inherit
+      config
+      flakeDir
+      lib
+      pkgs
+      ;
+  };
 in
 {
   imports = [
     cursorConfig
     sandboxConfig
+    feynmanConfig
   ];
 
   # sops-nix renders templates after this activation entry. Ensure target
