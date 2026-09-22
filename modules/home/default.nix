@@ -51,6 +51,7 @@
       mole-cleaner
       moor
       p7zip
+      pandoc
       poppler-utils
       powershell
       rar
