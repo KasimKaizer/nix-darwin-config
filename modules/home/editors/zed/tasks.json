@@ -4,7 +4,7 @@
 [
   {
     "label": "toggle disable_ai",
-    "command": "python3",
+    "command": "@PYTHON@",
     "args": ["@ZED_DIR@/toggle_disable_ai.py"],
     "use_new_terminal": false,
     "allow_concurrent_runs": false,

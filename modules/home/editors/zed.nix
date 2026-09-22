@@ -52,6 +52,7 @@ let
         "@SERENA_MCP_SERVER@"
         "@PLAYWRIGHT_MCP_SERVER@"
         "@CODEGRAPH_MCP_SERVER@"
+        "@PYTHON@"
       ]
       [
         zedDir
@@ -59,6 +60,7 @@ let
         (toString serenaMcpServer)
         (toString playwrightMcpServer)
         (toString codegraphMcpServer)
+        "${pkgs.python3}/bin/python3"
       ];
 
   settingsContent = builtins.readFile ./zed/settings.json;
