@@ -18,6 +18,8 @@
 
 - **Agent skills and configs are overwritten on switch.** Custom skills live in `modules/home/agents/skills/`; changes made directly in `~/.agents`, `~/.cursor`, or `~/.codex` won't survive.
 
+- **Feynman is only partly declarative.** Nix pins the release and manages the wrapper, generated config, and sops-backed environment, but the wrapper copies the program to the writable `~/.config/.feynman/runtime/<version>` on first launch so Feynman can maintain it itself. Use `feynman-update` to refresh the pinned version and hash, review and commit its diff, then run `nixswitch`; old runtime directories are not removed automatically. Browser-cookie access is enabled for web search; remove `allowBrowserCookies` in `modules/home/agents/feynman.nix` if that is not wanted. The optional Antigravity extension needs a one-time manual install: `npm install --global --prefix "$HOME/.config/.feynman/npm-global" @cortexkit/pi-antigravity-auth`.
+
 - **Stale `.hm-bak` blocks the switch.** Delete the leftover `*.hm-bak` and retry.
 
 - **Leave `stateVersion` alone.** Don't bump `home.stateVersion`/`system.stateVersion`.

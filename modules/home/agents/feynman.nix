@@ -32,7 +32,15 @@ let
     set -eu
     export FEYNMAN_HOME="${config.xdg.configHome}"
     . "${config.sops.templates."feynman-env".path}"
-    exec "${feynmanRuntime}/bin/feynman" "$@"
+
+    runtime="${feynmanHome}/runtime/${version}"
+    if [ ! -x "$runtime/feynman" ]; then
+      ${pkgs.coreutils}/bin/mkdir -p "$runtime"
+      ${pkgs.coreutils}/bin/cp -R "${feynmanRuntime}/libexec/." "$runtime"
+      ${pkgs.coreutils}/bin/chmod -R u+w "$runtime"
+    fi
+
+    exec "$runtime/feynman" "$@"
   '';
 
   feynmanUpdate = pkgs.writeShellApplication {
@@ -105,6 +113,7 @@ in
       searchProvider = "auto";
       exaApiKey = "$EXA_API_KEY";
       parallelApiKey = "$PARALLEL_API_KEY";
+      allowBrowserCookies = true;
     };
 
     ".feynman/agent/extensions/antigravity.ts".text = ''
