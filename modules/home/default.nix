@@ -45,6 +45,7 @@
       ast-grep
       bitwarden-cli
       charm-freeze
+      codegraph
       ffmpeg
       glow
       htop
