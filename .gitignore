@@ -13,6 +13,7 @@ notes/
 # Local agent settings and worktrees
 /.claude/
 /.serena/
+/.codegraph/
 
 # Local secrets / keys
 /secrets/

@@ -3,11 +3,11 @@
     "agent-skills": {
       "flake": false,
       "locked": {
-        "lastModified": 1789932714,
-        "narHash": "sha256-mliEs4QGO3W1vm5i4PfTNXCGtYVNUmEedWVmt5l7sxY=",
+        "lastModified": 1790136338,
+        "narHash": "sha256-b3+ZzsukEYdkTlGACKVlofuGsmcP2KIy7fL7fwAAag0=",
         "owner": "addyosmani",
         "repo": "agent-skills",
-        "rev": "dc27a9c2e13721158157632de61b4106c6c2a2a1",
+        "rev": "bcab6a1b8503100e8618c3b4e32cc78de43de769",
         "type": "github"
       },
       "original": {
@@ -112,11 +112,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790080548,
-        "narHash": "sha256-u4sa7RCbwvk8cZmAGs35F7o0h4IqDc3wsrrnjQvMumk=",
+        "lastModified": 1790128814,
+        "narHash": "sha256-6Gm9q+wW3E4Ey4F6wEbJAwaMsEK6hvCYfTW7yY64ZfA=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "cbcbfa2778e0c5653ef349df3ebae8288efac3c0",
+        "rev": "0b2f1129177f70c5f0f5d88bb53c49ca47d0bfc0",
         "type": "github"
       },
       "original": {
@@ -145,11 +145,11 @@
     "homebrew-cask": {
       "flake": false,
       "locked": {
-        "lastModified": 1790095681,
-        "narHash": "sha256-VDxgic2xc7MSSjeqopJvT/jHkfaDYoUm9FAB1uuSlC8=",
+        "lastModified": 1790143599,
+        "narHash": "sha256-hX5640NipQElIXn12PBaCrud37drGL+DbZFul+yqknM=",
         "owner": "homebrew",
         "repo": "homebrew-cask",
-        "rev": "4fb7dc9803aefba6ba4dd61773d1ccc4b83111ff",
+        "rev": "6a29ffe05d515b0277281ec391876e9bef4bdd4a",
         "type": "github"
       },
       "original": {
@@ -161,11 +161,11 @@
     "homebrew-core": {
       "flake": false,
       "locked": {
-        "lastModified": 1790095850,
-        "narHash": "sha256-s0ZcAstrBW4G9Tt6GsUKhikATdrB9/OEELOuD9saTk4=",
+        "lastModified": 1790143573,
+        "narHash": "sha256-XRPtoR2TzyhUS50ohr/sEYtdyNukWugomrwDdh0Gk5g=",
         "owner": "homebrew",
         "repo": "homebrew-core",
-        "rev": "afc49bb8a40874a761761a280e6558cc63b7c7a5",
+        "rev": "ed0d1d21a843ff5ec1b83c262f34072ec8b8adc6",
         "type": "github"
       },
       "original": {
@@ -227,11 +227,11 @@
     "oh-my-openagent": {
       "flake": false,
       "locked": {
-        "lastModified": 1790096527,
-        "narHash": "sha256-bQZhdd3hT4om14F2mRIyH+H0jtkMLkDJG5hHd+rcKDs=",
+        "lastModified": 1790144528,
+        "narHash": "sha256-IxP/xr2lrXV5erRSRJN/Gc/BViaMcbF1U1fyaqZAYok=",
         "owner": "code-yeongyu",
         "repo": "oh-my-openagent",
-        "rev": "d862a09a0cce8a77b14168bd68d5a29087b18d79",
+        "rev": "66d3efea46898c52d6b6a900ec6a72d1169fee5d",
         "type": "github"
       },
       "original": {
