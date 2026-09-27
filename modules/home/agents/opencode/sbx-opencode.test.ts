@@ -246,4 +246,17 @@ describe("sbx-opencode wrapper invariants", () => {
       'rsync -aL --delete "${homeDirectory}/.agents/skills/" "$SKILLS_CACHE/"',
     );
   });
+
+  it("stages commands via cache: host symlinks dangle in the container", () => {
+    expect(src).toContain('COMMANDS_CACHE="${homeDirectory}/.cache/sbx/commands"');
+    expect(src).toContain(
+      'rsync -aL --delete "${homeDirectory}/.config/opencode/commands/" "$COMMANDS_CACHE/"',
+    );
+    expect(src).toContain(
+      "$COMMANDS_CACHE:/home/agent/.config/opencode/commands:ro",
+    );
+    expect(src).not.toContain(
+      "${homeDirectory}/.config/opencode/commands:/home/agent/.config/opencode/commands",
+    );
+  });
 });

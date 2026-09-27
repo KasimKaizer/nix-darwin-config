@@ -116,6 +116,16 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
     rsync -aL --delete "${homeDirectory}/.agents/skills/" "$SKILLS_CACHE/"
   fi
 
+  # Host commands are home-manager symlinks into /nix/store, which does not
+  # exist inside the Linux container (dangling symlinks read as missing, so
+  # /plan, /execute, /review-plan vanish). Snapshot with -L like skills so
+  # the container sees real files.
+  COMMANDS_CACHE="${homeDirectory}/.cache/sbx/commands"
+  if [ -d "${homeDirectory}/.config/opencode/commands" ]; then
+    mkdir -p "$COMMANDS_CACHE"
+    rsync -aL --delete "${homeDirectory}/.config/opencode/commands/" "$COMMANDS_CACHE/"
+  fi
+
   AUTH_CACHE="${homeDirectory}/.cache/sbx/auth"
   mkdir -p "$AUTH_CACHE"
   rm -f "$AUTH_CACHE/auth.json" "$AUTH_CACHE/antigravity.json" "$AUTH_CACHE/antigravity-accounts.json"
@@ -234,8 +244,8 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
     bind_mount "$SKILLS_CACHE:/home/agent/.config/opencode/skills:ro"
     bind_mount "$SKILLS_CACHE:/home/agent/.agents/skills:ro"
   fi
-  if [ -d "${homeDirectory}/.config/opencode/commands" ]; then
-    bind_mount "${homeDirectory}/.config/opencode/commands:/home/agent/.config/opencode/commands:ro"
+  if [ -d "$COMMANDS_CACHE" ]; then
+    bind_mount "$COMMANDS_CACHE:/home/agent/.config/opencode/commands:ro"
   fi
   bind_mount "$UV_CACHE:/home/agent/.cache/uv"
   bind_mount "$NPM_GLOBAL:/home/agent/.npm-global"
