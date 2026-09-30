@@ -143,13 +143,13 @@ pkgs.writeShellScriptBin "sbx-opencode" ''
     chmod 644 "$AUTH_CACHE/tui-preferences.jsonc"
   fi
 
-  # Stage OAuth credentials for google and cursor only. Other host keys (like
-  # openrouter or openai) stay off the container.
+  # Stage OAuth credentials for google, cursor, and openai only. Other host keys
+  # (like openrouter) stay off the container.
   HOST_AUTH="${homeDirectory}/.local/share/opencode/auth.json"
   if [ -f "$HOST_AUTH" ]; then
     if ! jq -n --slurpfile host "$HOST_AUTH" '
       if ($host | length) > 0 and ($host[0] | type == "object") then
-        ($host[0] | {google, cursor} | del(.[] | nulls))
+        ($host[0] | {google, cursor, openai} | del(.[] | nulls))
       else
         {}
       end

@@ -155,12 +155,13 @@ describe("sbx-opencode wrapper invariants", () => {
     expect(stdout).not.toContain("sk-or-LEAK");
   });
 
-  it("stages host google and cursor only", async () => {
+  it("stages host google, cursor, and openai only", async () => {
     const filter = extractJqProgram('jq -n --slurpfile host "$HOST_AUTH"');
     const host = writeJson("auth.json", {
       google: { type: "oauth", access: "ya29.REAL", refresh: "rt", expires: 1 },
       cursor: { type: "oauth", access: "eyJ.REAL", refresh: "cr", expires: 9 },
-      openai: { type: "api", key: "sk-leak" },
+      openai: { type: "oauth", access: "sess.REAL", refresh: "rt-openai", expires: 7 },
+      openrouter: { type: "api", key: "sk-leak" },
     });
     const out = (await jq(filter, undefined, [
       "-n",
@@ -170,10 +171,12 @@ describe("sbx-opencode wrapper invariants", () => {
     ])) as {
       google: { access: string };
       cursor: { access: string };
+      openai: { access: string };
     };
-    expect(Object.keys(out).sort()).toEqual(["cursor", "google"]);
+    expect(Object.keys(out).sort()).toEqual(["cursor", "google", "openai"]);
     expect(out.google.access).toBe("ya29.REAL");
     expect(out.cursor.access).toBe("eyJ.REAL");
+    expect(out.openai.access).toBe("sess.REAL");
     expect(JSON.stringify(out)).not.toContain("sk-leak");
   });
 
