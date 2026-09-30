@@ -4,7 +4,7 @@
 
 - **`defaults write` doesn't stick.** Keys in `modules/darwin/defaults.nix` are reasserted on every switch.
 
-- **inferno's right speaker is forced off.** Broken right speaker on this MacBook Air. `hosts/inferno/audio.nix` pans the built-in device left only, while headphones stay stereo. Don't copy to new hosts. Startup chime is muted via NVRAM.
+- **inferno's right speaker is forced off.** Broken right speaker on this MacBook Air. `hosts/inferno/audio.nix` runs a `mute-builtin-right-speaker` C binary via a launchd `KeepAlive` agent that sets CoreAudio StereoPan to full left (`0.0`) on built-in speakers while keeping headphones centered (`0.5`). Startup chime is muted via `system.startup.chime = false`. Don't copy to new hosts.
 
 - **Rollback window is short.** `nixup` keeps 2 generations; GC deletes older than 7d. Use `darwin-rebuild --list-generations` + `--switch-generation N` for older ones.
 
@@ -16,7 +16,7 @@
 
 - **Editor extensions are only ever added.** Removing IDs from `modules/home/editors/vscode/extensions.txt` or Zed's `auto_install_extensions` does not uninstall. Do it in the editor instead.
 
-- **Agent skills and configs are overwritten on switch.** Custom skills live in `modules/home/agents/skills/`; changes made directly in `~/.agents`, `~/.cursor`, or `~/.codex` won't survive.
+- **Agent skills and configs are overwritten on switch.** Custom skills live in `modules/home/agents/skills/`, and third-party skills are allowlisted via `sources` and `skills.enable` in `modules/home/agents/skills.nix`. Changes made directly in any of the six install targets (`agents`, `cursor`, `codex`, `opencode`, `antigravity`, `copilot` across `~/.agents`, `~/.cursor`, `~/.codex`, `~/.config/opencode`, `~/.gemini/antigravity-cli`, and `~/.copilot`) won't survive.
 
 - **Feynman is only partly declarative.** Nix pins the release and manages the wrapper, generated config, and sops-backed environment, but the wrapper copies the program to the writable `~/.config/.feynman/runtime/<version>` on first launch so Feynman can maintain it itself. Use `feynman-update` to refresh the pinned version and hash, review and commit its diff, then run `nixswitch`; old runtime directories are not removed automatically. Browser-cookie access is enabled for web search; remove `allowBrowserCookies` in `modules/home/agents/feynman.nix` if that is not wanted. The optional Antigravity extension needs a one-time manual install: `npm install --global --prefix "$HOME/.config/.feynman/npm-global" @cortexkit/pi-antigravity-auth`.
 

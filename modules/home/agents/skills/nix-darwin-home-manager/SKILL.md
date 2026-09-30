@@ -171,4 +171,19 @@ These exist because the next `nixswitch` will undo the "easy" workaround.
 
 Bootstrap for a **new Mac** is in the repo `README.md` (age key before first switch). Do not re-encode those steps as Nix.
 
-Outside nix (do not try to declare these): DoGitWork, OnVUE, Rosalyn; `gh`/`az` login; LuLu rules; iCloud; Bitwarden/browser profiles; skhd Accessibility permission; Cursor.app / Gemini OAuth.
+Outside nix (do not try to declare these): DoGitWork, OnVUE, Rosalyn; `gh`/`az` login; Bitwarden/browser profiles; Gemini/Copilot OAuth; App Store/iCloud login; Ollama config; JetBrains Settings Sync; LuLu rules; skhd Accessibility permission.
+
+## Sandbox and Feynman
+
+- **`oc`/`oc-clone`** (sandboxed opencode via `sbx-opencode`):
+  - Declared: `modules/home/shell/zsh.nix` (`shellAliases`)
+  - When to use: run OpenCode inside an isolated Docker sandbox (`oc-clone` clones repo into sandbox)
+  - Verify / follow-up: `sbx ls` to check running containers
+- **`sbx-off`** (stop sandboxes + daemon):
+  - Declared: `modules/home/agents/sandbox.nix` (`home.packages`)
+  - When to use: stop all running Docker sandboxes and shut down the `sandboxd` daemon
+  - Verify / follow-up: `sbx daemon status` to confirm daemon is stopped
+- **`feynman-update`** (pin version+hash, review/commit diff, nixswitch):
+  - Declared: `modules/home/agents/feynman.nix` (`home.packages`)
+  - When to use: query GitHub for latest release, pin version and SRI hash in `modules/home/agents/feynman.nix`
+  - Verify / follow-up: review `git diff`, commit the diff, and run `nixswitch`

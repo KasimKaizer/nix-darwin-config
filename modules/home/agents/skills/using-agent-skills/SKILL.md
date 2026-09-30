@@ -5,7 +5,7 @@ description: "Discovers and invokes agent skills. Make sure to use this meta-ski
 
 # Using Agent Skills
 
-This copy is Addy Osmani's `using-agent-skills` (MIT) with a universal multi-agent overlay.
+This local file is the overlay that replaces the intentionally excluded upstream `using-agent-skills` (MIT).
 Upstream: https://github.com/addyosmani/agent-skills/tree/main/skills/using-agent-skills
 
 Specialized domain and task skills:

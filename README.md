@@ -69,12 +69,15 @@ Use on **any** Mac this flake manages. Replace `<hostname>` with your `hosts` ke
 
 Useful aliased commands:
 
-| Command        | Purpose                                       |
-| -------------- | --------------------------------------------- |
-| `nixswitch`    | apply flake for this machine (`…#<hostname>`) |
-| `nixup`        | `nix flake update` + switch + prune to 2 gens |
-| `nix-rollback` | undo last switch                              |
-| `nixgc`        | collect garbage                               |
+| Command          | Purpose                                       |
+| ---------------- | --------------------------------------------- |
+| `nixswitch`      | apply flake for this machine (`…#<hostname>`) |
+| `nixup`          | `nix flake update` + switch + prune to 2 gens |
+| `nix-rollback`   | undo last switch                              |
+| `nixgc`          | collect garbage                               |
+| `oc`/`oc-clone`  | start sandboxed opencode                      |
+| `sbx-off`        | stop sandbox daemon                           |
+| `feynman-update` | refresh pinned Feynman version+hash           |
 
 Useful non-aliased commands:
 
@@ -90,8 +93,8 @@ This flake is organized by concern: `default.nix` files are import lists, one mo
 
 - **Flake entry**: `flake.nix` (inputs, `hosts` registry, `mkDarwin`, formatter) and `flake.lock` (pinned inputs including private vault)
 - **Hosts**: `hosts/<name>/` for per-machine darwin settings (e.g. `audio.nix` for hardware quirks, `default.nix` for host identity)
-- **System**: `modules/darwin/` (`core.nix` for nix/GC/PAM, `defaults.nix` + `defaults/` for macOS defaults, `homebrew.nix` for casks/brews/masApps, `nix-homebrew.nix` for taps, `fonts.nix`, `skhd.nix`)
-- **User**: `modules/home/` (`default.nix` for imports/packages, `shell/` for zsh/starship, `terminal/` for ghostty/zellij, `editors/` for helix/vscode/zed, `tools/` for cli/git/ssh/secrets/exercism/azure, `agents/` for agents, skills and MCPs)
+- **System**: `modules/darwin/` (`core.nix` for nix/GC/PAM/firewall/shells/nixPath/uninstaller, `defaults.nix` + `defaults/` for macOS defaults, `homebrew.nix` for casks/brews/masApps, `nix-homebrew.nix` for taps, `fonts.nix`, `skhd.nix`)
+- **User**: `modules/home/` (`default.nix` for imports/packages, `shell/` for zsh/starship, `terminal/` for ghostty/zellij, `editors/` for helix/vscode/zed, `tools/` for cli/git/ssh/secrets/exercism/azure, `agents/` for skills, MCPs, sandbox, and various agent configs)
 
 Rules of thumb: CLI package → `modules/home/default.nix` (or owning `tools/` module); GUI/MAS app → `modules/darwin/homebrew.nix`; macOS default → `modules/darwin/defaults.nix`.
 
