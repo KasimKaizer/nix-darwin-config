@@ -150,6 +150,33 @@ rec {
         websearch = "allow";
       };
     };
+    mentor = {
+      description = "Socratic coding and tech mentor for step-by-step guidance without solving the problem for the learner. Python first, technical topics on request. Uses Socratic hints, mini-lessons on knowledge gaps, and hands-on tool access.";
+      mode = "all";
+      hidden = false;
+      model = "openai/gpt-6-luna";
+      variant = "max";
+      prompt = builtins.readFile ./opencode/prompts/mentor-gpt.md;
+      tools = allMcpToolsEnabled;
+      permission = {
+        bash = {
+          "*" = "allow";
+        }
+        // minimalDeny
+        // consequentialAsk;
+        task = {
+          "*" = "deny";
+          advisor = "allow";
+          explorer = "allow";
+          researcher = "allow";
+          "worker-deep" = "allow";
+          "worker-quick" = "allow";
+          "worker-ultra" = "allow";
+          "worker-visual" = "allow";
+        };
+        "playwright_*" = "ask";
+      };
+    };
     advisor = {
       description = "Strategic technical advisor for architecture tradeoffs, security audits, and hard debugging. MUST BE USED for complex architecture design, after significant work, after 2+ failed fixes, or for unfamiliar patterns. Provides pragmatic minimalism, one clear path, and effort estimates (Quick/Short/Medium/Large). Read-only consultant.";
       mode = "subagent";
