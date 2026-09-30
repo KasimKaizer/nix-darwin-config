@@ -1,6 +1,7 @@
 { config, ... }:
 {
-  # SSH private key, kept encrypted at rest in secrets/secrets.yaml and
+  # SSH private key, kept encrypted at rest in the private vault
+  # (inputs.nix-secrets/secrets.yaml) and
   # materialized to ~/.ssh/id_ed25519 (0600) at activation. On a fresh machine
   # the key is restored purely from sops + the age key — nothing plaintext.
   sops.secrets."ssh_id_ed25519" = {
