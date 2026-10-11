@@ -86,9 +86,9 @@ rec {
     builder = {
       description = "Primary orchestrator and lead builder for implementing code, fixing bugs, delegating to specialists, and verifying changes.";
       mode = "primary";
-      model = "opencode/muse-spark-1.3-contributor-free";
-      variant = "xhigh";
-      prompt = builtins.readFile ./opencode/prompts/alt/builder-claude.md;
+      model = "cursor/grok-4.7";
+      variant = "high";
+      prompt = builtins.readFile ./opencode/prompts/builder-grok.md;
       tools = allMcpToolsEnabled;
       permission = {
         bash = {
@@ -114,7 +114,7 @@ rec {
     planner = {
       description = "Explores requirements, performs gap analysis, and writes durable decision-complete work plans under docs/plans/ without modifying product code. MUST BE USED for any multi-step, ambiguous, or architecture-scale task before implementation. Grounds in codebase, asks only genuine owner-decisions, researchs to best practice when fuzzy, waits for explicit approval, then writes one plan workers execute with zero interview.";
       mode = "all";
-      model = "opencode/muse-spark-1.3-contributor-free";
+      model = "cursor/grok-4.7";
       variant = "xhigh";
       prompt = builtins.readFile ./opencode/prompts/planner.md;
       tools =
@@ -154,8 +154,8 @@ rec {
       description = "Socratic coding and tech mentor for step-by-step guidance without solving the problem for the learner. Python first, technical topics on request. Uses Socratic hints, mini-lessons on knowledge gaps, and hands-on tool access.";
       mode = "all";
       hidden = false;
-      model = "openai/gpt-6-luna";
-      variant = "max";
+      model = "cursor/grok-4.7";
+      variant = "high";
       prompt = builtins.readFile ./opencode/prompts/mentor-gpt.md;
       tools = allMcpToolsEnabled;
       permission = {
@@ -181,9 +181,9 @@ rec {
       description = "Strategic technical advisor for architecture tradeoffs, security audits, and hard debugging. MUST BE USED for complex architecture design, after significant work, after 2+ failed fixes, or for unfamiliar patterns. Provides pragmatic minimalism, one clear path, and effort estimates (Quick/Short/Medium/Large). Read-only consultant.";
       mode = "subagent";
       hidden = true;
-      # OpenCode Zen free. Rare read-only consults. Fallback: google/antigravity-claude-opus-4-6-thinking
-      model = "opencode/muse-spark-1.3-contributor-free";
-      variant = "xhigh";
+      # Cursor Other Models. Rare read-only consults. Fallback: google/antigravity-claude-opus-4-6-thinking
+      model = "cursor/claude-opus-5-5";
+      variant = "high";
       prompt = builtins.readFile ./opencode/prompts/advisor-claude.md;
       tools =
         (mcpToolAccess true [
@@ -238,9 +238,8 @@ rec {
       description = "Adversarial plan reviewer for executable work plans. MUST BE USED for high-accuracy review of docs/plans/*.md. Verifies references exist, tasks have executable QA scenarios, and no blocking contradictions. Returns OKAY or REJECT with max 3 blockers. Read-only, blocker-finder not perfectionist.";
       mode = "subagent";
       hidden = true;
-      # OpenCode Zen free, infrequent. Different lab from Muse Spark planner. Fallback: google/antigravity-claude-sonnet-4-6-thinking
-      model = "opencode/muse-spark-1.3-contributor-free";
-      variant = "xhigh";
+      model = "openai/gpt-6.1-sol";
+      variant = "high";
       prompt = builtins.readFile ./opencode/prompts/reviewer-gpt.md;
       tools =
         (mcpToolAccess true [
@@ -298,9 +297,9 @@ rec {
       description = "Autonomous deep task executor for multi-file features, cross-module reasoning, and deep debugging. MUST BE USED for complex features spanning multiple files, architectural changes, and tasks requiring extensive codebase understanding.";
       mode = "subagent";
       hidden = true;
-      model = "opencode/muse-spark-1.3-contributor-free";
-      variant = "xhigh";
-      prompt = builtins.readFile ./opencode/prompts/alt/worker-deep-claude.md;
+      model = "cursor/grok-4.7";
+      variant = "high";
+      prompt = builtins.readFile ./opencode/prompts/worker-deep-grok.md;
       tools = allMcpToolsEnabled;
       permission = {
         bash = {
@@ -316,9 +315,9 @@ rec {
       description = "Visual engineering specialist for UI/UX, CSS, styling, layouts, animations, and frontend components. MUST BE USED for any task involving interfaces, design systems, responsive layouts, browser rendering, or Playwright visual QA.";
       mode = "subagent";
       hidden = true;
-      model = "google/antigravity-gemini-3.8-flash";
+      model = "cursor/claude-sonnet-5-5";
       variant = "high";
-      prompt = builtins.readFile ./opencode/prompts/worker-visual-gemini.md;
+      prompt = builtins.readFile ./opencode/prompts/alt/worker-visual-claude.md;
       tools = allMcpToolsEnabled;
       permission = {
         bash = {
@@ -334,9 +333,9 @@ rec {
       description = "Deep reasoning specialist for complex algorithms, intricate state machines, concurrency, and high-stakes logic. MUST BE USED for the single hardest cohesive problem in a plan requiring heavy reasoning and architectural insight. Preserves shared insight by not splitting.";
       mode = "subagent";
       hidden = true;
-      # OpenCode Zen free. Single hardest problem only. Fallback: google/antigravity-claude-opus-4-6-thinking
-      model = "opencode/muse-spark-1.3-contributor-free";
-      variant = "xhigh";
+      # Cursor Other Models. Single hardest problem only. Fallback: google/antigravity-claude-opus-4-6-thinking or cursor/grok-4.7
+      model = "cursor/claude-opus-5-5";
+      variant = "high";
       prompt = builtins.readFile ./opencode/prompts/worker-ultra-claude.md;
       tools = allMcpToolsEnabled;
       permission = {
@@ -353,9 +352,9 @@ rec {
       description = "Fast mechanical worker for single-file edits, typos, trivial configs, and minor chores. MUST BE USED for quick, isolated mechanical changes, formatting, and git ops. Prefers many small parallel tasks.";
       mode = "subagent";
       hidden = true;
-      model = "google/antigravity-gemini-3.8-flash";
-      variant = "high";
-      prompt = builtins.readFile ./opencode/prompts/worker-quick-gemini.md;
+      model = "openai/gpt-6-luna";
+      variant = "max";
+      prompt = builtins.readFile ./opencode/prompts/alt/worker-quick-gpt.md;
       tools = allMcpToolsEnabled;
       permission = {
         bash = {
