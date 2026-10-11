@@ -26,7 +26,7 @@
       # "kindle-previewer"
       "lulu"
       "mullvad-browser"
-      "ollama-app"
+      # "ollama-app"
       "spotify"
       "utm"
       "visual-studio-code"
