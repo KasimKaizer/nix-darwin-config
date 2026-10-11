@@ -122,14 +122,6 @@ let
       mcpServers
       ;
   };
-  sandboxConfig = import ./sandbox.nix {
-    inherit
-      homeDirectory
-      lib
-      mcpServers
-      pkgs
-      ;
-  };
   feynmanConfig = import ./feynman.nix {
     inherit
       config
@@ -142,7 +134,6 @@ in
 {
   imports = [
     cursorConfig
-    sandboxConfig
     feynmanConfig
   ];
 

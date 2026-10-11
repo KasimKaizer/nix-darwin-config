@@ -134,7 +134,6 @@ describe("recovery (hooks 4-9)", () => {
         "websearch",
         "custom_websearch",
         "google_search",
-        "mcp-gateway_read_file",
       ]) {
         const out = { output: "invalid json in file contents" };
         await hooks["tool.execute.after"]({ tool, sessionID: "s1", callID: "c1" }, out);
@@ -142,13 +141,11 @@ describe("recovery (hooks 4-9)", () => {
       }
     });
 
-    it("ignores sandbox gateway built-in tools", async () => {
+    it("ignores code-mode output", async () => {
       const hooks = await plugin.server(mockCtx, {});
-      for (const tool of ["mcp-exec", "code-mode", "mcp-find", "mcp-add", "mcp-config-set"]) {
-        const out = { output: "invalid json in tool listing" };
-        await hooks["tool.execute.after"]({ tool, sessionID: "s1", callID: "c1" }, out);
-        expect(out.output).not.toContain(JSON_ERROR_REMINDER);
-      }
+      const out = { output: "invalid json in tool listing" };
+      await hooks["tool.execute.after"]({ tool: "code-mode", sessionID: "s1", callID: "c1" }, out);
+      expect(out.output).not.toContain(JSON_ERROR_REMINDER);
     });
 
     it("is case-insensitive on tool names", async () => {

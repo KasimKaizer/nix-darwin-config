@@ -251,9 +251,9 @@ describe("agent-usage-reminder (C4a)", () => {
     recordSessionAgent("s-builder-research-third", "builder");
 
     const tools = [
-      "mcp-gateway_web_search_exa",
-      "mcp-gateway_query-docs",
-      "mcp-gateway_searchGitHub",
+      "exa_web_search_exa",
+      "context7_query-docs",
+      "grep_app_searchGitHub",
     ];
     for (const [index, tool] of tools.entries()) {
       const out = { output: `output for ${tool}` };
@@ -264,37 +264,6 @@ describe("agent-usage-reminder (C4a)", () => {
       if (index === 2) {
         expect(out.output).toContain(RESEARCHER_USAGE_REMINDER_MARKER);
         expect(out.output).toContain('Researcher: task(subagent_type="researcher"');
-        expect(out.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
-      } else {
-        expect(out.output).not.toContain(RESEARCHER_USAGE_REMINDER_MARKER);
-        expect(out.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
-      }
-    }
-  });
-
-  it("treats CallDynamicTool namespace+toolName research calls as the inner search tool", async () => {
-    const hook = createAgentUsageReminderHook();
-    recordSessionAgent("s-builder-dynamic", "builder");
-
-    const calls = [
-      { namespace: "mcp-gateway", toolName: "web_search_exa" },
-      { namespace: "mcp-gateway", toolName: "query-docs" },
-      { namespace: "mcp-gateway", toolName: "google_search" },
-    ];
-
-    for (const [index, args] of calls.entries()) {
-      const out = { output: `dynamic ${index}` };
-      await hook["tool.execute.after"](
-        {
-          tool: "CallDynamicTool",
-          sessionID: "s-builder-dynamic",
-          callID: `c${index}`,
-          args,
-        },
-        out
-      );
-      if (index === 2) {
-        expect(out.output).toContain(RESEARCHER_USAGE_REMINDER_MARKER);
         expect(out.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
       } else {
         expect(out.output).not.toContain(RESEARCHER_USAGE_REMINDER_MARKER);
@@ -331,18 +300,18 @@ describe("agent-usage-reminder (C4a)", () => {
     expect(third.output).toBe("searchGitHub");
   });
 
-  it("ignores mcp-gateway browser and other non-research gateway tools", async () => {
+  it("ignores non-research MCP tools", async () => {
     const hook = createAgentUsageReminderHook();
-    recordSessionAgent("s-builder-gateway-noise", "builder");
+    recordSessionAgent("s-builder-non-research-tools", "builder");
 
     for (const tool of [
-      "mcp-gateway_browser_click",
-      "mcp-gateway_browser_navigate",
-      "mcp-gateway_nix",
+      "playwright_browser_click",
+      "playwright_browser_navigate",
+      "nix_nix",
     ]) {
       const out = { output: tool };
       await hook["tool.execute.after"](
-        { tool, sessionID: "s-builder-gateway-noise", callID: tool },
+        { tool, sessionID: "s-builder-non-research-tools", callID: tool },
         out
       );
       expect(out.output).toBe(tool);
@@ -700,9 +669,9 @@ describe("agent-usage-reminder (C4a)", () => {
     }
 
     const tools = [
-      "mcp-gateway_web_search_exa",
-      "mcp-gateway_query-docs",
-      "mcp-gateway_searchGitHub",
+      "exa_web_search_exa",
+      "context7_query-docs",
+      "grep_app_searchGitHub",
     ];
     for (const [index, tool] of tools.entries()) {
       const out = { output: `research ${index}` };
@@ -726,9 +695,9 @@ describe("agent-usage-reminder (C4a)", () => {
     const sessionID = "s-builder-mcp-transform";
     const messageID = "msg-mcp-1";
     const tools = [
-      "mcp-gateway_web_search_exa",
-      "mcp-gateway_query-docs",
-      "mcp-gateway_searchGitHub",
+      "exa_web_search_exa",
+      "context7_query-docs",
+      "grep_app_searchGitHub",
     ];
     const toolParts = tools.map((tool, index) => ({
       type: "tool",

@@ -173,16 +173,8 @@ Bootstrap for a **new Mac** is in the repo `README.md` (age key before first swi
 
 Outside nix (do not try to declare these): DoGitWork, OnVUE, Rosalyn; `gh`/`az` login; Bitwarden/browser profiles; Gemini/Copilot OAuth; App Store/iCloud login; Ollama config; JetBrains Settings Sync; LuLu rules; skhd Accessibility permission.
 
-## Sandbox and Feynman
+## Feynman
 
-- **`oc`/`oc-clone`** (sandboxed opencode via `sbx-opencode`):
-  - Declared: `modules/home/shell/zsh.nix` (`shellAliases`)
-  - When to use: run OpenCode inside an isolated Docker sandbox (`oc-clone` clones repo into sandbox)
-  - Verify / follow-up: `sbx ls` to check running containers
-- **`sbx-off`** (stop sandboxes + daemon):
-  - Declared: `modules/home/agents/sandbox.nix` (`home.packages`)
-  - When to use: stop all running Docker sandboxes and shut down the `sandboxd` daemon
-  - Verify / follow-up: `sbx daemon status` to confirm daemon is stopped
 - **`feynman-update`** (pin version+hash, review/commit diff, nixswitch):
   - Declared: `modules/home/agents/feynman.nix` (`home.packages`)
   - When to use: query GitHub for latest release, pin version and SRI hash in `modules/home/agents/feynman.nix`

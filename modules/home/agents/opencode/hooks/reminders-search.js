@@ -3,7 +3,6 @@ import { shouldRunAgentUsageReminder } from "./guards.js";
 const IMMEDIATE_SEARCH_TOOLS = new Set(["grep", "glob", "webfetch"]);
 const IMMEDIATE_SEARCH_PREFIXES = ["codegraph_"];
 const RESEARCH_SERVER_PREFIXES = ["exa_", "context7_", "grep_app_", "github_"];
-const DYNAMIC_WRAPPERS = new Set(["calldynamictool", "call_dynamic_tool"]);
 const RESEARCH_NAME_FRAGMENTS = [
   "web_search",
   "websearch",
@@ -18,26 +17,6 @@ const RESEARCH_NAME_FRAGMENTS = [
 ];
 
 export const RESEARCH_SEARCH_STREAK = 3;
-
-function readArg(args, key) {
-  if (!args || typeof args !== "object" || Array.isArray(args)) return "";
-  const value = args[key];
-  return typeof value === "string" ? value.toLowerCase() : "";
-}
-
-export function resolveSearchToolName(input, output) {
-  const tool = typeof input?.tool === "string" ? input.tool.toLowerCase() : "";
-  if (!tool) return "";
-
-  const args = output?.args ?? input?.args;
-  if (!DYNAMIC_WRAPPERS.has(tool)) return tool;
-
-  const namespace = readArg(args, "namespace") || readArg(args, "server");
-  const inner =
-    readArg(args, "toolName") || readArg(args, "tool_name") || readArg(args, "name");
-  if (!inner) return tool;
-  return namespace ? `${namespace}_${inner}` : inner;
-}
 
 export function isImmediateSearchTool(toolName) {
   return (
@@ -91,9 +70,7 @@ function appendReminder(state, output, countKey, message, marker) {
 
 function toolNameFromPart(part) {
   if (!part || part.type !== "tool") return "";
-  const tool = typeof part.tool === "string" ? part.tool : "";
-  const args = part.state?.input ?? part.state?.args ?? part.args;
-  return resolveSearchToolName({ tool, args }, { args });
+  return typeof part.tool === "string" ? part.tool.toLowerCase() : "";
 }
 
 function partHasMarker(part, marker) {
@@ -143,7 +120,7 @@ export function createAgentUsageReminderHook() {
       if (typeof input?.tool !== "string") return;
 
       const toolLower = input.tool.toLowerCase();
-      const searchName = resolveSearchToolName(input, output);
+      const searchName = input.tool.toLowerCase();
 
       if (toolLower === "task") {
         const state = getOrCreateState(input.sessionID);

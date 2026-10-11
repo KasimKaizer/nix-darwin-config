@@ -191,10 +191,6 @@ export const JSON_ERROR_TOOL_EXCLUDE_LIST = new Set([
   "code-mode",
   "glob",
   "grep",
-  "mcp-add",
-  "mcp-config-set",
-  "mcp-exec",
-  "mcp-find",
   "read",
   "skill",
   "task",
@@ -205,10 +201,8 @@ export const JSON_ERROR_TOOL_EXCLUDE_LIST = new Set([
 
 // Namespaces whose tools return data (docs, code, search results, page
 // text): a JSON-error string in them is content, not a failed call.
-// OpenCode registers MCP tools with the server name as prefix
-// (https://opencode.ai/docs/mcp-servers), hyphens preserved, so the sandbox
-// gateway (server key "mcp-gateway" in sandbox.nix) yields "mcp-gateway_*".
-// Extend when a new data-source server is added to agents.nix mcpServers.
+// OpenCode prefixes MCP tools with the server name; extend this list when a
+// data-source server is added to agents.nix mcpServers.
 export const JSON_ERROR_NAMESPACE_EXCLUDE_PREFIXES = [
   "codegraph_",
   "context7_",
@@ -217,7 +211,6 @@ export const JSON_ERROR_NAMESPACE_EXCLUDE_PREFIXES = [
   "github_",
   "google_search",
   "grep_app_",
-  "mcp-gateway_",
   "nix_",
   "playwright_",
   "sequential-thinking_",
