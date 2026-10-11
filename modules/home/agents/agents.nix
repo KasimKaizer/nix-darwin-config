@@ -158,12 +158,11 @@ in
       "${homeDirectory}/.copilot"
   '';
 
-  sops.templates = opencode.templates;
-
-  home.file = {
-    ".codex/config.toml" = {
-      force = true;
-      text = ''
+  sops.templates = opencode.templates // {
+    "codex-config.toml" = {
+      path = "${homeDirectory}/.codex/config.toml";
+      mode = "0600";
+      content = ''
         plan_mode_reasoning_effort = "xhigh"
         model = "gpt-5.6-terra"
         model_reasoning_effort = "xhigh"
@@ -175,6 +174,9 @@ in
         ${codexMcpServers}
       '';
     };
+  };
+
+  home.file = {
     ".gemini/config/mcp_config.json" = {
       force = true;
       text = builtins.toJSON {
