@@ -17,9 +17,12 @@ let
 in
 {
   home.file = {
+    ".cursor/agents/explorer.md".source = ./cursor/explorer.mdc;
+    ".cursor/agents/implementer.md".source = ./cursor/implementer.mdc;
     ".cursor/agents/planner.md".source = ./cursor/planner.mdc;
     ".cursor/agents/researcher.md".source = ./cursor/researcher.mdc;
     ".cursor/agents/reviewer.md".source = ./cursor/reviewer.mdc;
+    ".cursor/agents/verifier.md".source = ./cursor/verifier.mdc;
 
     # Cursor CLI has its own permission system. Auto-review evaluates commands
     # outside this routine allowlist and requests confirmation for risky work.
@@ -100,7 +103,7 @@ in
       };
       approvalMode = "auto-review";
       sandbox = {
-        mode = "disabled";
+        mode = "enabled";
         networkAccess = "user_config_with_defaults";
       };
       runEverythingSettingsPromptStreak = 0;
