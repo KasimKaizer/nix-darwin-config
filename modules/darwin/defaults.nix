@@ -49,7 +49,6 @@ in
       NSDocumentSaveNewDocumentsToCloud = true;
       NSNavPanelExpandedStateForSaveMode = true;
       NSNavPanelExpandedStateForSaveMode2 = true;
-      NSWindowResizeTime = 0.001;
       "com.apple.sound.beep.feedback" = 0;
       "com.apple.swipescrolldirection" = true;
     };
@@ -149,8 +148,6 @@ in
       TrackpadTwoFingerFromRightEdgeSwipeGesture = 3;
     };
 
-    universalaccess.reduceMotion = true;
-
     # Window tiling (Sequoia+).
     #   Fn+Ctrl+←/→/↑/↓  tile to half
     #   Fn+Ctrl+F          fill screen
@@ -170,12 +167,6 @@ in
       StageManagerHideWidgets = false;
       StandardHideDesktopIcons = false;
       StandardHideWidgets = false;
-    };
-
-    CustomSystemPreferences = {
-      "com.apple.Accessibility" = {
-        ReduceMotionEnabled = 1;
-      };
     };
 
     CustomUserPreferences = {
