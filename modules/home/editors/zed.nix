@@ -110,7 +110,10 @@ in
     ruff
     python3Packages.pytest
     python3Packages.pytest-cov
-    python3Packages.debugpy
+    (python3Packages.debugpy.overridePythonAttrs (previousAttrs: {
+      # Nixpkgs uses an absolute LLDB path, but this test expects bare `lldb`.
+      disabledTests = (previousAttrs.disabledTests or [ ]) ++ [ "test_lldb_command" ];
+    }))
     # Nix
     nixd
     nixfmt
