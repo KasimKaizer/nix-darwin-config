@@ -48,6 +48,7 @@ let
     lib.replaceStrings
       [
         "@ZED_DIR@"
+        "@CODEX@"
         "@NIX_MCP_SERVER@"
         "@SERENA_MCP_SERVER@"
         "@PLAYWRIGHT_MCP_SERVER@"
@@ -56,6 +57,7 @@ let
       ]
       [
         zedDir
+        (lib.getExe pkgs.codex)
         "${pkgs.mcp-nixos}/bin/mcp-nixos"
         (toString serenaMcpServer)
         (toString playwrightMcpServer)
