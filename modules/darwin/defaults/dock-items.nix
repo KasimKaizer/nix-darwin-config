@@ -19,6 +19,7 @@
 
     # Editors & terminal
     "/Applications/Ghostty.app"
+    "/Applications/Rex Beta.app"
     "/Applications/Zed.app"
     "/Applications/Visual Studio Code.app"
 
