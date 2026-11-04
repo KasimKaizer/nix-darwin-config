@@ -12,7 +12,7 @@ let
         type = "remote";
         inherit (server) url headers;
         enabled = true;
-        oauth = false;
+        oauth = server.oauth or false;
       }
     else
       {
@@ -66,6 +66,7 @@ let
     researcher = "allow";
   };
   hooksPlugin = ./opencode/hooks;
+  antigravityPlugin = "@cortexkit/opencode-antigravity-auth@3.0.29";
 in
 rec {
   inherit
@@ -87,7 +88,7 @@ rec {
       description = "Primary orchestrator and lead builder for implementing code, fixing bugs, delegating to specialists, and verifying changes.";
       mode = "primary";
       model = "cursor/grok-4.7";
-      variant = "high";
+      variant = "Grok 4.7 High";
       prompt = builtins.readFile ./opencode/prompts/builder-grok.md;
       tools = allMcpToolsEnabled;
       permission = {
@@ -115,7 +116,7 @@ rec {
       description = "Explores requirements, performs gap analysis, and writes durable decision-complete work plans under docs/plans/ without modifying product code. MUST BE USED for any multi-step, ambiguous, or architecture-scale task before implementation. Grounds in codebase, asks only genuine owner-decisions, researchs to best practice when fuzzy, waits for explicit approval, then writes one plan workers execute with zero interview.";
       mode = "all";
       model = "cursor/grok-4.7";
-      variant = "xhigh";
+      variant = "Grok 4.7 Extra High";
       prompt = builtins.readFile ./opencode/prompts/planner.md;
       tools =
         (mcpToolAccess true [
@@ -155,7 +156,7 @@ rec {
       mode = "all";
       hidden = false;
       model = "cursor/grok-4.7";
-      variant = "high";
+      variant = "Grok 4.7 High";
       prompt = builtins.readFile ./opencode/prompts/mentor-gpt.md;
       tools = allMcpToolsEnabled;
       permission = {
@@ -183,7 +184,7 @@ rec {
       hidden = true;
       # Cursor Other Models. Rare read-only consults. Fallback: google/antigravity-claude-opus-4-6-thinking
       model = "cursor/claude-opus-5-5";
-      variant = "high";
+      variant = "Claude Opus 5.5 High";
       prompt = builtins.readFile ./opencode/prompts/advisor-claude.md;
       tools =
         (mcpToolAccess true [
@@ -298,7 +299,7 @@ rec {
       mode = "subagent";
       hidden = true;
       model = "cursor/grok-4.7";
-      variant = "high";
+      variant = "Grok 4.7 High";
       prompt = builtins.readFile ./opencode/prompts/worker-deep-grok.md;
       tools = allMcpToolsEnabled;
       permission = {
@@ -316,7 +317,7 @@ rec {
       mode = "subagent";
       hidden = true;
       model = "cursor/claude-sonnet-5-5";
-      variant = "high";
+      variant = "Claude Sonnet 5.5 High";
       prompt = builtins.readFile ./opencode/prompts/alt/worker-visual-claude.md;
       tools = allMcpToolsEnabled;
       permission = {
@@ -335,7 +336,7 @@ rec {
       hidden = true;
       # Cursor Other Models. Single hardest problem only. Fallback: google/antigravity-claude-opus-4-6-thinking or cursor/grok-4.7
       model = "cursor/claude-opus-5-5";
-      variant = "high";
+      variant = "Claude Opus 5.5 High";
       prompt = builtins.readFile ./opencode/prompts/worker-ultra-claude.md;
       tools = allMcpToolsEnabled;
       permission = {
@@ -375,18 +376,16 @@ rec {
         "$schema" = "https://opencode.ai/config.json";
         default_agent = "builder";
         lsp = true;
-        subagent_depth = 2;
-        plugin = [
-          "cursor-opencode-provider"
-          "@cortexkit/opencode-antigravity-auth@latest"
+        experimental = {
+          subagent_depth = 2;
+          todo = true;
+        };
+        plugins = [
+          "cursor-opencode-provider@0.8.5"
+          antigravityPlugin
           "${hooksPlugin}"
         ];
         provider = {
-          cursor = {
-            npm = "cursor-opencode-provider";
-            name = "Cursor";
-            models = { };
-          };
           openrouter.options.apiKey = config.sops.placeholder.openrouter_api_key;
         };
         mcp = lib.mapAttrs toOpenCode mcpServers;
@@ -394,10 +393,10 @@ rec {
         inherit agent;
       };
     };
-    "opencode-tui.json" = {
-      path = "${homeDirectory}/.config/opencode/tui.json";
+    "opencode-cli.json" = {
+      path = "${homeDirectory}/.config/opencode/cli.json";
       mode = "0600";
-      content = builtins.toJSON { plugin = [ "@cortexkit/opencode-antigravity-auth" ]; };
+      content = builtins.toJSON { plugins = lib.lists.singleton antigravityPlugin; };
     };
   };
   # Plain (non-secret) opencode files, merged into home.file by agents.nix.

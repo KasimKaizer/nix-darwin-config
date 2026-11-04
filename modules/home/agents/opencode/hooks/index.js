@@ -65,8 +65,97 @@ export {
   TODOWRITE_DESCRIPTION,
 };
 
-export default {
+const plugin = {
   id: "opencode-hooks",
+  setup: async (ctx) => {
+    const hooks = await plugin.server({ directory: ctx.location.directory, storage: ctx.storage, native: true });
+    // Keep the policy hooks independent of the v2 transport. Native names and
+    // payloads are translated only here (v2.2.5 promise/tool.ts and session.ts).
+    const inputFor = (event) => ({
+      ...event,
+      nativeTool: event.tool,
+      tool: ({ subagent: "task", shell: "bash" })[event.tool] ?? event.tool,
+      callID: event.id,
+      args: event.input,
+    });
+    await ctx.tool.hook("execute.before", async (event) => {
+      recordSessionAgent(event.sessionID, event.agent);
+      // Snapshot only successful todo writes in execute.after.
+      if (event.tool === "todowrite") return;
+      await hooks["tool.execute.before"](inputFor(event), { args: event.input });
+    });
+    await ctx.tool.hook("execute.after", async (event) => {
+      recordSessionAgent(event.sessionID, event.agent);
+      const input = inputFor(event);
+      if (event.status === "error") {
+        const output = { output: `Error: ${event.error.message}` };
+        await hooks["tool.execute.after"](input, output);
+        event.error.message = output.output.replace(/^Error: /, "");
+        return;
+      }
+      if (event.tool === "todowrite") {
+        await hooks["tool.execute.before"](input, { args: event.input });
+        await ctx.storage.set(`todos:${event.sessionID}`, event.result.output.todos);
+      }
+      const content = event.result.content;
+      const text = typeof content === "string" ? content : (content ?? [])
+        .filter((part) => part.type === "text").map((part) => part.text).join("\n");
+      const output = { output: text, metadata: event.result.metadata };
+      await hooks["tool.execute.after"](input, output);
+      if (output.output === text) return;
+      // Never replace structured output or discard file/image attachments.
+      event.result.content = [
+        { type: "text", text: output.output },
+        ...(Array.isArray(content) ? content.filter((part) => part.type !== "text") : []),
+      ];
+    });
+    await ctx.session.hook("context", async (event) => {
+      recordSessionAgent(event.sessionID, event.agent);
+      if (event.tools.todowrite) event.tools.todowrite.description = TODOWRITE_DESCRIPTION;
+      // The existing reminder policies inspect legacy message parts. Project
+      // native LLM content into that view, then copy back only injected text.
+      const messages = event.messages.map((message, index) => ({
+        info: { id: message.id ?? `context-${index}`, sessionID: event.sessionID },
+        parts: message.content.map((part) => {
+          if (part.type === "tool-call") return { type: "tool", tool: part.name };
+          if (part.type === "tool-result") {
+            const value = part.result.value;
+            const text = part.result.type === "content"
+              ? value.filter((item) => item.type === "text").map((item) => item.text).join("\n")
+              : typeof value === "string" ? value : "";
+            return { type: "tool-result", state: { output: text } };
+          }
+          return part;
+        }),
+      }));
+      await hooks["experimental.chat.messages.transform"]({}, { messages });
+      messages.forEach((message, index) => {
+        const additions = message.parts.filter((part) => part.synthetic);
+        if (additions.length === 0) return;
+        const target = event.messages[index].content;
+        const at = target.findLastIndex((part) => part.type === "text");
+        target.splice(at === -1 ? target.length : at, 0,
+          ...additions.map((part) => ({ type: "text", text: part.text })));
+      });
+    });
+    await ctx.session.hook("compaction", async (event) => {
+      const output = { context: [] };
+      await hooks["experimental.session.compacting"]({ sessionID: event.sessionID }, output);
+      event.system.push(...output.context.map((text) => ({ type: "text", text })));
+    });
+    const controller = new AbortController();
+    let eventFailure;
+    const events = (async () => {
+      for await (const event of ctx.event.subscribe({ types: ["session.deleted"], signal: controller.signal })) {
+        await hooks.event({ event: { type: event.type, properties: { id: event.data.sessionID } } });
+      }
+    })().catch((error) => { if (!controller.signal.aborted) eventFailure = error; });
+    return async () => {
+      controller.abort();
+      await events;
+      if (eventFailure !== undefined) throw eventFailure;
+    };
+  },
   server: async (ctx) => {
     const todoDescriptionOverride = createTodoDescriptionOverrideHook();
     const notepadWriteGuard = createNotepadWriteGuardHook();
@@ -103,6 +192,12 @@ export default {
       },
 
       "tool.execute.after": async (input, output) => {
+        if (input.status === "error") {
+          await editErrorRecovery["tool.execute.after"](input, output);
+          await jsonErrorRecovery["tool.execute.after"](input, output);
+          await webfetchRedirectGuard["tool.execute.after"](input, output);
+          return;
+        }
         await bashFileReadGuard["tool.execute.after"](input, output);
         await editErrorRecovery["tool.execute.after"](input, output);
         await jsonErrorRecovery["tool.execute.after"](input, output);
@@ -147,3 +242,5 @@ export default {
     };
   },
 };
+
+export default plugin;

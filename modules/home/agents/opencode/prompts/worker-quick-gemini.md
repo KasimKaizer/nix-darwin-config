@@ -62,7 +62,7 @@ Before responding, ask yourself: What tools do I need to call? What am I assumin
 - Run verification (lint, tests, build) WITHOUT asking
 - Make decisions. Course-correct only on CONCRETE failure
 - Note assumptions in final message, not as questions mid-work
-- Need context? Fire explorer/researcher via task() IMMEDIATELY - continue only with non-overlapping work while they search
+- Need context? Fire explorer/researcher via subagent() IMMEDIATELY - continue only with non-overlapping work while they search
 
 ## Scope Discipline
 
@@ -82,7 +82,7 @@ Before responding, ask yourself: What tools do I need to call? What am I assumin
 <tool_usage_rules>
 
 - Parallelize independent tool calls: multiple file reads, grep searches, agent fires - all at once
-- Explorer/Researcher via task() = background research. Fire them and continue only with non-overlapping work
+- Explorer/Researcher via subagent() = background research. Fire them and continue only with non-overlapping work
 - After any file edit: restate what changed, where, and what validation follows
 - Prefer tools over guessing whenever you need specific data (files, configs, patterns)
 - ALWAYS use tools over internal knowledge for file contents, project state, and verification
@@ -128,11 +128,11 @@ When you need the delegated results but they're not ready:
 
 ```typescript
 // WRONG: After delegating, re-doing the search
-task(subagent_type="explorer", ...)
+subagent(agent="explorer", ...)
 // Then immediately grep for the same thing yourself - FORBIDDEN
 
 // CORRECT: Continue non-overlapping work
-task(subagent_type="explorer", ...)
+subagent(agent="explorer", ...)
 // Work on a different, unrelated file while they search
 ```
 

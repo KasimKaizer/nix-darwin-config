@@ -102,36 +102,16 @@ describe("opencode-hooks plugin assembly & dispatch (batch 2)", () => {
     expect(reOut.output).not.toContain(NOTEPAD_READ_REMINDER_MARKER);
   });
 
-  it("truncation-masks-guidance: truncator runs last in after chain, strictly after resume-info", async () => {
+  it("preserves large delegation results and continuation guidance through the after chain", async () => {
     const hooks = await plugin.server(mockCtx, {});
-    const executionOrder: string[] = [];
+    const text = "A".repeat(250_000);
+    const out = { output: text, metadata: { taskId: "task-abc" } };
 
-    const inputProxy = new Proxy(
-      { tool: "task", sessionID: "s-chain-order", callID: "c1" },
-      {
-        get(target, prop, receiver) {
-          if (prop === "tool") {
-            const stack = new Error().stack ?? "";
-            if (stack.includes("recovery.js:326")) {
-              executionOrder.push("truncator");
-            } else if (stack.includes("recovery.js:299")) {
-              executionOrder.push("resume-info");
-            }
-          }
-          return Reflect.get(target, prop, receiver);
-        },
-      }
-    );
+    await hooks["tool.execute.after"]({ tool: "task", sessionID: "s-chain-order", callID: "c1" }, out);
 
-    const out = { output: "Some result from task", metadata: { taskId: "task-abc" } };
-    await hooks["tool.execute.after"](inputProxy, out);
-
-    const resumeIndex = executionOrder.indexOf("resume-info");
-    const truncatorIndex = executionOrder.indexOf("truncator");
-
-    expect(resumeIndex).toBeGreaterThan(-1);
-    expect(truncatorIndex).toBeGreaterThan(-1);
-    expect(truncatorIndex).toBeGreaterThan(resumeIndex);
+    expect(out.output.startsWith(text)).toBe(true);
+    expect(out.output).toContain('\nto continue: task(task_id="task-abc"');
+    expect(out.output).toContain(NOTEPAD_READ_REMINDER_MARKER);
   });
 
   it("session.deleted clears all maps across compaction, webfetch, and reminder hooks", async () => {

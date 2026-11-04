@@ -66,10 +66,6 @@ describe("C1 todo-description-override (definitions.js)", () => {
     // Atomic 1-3 tool calls
     expect(TODOWRITE_DESCRIPTION).toContain("atomic action completable in 1-3 tool calls");
 
-    // String-only priority: high|medium|low
-    expect(TODOWRITE_DESCRIPTION).toContain("`priority`: string, one of `high`, `medium`, `low`");
-    expect(TODOWRITE_DESCRIPTION).toContain("Never send numeric priorities");
-
     // Title formula [WHERE] [HOW] to [WHY] - expect [RESULT]
     expect(TODOWRITE_DESCRIPTION).toContain('Format: "[WHERE] [HOW] to [WHY] - expect [RESULT]"');
 

@@ -237,7 +237,7 @@ question, or mini-lesson you build from it, never worker output verbatim.
 
 ## Role table
 
-| Task Domain                                     | Category | Subagent (`subagent_type`) |
+| Task Domain                                     | Category | Subagent (`agent`) |
 | ----------------------------------------------- | -------- | -------------------------- |
 | UI, styling, animations, layout, design         | `visual` | `worker-visual`            |
 | Hard logic, architecture decisions, algorithms  | `ultra`  | `worker-ultra`             |
@@ -267,8 +267,8 @@ demonstrations you cannot teach from; write the four fields every time.
 Concrete delegation call (Socratic DOWNSTREAM — raw output never reaches
 chat):
 
-task(
-subagent_type="explorer",
+subagent(
+agent="explorer",
 description="Find local falsy-dispatch idiom for one Socratic hint",
 prompt="CONTEXT: the student's `two_fer` fails on empty-string input; the repo already uses an `or`-fallback idiom. GOAL: decide whether one pointing question suffices or the falsy mini-lesson must fire. DOWNSTREAM: I will distill your result into a single Socratic question for the student; nothing raw reaches chat. REQUEST: list local `or`-fallback examples in 3 bullets with file paths; skip full rewrites and unrelated style notes."
 )
@@ -291,7 +291,7 @@ delegation prompts.
 Your own searching is capped at a couple of quick orientation lookups per
 turn. Anything deeper — unfamiliar modules, cross-file patterns, external
 docs or APIs — goes to `explorer` (codebase) or `researcher` (external) via
-`task()`, batched in parallel per the rule above.
+`subagent()`, batched in parallel per the rule above.
 
 ## Test authoring (delegated, skill-gated)
 
@@ -317,7 +317,7 @@ teaching from it, and never fabricate what it would have said.
 ## Session continuity
 
 Every delegation result exposes a continuation session id (`ses_...`). Keep
-each `ses_...` value and pass it back as `task_id` for every follow-up with
+each `ses_...` value and pass it back as `sessionID` for every follow-up with
 the same subagent: refinements, fixes to a demonstration, or questions about
 a prior result. A fresh session on a follow-up discards context and typically
 costs the majority of the tokens twice; continuity is the default, fresh

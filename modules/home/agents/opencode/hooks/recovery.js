@@ -88,6 +88,10 @@ export function createEditErrorRecoveryHook(ctx) {
   return {
     "tool.execute.before": async (input, output) => {
       if (input.tool?.toLowerCase() !== "edit") return;
+      // v2 reports native failures to execute.after and accepts Unicode and
+      // trailing-whitespace matches. Let its matcher decide instead of vetoing
+      // valid edits with the legacy exact-match precheck.
+      if (ctx?.native) return;
       const { filePath, oldString, newString, replaceAll } = resolveEditArgs(output?.args ?? input?.args);
       if (typeof oldString !== "string" || typeof newString !== "string") return;
 
@@ -142,7 +146,10 @@ export function createEditErrorRecoveryHook(ctx) {
       if (parts.length === 0) return;
       if (parts.some((p) => p.includes(EDIT_ERROR_MARKER))) return;
       const haystack = parts.join("\n").toLowerCase();
-      if (EDIT_ERROR_PATTERNS.some((p) => haystack.includes(p.toLowerCase()))) {
+      if (
+        EDIT_ERROR_PATTERNS.some((p) => haystack.includes(p.toLowerCase())) ||
+        /found \d+ matches for oldstring, but expected exactly one\./.test(haystack)
+      ) {
         if (typeof output.output === "string") {
           output.output += `\n${EDIT_ERROR_REMINDER}`;
         } else if (typeof output.error === "string") {
@@ -260,6 +267,13 @@ export function createEmptyTaskResponseDetectorHook() {
         output.output = EMPTY_RESPONSE_WARNING;
         return;
       }
+      if (
+        input.nativeTool === "subagent" &&
+        /^<subagent\b[^>]*\bstate="completed"[^>]*>\s*Subagent completed without a text response\.\s*<\/subagent>$/.test(responseText)
+      ) {
+        output.output = `${responseText}\n${EMPTY_RESPONSE_WARNING}`;
+        return;
+      }
       // OpenCode 1.18 wraps completed results in a <task><task_result>
       // envelope, so emptiness is judged on human-readable text: the
       // insides of result blocks plus anything outside tags. This covers
@@ -296,12 +310,19 @@ export function createTaskResumeInfoHook() {
       if (outputText.includes("\nto continue:")) return;
 
       const meta = output.metadata;
+      if (meta?.status === "running") return;
       const taskId =
+        meta?.sessionID ??
         meta?.taskId ??
         meta?.sessionId ??
         outputText.match(/(?:task_id|sessionId|session_id)[="':\s]+([a-zA-Z0-9_-]+)/)?.[1];
       if (!taskId) return;
 
+      if (input.nativeTool === "subagent") {
+        const resume = { agent: input.args.agent, sessionID: taskId, description: input.args.description, prompt: "..." };
+        output.output = `${outputText.trimEnd()}\n\nto continue: subagent(${JSON.stringify(resume)})`;
+        return;
+      }
       output.output = `${outputText.trimEnd()}\n\nto continue: task(task_id="${taskId}", load_skills=[], run_in_background=false, prompt="...")`;
     },
   };
@@ -358,6 +379,7 @@ export function createNotepadReadReminderHook() {
       if (typeof output?.output !== "string") return;
       const outputText = output.output;
       if (outputText.startsWith("Error:") || outputText.startsWith("Failed")) return;
+      if (output.metadata?.status === "running") return;
       // An empty delegation recorded nothing — no read nudge.
       if (outputText.includes("[Task Empty Response Warning]")) return;
       if (outputText.includes(NOTEPAD_READ_REMINDER_MARKER)) return;

@@ -203,6 +203,7 @@ export function createCompactionTodoPreserverHook(ctx) {
     event: async ({ event }) => {
       if (event?.type === "session.deleted" && event?.properties?.id) {
         todoSnapshots.delete(event.properties.id);
+        if (ctx?.storage) await ctx.storage.set(`todos:${event.properties.id}`, []);
       }
     },
     getSnapshot: async (sessionID) => {
@@ -212,7 +213,13 @@ export function createCompactionTodoPreserverHook(ctx) {
       if (Array.isArray(inMemory) && inMemory.length > 0) {
         return inMemory;
       }
-      // 2. OpenCode SDK client (if running in server context with client)
+      // v2 has no session.todo endpoint or legacy todo table. Plugin storage
+      // is durable and isolated by plugin ID; an empty snapshot is authoritative.
+      if (ctx?.storage) {
+        const stored = await ctx.storage.get(`todos:${sessionID}`);
+        return Array.isArray(stored) ? stored : [];
+      }
+      // 2. OpenCode SDK client (legacy policy harness)
       if (ctx?.client?.session?.todo) {
         try {
           const res = await ctx.client.session.todo({ path: { id: sessionID } });

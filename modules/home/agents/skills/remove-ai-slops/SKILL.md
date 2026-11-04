@@ -170,18 +170,18 @@ Files are processed by `deep` category agents (`worker-deep`) with the `remove-a
 **Batching protocol** (strict):
 
 1. Slice the in-scope file list into chunks of up to 5 files.
-2. For each chunk, launch all `task` calls **in a single message**.
+2. For each chunk, launch all native subagent calls **in a single message**.
 3. End your turn. Once all in the batch complete, collect and integrate each result.
 4. Launch the next batch of 5. Repeat until every file is processed.
 5. If total files ≤ 5, launch all in one batch.
 
 **Never** launch all files at once when there are more than 5; **never** launch them serially when more than one remains in the current batch.
 
-**Per-file invocation** (one of the 5 in a batch):
+**Per-file invocation in OpenCode 2** (one of the 5 in a batch; use the equivalent native delegation tool in other clients):
 
 ```
-task(
-  subagent_type="worker-deep",
+subagent(
+  agent="worker-deep",
   description="[deep] Slop removal: {filename}",
   prompt="""
 Remove AI slops from: {file_path}
@@ -207,7 +207,7 @@ LOAD SKILLS: [remove-ai-slops]
 )
 ```
 
-**Batch failure handling**: Mark a file for retry only when the worker completed without the deliverable, failed verification, or is no longer running. Follow up via task session continuation (`task(task_id="ses_...", prompt="...")`). Do NOT block the remaining files in the batch; collect successful results and retry the failed file once later. If retry also fails, escalate that file under "Issues Found & Fixed" in the final report.
+**Batch failure handling**: Mark a file for retry only when the worker completed without the deliverable, failed verification, or is no longer running. Follow up through the client's native session continuation (OpenCode 2: `subagent(agent="worker-deep", description="Retry cleanup", sessionID="ses_...", prompt="...")`). Do NOT block the remaining files in the batch; collect successful results and retry the failed file once later. If retry also fails, escalate that file under "Issues Found & Fixed" in the final report.
 
 ### Phase 5: Verify with quality gates + critical review
 

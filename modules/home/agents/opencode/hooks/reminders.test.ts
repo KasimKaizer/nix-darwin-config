@@ -22,8 +22,8 @@ describe("agent-usage-reminder (C4a)", () => {
       expect(copy).toContain("As the caller, delegate");
       expect(copy).toContain("3 times");
     }
-    expect(AGENT_USAGE_REMINDER).toContain('task(subagent_type="explorer"');
-    expect(RESEARCHER_USAGE_REMINDER).toContain('task(subagent_type="researcher"');
+    expect(AGENT_USAGE_REMINDER).toContain('subagent(agent="explorer"');
+    expect(RESEARCHER_USAGE_REMINDER).toContain('subagent(agent="researcher"');
   });
 
   it("(a) builder grep without prior task appends reminder", async () => {
@@ -38,7 +38,7 @@ describe("agent-usage-reminder (C4a)", () => {
 
     expect(out.output).toContain(AGENT_USAGE_REMINDER_MARKER);
     expect(out.output).toContain("matched lines in foo.txt");
-    expect(out.output).toContain("Explorer: task(subagent_type=\"explorer\"");
+    expect(out.output).toContain("Explorer: subagent(agent=\"explorer\"");
   });
 
   it("(b) re-arms after task call when cap was reached", async () => {
@@ -263,7 +263,7 @@ describe("agent-usage-reminder (C4a)", () => {
       );
       if (index === 2) {
         expect(out.output).toContain(RESEARCHER_USAGE_REMINDER_MARKER);
-        expect(out.output).toContain('Researcher: task(subagent_type="researcher"');
+        expect(out.output).toContain('Researcher: subagent(agent="researcher"');
         expect(out.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
       } else {
         expect(out.output).not.toContain(RESEARCHER_USAGE_REMINDER_MARKER);
@@ -664,7 +664,7 @@ describe("agent-usage-reminder (C4a)", () => {
         out
       );
       expect(out.output).toContain(AGENT_USAGE_REMINDER_MARKER);
-      expect(out.output).toContain('Explorer: task(subagent_type="explorer"');
+      expect(out.output).toContain('Explorer: subagent(agent="explorer"');
       expect(out.output).not.toContain(RESEARCHER_USAGE_REMINDER_MARKER);
     }
 
@@ -681,7 +681,7 @@ describe("agent-usage-reminder (C4a)", () => {
       );
       if (index === 2) {
         expect(out.output).toContain(RESEARCHER_USAGE_REMINDER_MARKER);
-        expect(out.output).toContain('Researcher: task(subagent_type="researcher"');
+        expect(out.output).toContain('Researcher: subagent(agent="researcher"');
         expect(out.output).not.toContain(AGENT_USAGE_REMINDER_MARKER);
       } else {
         expect(out.output).toBe(`research ${index}`);

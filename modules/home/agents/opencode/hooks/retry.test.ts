@@ -57,7 +57,7 @@ describe("C3 delegate-task-retry (pre-dispatch validator)", () => {
       expect(guidance).toContain(RETRY_GUIDANCE_MARKER);
       expect(guidance).toContain("unknown_agent");
       expect(guidance).toContain("bad-agent");
-      expect(guidance).toContain('subagent_type="worker-quick"');
+      expect(guidance).toContain('agent="worker-quick"');
       expect(guidance).toContain('description="..."');
       expect(guidance).toContain('prompt="..."');
       expect(guidance).not.toContain("category=");

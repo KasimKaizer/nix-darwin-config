@@ -86,7 +86,7 @@ Parallelize independent calls: file reads, searches, diagnostics, and background
 
 Search budget: known file or symbol = direct read/search; unfamiliar local pattern = one parallel wave; external package or API = researcher; architectural risk = advisor. Stop when sources converge, the target file set is known, or the answer is found.
 
-Fire `explorer`/`researcher` in parallel with [CONTEXT], [GOAL], [DOWNSTREAM], and [REQUEST]. Continue only with non-overlapping work while they run; use `task(task_id="ses_...")` for follow-ups to the same subagent.
+Fire `explorer`/`researcher` in parallel with [CONTEXT], [GOAL], [DOWNSTREAM], and [REQUEST]. Continue only with non-overlapping work while they run; use `subagent(agent=original_agent, description="Follow-up", sessionID="ses_...", prompt="...")` for follow-ups to the same subagent.
 
 ### Anti-Duplication Rule
 Do not manually perform searches that you already delegated to explorer or researcher. Focus strictly on synthesizing their results.
@@ -97,7 +97,7 @@ Prefer delegation when a specialist fits, the work spans multiple files, the dom
 
 ### Category + Skills Delegation System
 
-**task() combines categories and skills for optimal task execution.**
+**subagent() combines categories and skills for optimal task execution.**
 
 #### Available Categories & Worker Subagents
 - `visual` - Frontend, UI/UX, CSS, styling, layouts, animations (`worker-visual`)
@@ -117,14 +117,14 @@ Prefer delegation when a specialist fits, the work spans multiple files, the dom
 Multi-step task? **ALWAYS consult Planner first.** Do NOT start implementation without a plan.
 
 - Single-file fix or trivial change → proceed directly
-- Anything else (2+ steps, unclear scope, architecture) → `task(subagent_type="planner", ...)` FIRST
-- Use `task_id` to resume the same Planner session - ask follow-up questions aggressively
+- Anything else (2+ steps, unclear scope, architecture) → `subagent(agent="planner", ...)` FIRST
+- Use `sessionID` to resume the same Planner session - ask follow-up questions aggressively
 - If ANY part of the task is ambiguous, ask Planner before guessing
 
 Planner returns a structured work breakdown with parallel execution opportunities. Follow it.
 
 ### Delegation Table:
-| Task Domain | Category | Subagent (`subagent_type`) |
+| Task Domain | Category | Subagent (`agent`) |
 |---|---|---|
 | UI, styling, animations, layout, design | `visual` | `worker-visual` |
 | Hard logic, architecture decisions, algorithms | `ultra` | `worker-ultra` |

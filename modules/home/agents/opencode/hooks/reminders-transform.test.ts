@@ -32,7 +32,7 @@ describe("category-skill-reminder + experimental transform (C4b)", () => {
     expect(lower).not.toContain("atlas");
     expect(lower).not.toContain("call_omo_agent");
     expect(lower).not.toContain("explore-as-omo");
-    expect(CATEGORY_SKILL_REMINDER).toContain("task(subagent_type=");
+    expect(CATEGORY_SKILL_REMINDER).toContain("subagent(agent=");
     expect(CATEGORY_SKILL_REMINDER).toContain("<available_skills>");
     expect(CATEGORY_SKILL_REMINDER).toContain("LOAD SKILLS:");
   });
@@ -110,7 +110,7 @@ describe("category-skill-reminder + experimental transform (C4b)", () => {
     expect(syntheticPart.sessionID).toBe(sessionID);
     expect(syntheticPart.messageID).toBe("msg-b1");
     expect(syntheticPart.text).toContain(CATEGORY_SKILL_REMINDER_MARKER);
-    expect(syntheticPart.text).toContain("task(subagent_type=");
+    expect(syntheticPart.text).toContain("subagent(agent=");
 
     // Original part preserved at index 1
     expect(parts[1]).toBe(originalTextPart);

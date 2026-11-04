@@ -130,11 +130,11 @@ When you need the delegated results but they're not ready:
 
 ```typescript
 // WRONG: After delegating, re-doing the search
-task(subagent_type="explorer", ...)
+subagent(agent="explorer", ...)
 // Then immediately grep for the same thing yourself - FORBIDDEN
 
 // CORRECT: Continue non-overlapping work
-task(subagent_type="explorer", ...)
+subagent(agent="explorer", ...)
 // Work on a different, unrelated file while they search
 ```
 </Anti_Duplication>

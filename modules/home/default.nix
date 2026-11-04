@@ -40,7 +40,6 @@
       cursor-cli
       codex
       antigravity-cli
-      opencode
       # General CLI utilities
       ast-grep
       bitwarden-cli

@@ -38,8 +38,8 @@ export const AGENT_USAGE_REMINDER_MARKER = "[Agent Usage Reminder]";
 export const AGENT_USAGE_REMINDER = `
 ${AGENT_USAGE_REMINDER_MARKER}
 You searched the codebase directly without an explorer subagent.
-As the caller, delegate local exploration via the task tool:
-- ${AGENT_USAGE_REMINDER_MARKER} Explorer: task(subagent_type="explorer", prompt="Find files/code matching ...") — direct search can hide Line bodies; delegate to preserve accuracy.
+As the caller, delegate local exploration via the subagent tool:
+- ${AGENT_USAGE_REMINDER_MARKER} Explorer: subagent(agent="explorer", description="Explore local code", prompt="Find files/code matching ...") — direct search can hide Line bodies; delegate to preserve accuracy.
 
 Fire multiple explorers in parallel to preserve your context window.
 (Notice: this reminder is shown at most 3 times per session).
@@ -50,8 +50,8 @@ export const RESEARCHER_USAGE_REMINDER_MARKER = "[Researcher Usage Reminder]";
 export const RESEARCHER_USAGE_REMINDER = `
 ${RESEARCHER_USAGE_REMINDER_MARKER}
 You called 3+ documentation/web search tools directly without a researcher subagent.
-As the caller, delegate research via the task tool:
-- ${RESEARCHER_USAGE_REMINDER_MARKER} Researcher: task(subagent_type="researcher", prompt="Investigate docs/library internals for ...") — delegate to preserve citations and accuracy.
+As the caller, delegate research via the subagent tool:
+- ${RESEARCHER_USAGE_REMINDER_MARKER} Researcher: subagent(agent="researcher", description="Research documentation", prompt="Investigate docs/library internals for ...") — delegate to preserve citations and accuracy.
 
 Parallel researchers preserve your context window and keep citations organized.
 (Notice: this reminder is shown at most 3 times per session).
@@ -89,6 +89,7 @@ function trailingResearchStreak(messages, sessionID) {
     if (!Array.isArray(parts)) continue;
     for (let p = parts.length - 1; p >= 0; p--) {
       const part = parts[p];
+      if (partHasMarker(part, RESEARCHER_USAGE_REMINDER_MARKER)) return streak;
       if (part?.type !== "tool") continue;
       if (!isResearchSearchTool(toolNameFromPart(part))) return streak;
       streak += 1;

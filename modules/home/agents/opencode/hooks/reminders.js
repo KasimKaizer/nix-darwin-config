@@ -103,11 +103,11 @@ export const MAX_CATEGORY_REMINDERS = 3;
 export const CATEGORY_SKILL_REMINDER = `
 ${CATEGORY_SKILL_REMINDER_MARKER}
 You have performed 3+ consecutive direct tool actions without delegating.
-As the builder orchestrator, prefer delegating implementation work via the task tool to specialized worker subagents:
-- Visual: task(subagent_type="worker-visual", description="[visual] ...", prompt="...")
-- Deep: task(subagent_type="worker-deep", description="[deep] ...", prompt="...")
-- Ultra: task(subagent_type="worker-ultra", description="[ultra] ...", prompt="...")
-- Quick: task(subagent_type="worker-quick", description="[quick] ...", prompt="...")
+As the builder orchestrator, prefer delegating implementation work via the subagent tool to specialized worker subagents:
+- Visual: subagent(agent="worker-visual", description="[visual] ...", prompt="...")
+- Deep: subagent(agent="worker-deep", description="[deep] ...", prompt="...")
+- Ultra: subagent(agent="worker-ultra", description="[ultra] ...", prompt="...")
+- Quick: subagent(agent="worker-quick", description="[quick] ...", prompt="...")
 
 Review <available_skills> for domain skills to include in LOAD SKILLS: [...] when delegating.
 Parallel delegation preserves your context window and keeps work organized.

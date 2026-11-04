@@ -8,9 +8,6 @@ The upstream OpenCode \`todowrite\` schema expects each todo item to include:
 
 - \`content\`: string
 - \`status\`: string, one of \`pending\`, \`in_progress\`, \`completed\`, \`cancelled\`
-- \`priority\`: string, one of \`high\`, \`medium\`, \`low\`
-
-\`priority\` is a string field. Never send numeric priorities such as \`0\`, \`1\`, \`2\`, or labels such as \`P0\`, \`P1\`, \`P2\`.
 
 ## Todo Format (MANDATORY)
 

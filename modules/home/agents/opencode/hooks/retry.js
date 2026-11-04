@@ -1,6 +1,6 @@
 // Ported from packages/omo-opencode delegate-task-retry (adapted to local
-// subagent_type/description/prompt params). Validates delegation args BEFORE
-// dispatch: after-hooks never run on failure, so throwing here always runs.
+// agent/description/prompt params). Validates delegation args BEFORE
+// dispatch: a rejected before-hook stops the call before native execution.
 import { getTaskTargetAgent } from "./guards.js";
 
 export const RETRY_GUIDANCE_MARKER = "[task CALL FAILED - IMMEDIATE RETRY REQUIRED]";
@@ -24,29 +24,29 @@ export const FORBIDDEN_TASK_ARGS = [
     arg: "run_in_background",
     errorType: "forbidden_run_in_background",
     fixHint:
-      "Remove 'run_in_background'. Local task delegation requires only subagent_type, description, and prompt.",
+      "Remove 'run_in_background'. Local task delegation requires only agent, description, and prompt.",
   },
   {
     arg: "load_skills",
     errorType: "forbidden_load_skills",
     fixHint:
-      "Remove 'load_skills'. Local task delegation requires only subagent_type, description, and prompt. Skills are invoked via the skill tool.",
+      "Remove 'load_skills'. Local task delegation requires only agent, description, and prompt. Skills are invoked via the skill tool.",
   },
   {
     arg: "category",
     errorType: "forbidden_category",
     fixHint:
-      "Remove 'category'. Use subagent_type ('worker-quick', 'worker-deep', 'explorer', 'researcher', etc.) with description and prompt.",
+      "Remove 'category'. Use agent ('worker-quick', 'worker-deep', 'explorer', 'researcher', etc.) with description and prompt.",
   },
 ];
 
 const ROSTER_LIST = LOCAL_SUBAGENTS.join(", ");
 
 const AGENT_FIX_BY_ERROR_TYPE = {
-  empty_agent: `Provide a non-empty subagent_type: ${ROSTER_LIST}.`,
-  unknown_agent: `Use a valid subagent_type from the available local agents: ${ROSTER_LIST}.`,
+  empty_agent: `Provide a non-empty agent: ${ROSTER_LIST}.`,
+  unknown_agent: `Use a valid agent from the available local agents: ${ROSTER_LIST}.`,
   primary_agent:
-    "Primary agent 'builder' cannot be called via task. Use a subagent: worker-deep, worker-quick, explorer, researcher, planner, reviewer, advisor, worker-visual, worker-ultra.",
+    "Primary agent 'builder' cannot be called via subagent. Use a subagent: worker-deep, worker-quick, explorer, researcher, planner, reviewer, advisor, worker-visual, worker-ultra.",
 };
 
 export function buildRetryGuidance(errorType, detail = "") {
@@ -69,12 +69,12 @@ export function buildRetryGuidance(errorType, detail = "") {
   }
 
   guidance += `
-**Action**: Retry task NOW with corrected parameters.
+**Action**: Retry subagent NOW with corrected parameters.
 
 Example of CORRECT call:
 \`\`\`
-task(
-  subagent_type="worker-quick",
+subagent(
+  agent="worker-quick",
   description="...",
   prompt="..."
 )
