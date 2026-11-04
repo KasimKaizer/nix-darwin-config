@@ -119,9 +119,19 @@ append to the existing `home.packages` list in the owning module (generic tools:
 
 **Add a secret env var**: `sops secrets.yaml` in the private vault (`inputs.nix-secrets`, cheat sheet in its `.sops.yaml`) → `sops.secrets.<name> = { };` in `tools/secrets.nix` → `export NAME="${config.sops.placeholder.<name>}"` on `sops.templates."secret-env"` → `git push` in the vault repo, then `nix flake update nix-secrets && nixswitch && exec zsh` here. Other secret shapes: [references/secrets.md](references/secrets.md).
 
-**Create or modify a custom Agent Skill**: Treat `modules/home/agents/skills/<name>/SKILL.md` as the only editable source of truth. Use the flat `modules/home/agents/skills/<name>/` layout; do not create category subdirectories. For new or substantive skill content, use `skill-creator` after locating this source file. Local skills are auto-installed on `nixswitch` (`enableAll = [ "local" ]`) to Zed (`~/.agents/skills`), Cursor, Codex, OpenCode, Antigravity, and Copilot. Never create, edit, or duplicate a managed skill in an agent directory.
+**Create or modify a custom Agent Skill**: Treat `modules/home/agents/skills/<name>/SKILL.md` as the only editable source of truth. Use the flat `modules/home/agents/skills/<name>/` layout; do not create category subdirectories. For new or substantive skill content in OpenCode, use `skill-creator` after locating this source file; other clients follow these source-path instructions directly. Local skills are shared on `nixswitch` (`enableAll = [ "local" ]`) unless restricted in `skills.nix`; `work-plan`, `visual-qa`, and `skill-creator` are OpenCode-only and excluded from shared discovery. Never create, edit, or duplicate a managed skill in an agent directory.
 
-**Enable a third-party Agent Skill**: pin the repo in `flake.nix` (`flake = false`) if it is not already an input, add or reuse a `sources` entry in `modules/home/agents/skills.nix`, put the directory name in that source's discover list, then move it into `skills.enable`. Do not `npx skills` / skills.sh.
+**Enable a third-party Agent Skill**: pin the canonical repo in `flake.nix`
+(`flake = false`) if it is not already an input, add or reuse a `sources` entry
+in `modules/home/agents/skills.nix`, put the directory name in that source's
+`discover` list, then move it into `skills.enable`. Follow direct skill references
+and include required companions without importing the whole catalog. Treat
+skills.sh as an index, not the source of truth: verify the skill path and
+references in the pinned upstream repo, since registry pages can outlive retired
+skills. If the publisher provides only a domain-hosted package, vendor its
+complete file set under `modules/home/agents/skills/`, preserve its checksums,
+license, notices, and source provenance, and explain the local source in
+`skills.nix`. Do not `npx skills` / skills.sh.
 
 ## Package-profile collision checks
 

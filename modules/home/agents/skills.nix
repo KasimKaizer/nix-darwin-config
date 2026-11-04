@@ -34,9 +34,9 @@ let
       "frontend-ui-engineering"
       "browser-testing-with-devtools"
       "performance-optimization"
+      "code-simplification"
       # "idea-refine"
       # "interview-me"
-      # "code-simplification"
       # "context-engineering"
       # "shipping-and-launch"
     ];
@@ -50,6 +50,21 @@ let
       "xlsx"
     ];
   };
+
+  mattpocock = {
+    engineering = [
+      "codebase-design"
+      "domain-modeling"
+      "improve-codebase-architecture"
+    ];
+    productivity = [ "grilling" ];
+  };
+
+  opencodeOnlySkills = [
+    "work-plan"
+    "visual-qa"
+    "skill-creator"
+  ];
 
   discoverRegex = names: "^(${lib.concatStringsSep "|" names})$";
 
@@ -67,8 +82,13 @@ in
 
     sources = {
       local = {
+        # ui-taste is vendored from its domain-only upstream with published hashes.
         path = ./skills;
         filter.maxDepth = 1;
+        # Keep OpenCode-only skills out of the shared auto-discovery catalog.
+        filter.nameRegex = discoverRegex (
+          lib.lists.subtractLists opencodeOnlySkills (lib.attrNames (builtins.readDir ./skills))
+        );
       };
 
       addy = {
@@ -85,6 +105,22 @@ in
         subdir = "skills";
         filter.maxDepth = 1;
         filter.nameRegex = discoverRegex anthropic.enable;
+      };
+
+      mattpocock-engineering = {
+        # github:mattpocock/skills
+        path = inputs.mattpocock-skills;
+        subdir = "skills/engineering";
+        filter.maxDepth = 1;
+        filter.nameRegex = discoverRegex mattpocock.engineering;
+      };
+
+      mattpocock-productivity = {
+        # github:mattpocock/skills
+        path = inputs.mattpocock-skills;
+        subdir = "skills/productivity";
+        filter.maxDepth = 1;
+        filter.nameRegex = discoverRegex mattpocock.productivity;
       };
 
       superpowers = {
@@ -111,10 +147,17 @@ in
     };
 
     skills = {
+      explicit = lib.genAttrs opencodeOnlySkills (_: {
+        from = "local";
+        agents = lib.lists.singleton "opencode";
+      });
+
       enableAll = [ "local" ];
       enable =
         addy.enable
         ++ anthropic.enable
+        ++ mattpocock.engineering
+        ++ mattpocock.productivity
         ++ [
           "verification-before-completion"
           "ast-grep"

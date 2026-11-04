@@ -1,9 +1,14 @@
 ---
 name: visual-qa
-description: "MUST USE after building/changing any UI or when asked whether a page, component, or TUI looks right. Rigorous visual QA across web/page, terminal, and paginated-document surfaces. Prefer browser:control-in-app-browser for unauthenticated browser/page QA in Codex, then Playwright/agent-browser/dev-browser. Captures screenshot/TUI evidence with bundled diff scripts, runs design-system/functional and visual-fidelity/CJK reviewer passes, then synthesizes a good/bad verdict. Triggers: visual QA, screenshot/pixel diff, UI looks wrong, reference fidelity, design system check, responsive check, CJK text clipping, TUI alignment, box-drawing drift, PDF page check, deck review, blank or near-empty page, wrong page break."
+description: "OpenCode-only. MUST USE in OpenCode after building/changing any UI or when asked whether a page, component, or TUI looks right. Rigorous visual QA across web/page, terminal, and paginated-document surfaces. Uses OpenCode browser tooling for capture and subagent(advisor/reviewer) for independent review. Captures screenshot/TUI evidence with bundled diff scripts, runs design-system/functional and visual-fidelity/CJK reviewer passes, then synthesizes a good/bad verdict. Triggers: visual QA, screenshot/pixel diff, UI looks wrong, reference fidelity, design system check, responsive check, CJK text clipping, TUI alignment, box-drawing drift, PDF page check, deck review, blank or near-empty page, wrong page break. Do not invoke outside OpenCode."
+compatibility: "OpenCode 2 only; requires subagent targets advisor and reviewer, browser/image inspection tools, Node.js for bundled evidence scripts, freeze for TUI captures, and a page renderer for paginated documents."
 ---
 
 # Visual QA - Dual-Perspective (Advisor + Reviewer) Web and TUI Verification
+
+## Harness guard - OpenCode only
+
+Before running any step, confirm the active harness is OpenCode. If it is not OpenCode, or you cannot confirm that it is, STOP: report that this skill is OpenCode-only and do not execute or translate its workflow. If OpenCode's `subagent` tool or the `advisor` / `reviewer` subagents are unavailable, STOP and report the missing capability. Do not substitute another harness or self-review for the independent passes.
 
 Verify a rendered UI against intent using objective script evidence plus two parallel read-only passes (Advisor for design-system integrity + Reviewer for visual fidelity), then synthesize one good/bad verdict. The script numbers focus the evaluation. They are not the verdict.
 
@@ -49,7 +54,7 @@ Before any reviewer sees an image, verify each capture yourself: the file signat
 ### Web
 
 1. Capture a REFERENCE image: the user's mock/target, generated page snapshot, Figma export, source-site capture, or known-good baseline. Save as PNG. If the user provided overview text or annotations, save them next to the image and treat them as part of the reference packet.
-2. Capture the ACTUAL rendered screenshot at the same viewport size. In Codex, when `browser:control-in-app-browser` is available and the page does not need an authenticated user browser session, use that Browser plugin first for navigation, page state inspection, and screenshots. In OpenCode or other MCP-enabled environments, use Playwright MCP (`playwright_browser_take_screenshot`). Otherwise, use the project's configured browser tooling (e.g. `browser-testing-with-devtools`, `playwright`, or the project's test runner). Save as PNG. Match the capture viewport to the reference image dimensions.
+2. Capture the ACTUAL rendered screenshot at the same viewport size. In OpenCode, use Playwright MCP (`playwright_browser_take_screenshot`) or the project's configured browser tooling available in OpenCode (e.g. `browser-testing-with-devtools`, `playwright`, or the project's test runner) for navigation, page state inspection, and screenshots. Save as PNG. Match the capture viewport to the reference image dimensions.
 3. Run the diff and keep the JSON:
 
 ```
@@ -101,7 +106,7 @@ Static screenshots miss what moves. For every interactive element and every anim
 
 This independent review is REQUIRED before any "done" claim. Do not self-review inside the main agent and call the UI verified - a self-graded pass is the failure mode this step exists to stop. Dispatch it yourself, every time, without waiting to be told. Give each reviewer the captures for every enumerated page from Step 2, not a sample, and tell it the page count so it can confirm none were skipped.
 
-Dispatch through your harness's own subagent tool. In OpenCode: `task(subagent_type="advisor", ...)` / `task(subagent_type="reviewer", ...)`. In Codex: `multi_agent_v1.spawn_agent({"message": "...", "agent_type": "advisor", "fork_context": false})` (the code blocks below are written in OpenCode `task(...)` form; translate them to that `spawn_agent` call, putting the full prompt in `message`). In single-agent environments without subagent tools, run the two passes sequentially as self-reviews.
+Dispatch through OpenCode's `subagent` tool: `subagent(agent="advisor", ...)` / `subagent(agent="reviewer", ...)`. Use the calls below directly; do not translate them to another harness or replace either independent pass with self-review.
 
 Send BOTH calls in a single message so they run concurrently. Both the advisor and reviewer are read-only: they review and report, neither can modify files. Each returns PASS, REVISE, or FAIL with concrete, located findings. Pass A (Advisor) proves the surface is a real design-system implementation, not a mock-only or faked-image substitute. Pass B (Reviewer) directly opens screenshots and inspects source/content for visual and CJK defects.
 
@@ -110,7 +115,7 @@ Paste evidence directly into each prompt: source code, the plain-text TUI captur
 ### Pass A - Design-system and functional integrity (deeper, strict)
 
 ```
-task(subagent_type="advisor",
+subagent(agent="advisor",
   description="Visual QA pass A: design-system and functional integrity",
   prompt="""
 REVIEW TYPE: DESIGN-SYSTEM AND FUNCTIONAL INTEGRITY (read-only)
@@ -157,11 +162,11 @@ BLOCKING: items that must be fixed; empty if PASS
 ### Pass B - Visual fidelity and CJK precision (focused)
 
 ```
-task(subagent_type="reviewer",
+subagent(agent="reviewer",
   description="Visual QA pass B: visual fidelity and CJK precision",
   prompt="""
 REVIEW TYPE: VISUAL FIDELITY AND CJK PRECISION (read-only)
-TIER INTENT: Treat this as the focused visual pass. Directly open the screenshots with the available image-viewing tool (`view_image`, `look_at`, or browser inspection) before judging. Anchor every claim to the script evidence, source code, and captures.
+TIER INTENT: Treat this as the focused visual pass. Directly open the screenshots with an image-viewing tool available in OpenCode (`look_at` or browser inspection) before judging. Anchor every claim to the script evidence, source code, and captures.
 
 INTENT:
 {What the user requested and the mock or baseline to match.}
@@ -250,7 +255,7 @@ If any page fails, you are not done - but treat the two blocker kinds differentl
 
 Run this step IN ADDITION to Steps 1-4 when the original user task has a concrete visual target: "clone this site", "move this Figma design to code", "rebuild this screen", "make it look exactly like X", or "build this Imagen/Stitch/generated mockup and overview". For these tasks the normal dual-pass review (Advisor + Reviewer) is necessary but NOT sufficient. After it returns, run the following TWO additional MANDATORY verifications and LOOP until BOTH pass.
 
-1. Pixel-perfect design-compare subagent (visual reviewer). Dispatch a focused, read-only design-compare reviewer (recommend a flagship multimodal model with xhigh reasoning, e.g. `claude-opus-5` or `gpt-5.6-terra`). It must crop/zoom BOTH the reference (target / Figma export / source-site screenshot / generated page snapshot) and the ACTUAL screenshot into matching regions and read them **pixel-by-pixel** - header, nav, each card, spacing, type ramp, color tokens - not at a glance. It must also compare the overview text or annotations against the rendered content and DOM text. Anchor every claim with the bundled tool:
+1. Pixel-perfect design-compare subagent (visual reviewer). Dispatch a focused, read-only design-compare reviewer through `subagent(agent="reviewer", ...)` (recommend a flagship multimodal model with xhigh reasoning, e.g. `claude-opus-5` or `gpt-5.6-terra`). It must crop/zoom BOTH the reference (target / Figma export / source-site screenshot / generated page snapshot) and the ACTUAL screenshot into matching regions and read them **pixel-by-pixel** - header, nav, each card, spacing, type ramp, color tokens - not at a glance. It must also compare the overview text or annotations against the rendered content and DOM text. Anchor every claim with the bundled tool:
 
 ```
 node "$SKILL_DIR/scripts/visual-qa.mjs" image-diff <reference.png> <actual.png>
@@ -258,13 +263,11 @@ node "$SKILL_DIR/scripts/visual-qa.mjs" image-diff <reference.png> <actual.png>
 
 It judges whether layout geometry, spacing, design tokens (color, type, radius, shadow), and the design itself are identical to the target, region by region. Anything off by more than rounding is a finding.
 
-2. Code-level design-system fidelity (advisor review). Dispatch through your harness's own subagent tool.
-
-   **OpenCode:**
+2. Code-level design-system fidelity (advisor review). Dispatch through OpenCode's `subagent` tool.
 
    ```
-   task(
-     subagent_type="advisor",
+   subagent(
+     agent="advisor",
      description="Clone/design-system fidelity review",
      prompt="""
    TASK: Act as a clone / design-system fidelity reviewer. Read-only.
@@ -288,11 +291,6 @@ It judges whether layout geometry, spacing, design tokens (color, type, radius, 
    """
    )
    ```
-
-   **Codex:** `multi_agent_v1.spawn_agent({"message":"TASK: Act as a clone / design-system fidelity reviewer. ...","agent_type":"advisor","fork_context":false})`
-
-   **Single-agent environments (Cursor, Zed, Antigravity, Copilot):**
-   Evaluate the checklist directly in a focused verification pass.
 
 RULE (mandatory, non-negotiable): the reference-fidelity task is NOT done until BOTH the pixel-compare AND the code-level design-system fidelity verification confirm that the **layer structure, the design system, and the design itself** match the target. If EITHER fails, it is a MANDATORY retry: re-implement the gaps and re-run BOTH verifications from the top. Repeat the retry loop until both pass on the same revision. Never declare reference-fidelity complete on a single pass, on visual-only evidence, or on code-only evidence - both the advisor and reviewer must confirm on the same build.
 

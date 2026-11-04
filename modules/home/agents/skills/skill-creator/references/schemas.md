@@ -198,7 +198,7 @@ Output from the executor agent. Located at `<run-dir>/outputs/metrics.json`.
 
 Wall clock timing for a run. Located at `<run-dir>/timing.json`.
 
-**How to capture:** When a subagent task completes, the task notification includes `total_tokens` and `duration_ms`. Save these immediately — they are not persisted anywhere else and cannot be recovered after the fact.
+**OpenCode 2 compatibility:** Native `subagent` completion notifications do not supply these timing or token fields. Only create this file from independently measured per-run data; retain the measurement source and units. Otherwise omit it and mark timing/tokens unavailable. Do not run the bundled benchmark aggregator on missing metrics: its fallback zeros and output character counts are not measurements. Use per-run grading results and the output viewer without `--benchmark` instead.
 
 ```json
 {

@@ -1,19 +1,23 @@
 ---
 name: skill-creator
 description: >-
-  Create new skills, modify and improve existing skills, and measure skill
+  OpenCode-only. Create new skills, modify and improve existing skills, and measure skill
   performance. Use this skill whenever the user asks to author, create, add,
   update, edit, modify, refactor, or optimize an Agent Skill or `SKILL.md`—even
   if they only mention a skill name or path, rather than saying "create a skill".
   Also use it for evals, benchmarks, and skill-description optimization. Do not
-  use it merely to execute an existing skill. Prefer this over Cursor's built-in
-  /create-skill.
+  use it merely to execute an existing skill. Do not invoke outside OpenCode.
+compatibility: "OpenCode 2 only; Node.js and Python for bundled helpers; Cursor Agent CLI for optional description evaluation."
 ---
 
 # Skill Creator
 
 This copy is Anthropic's official `skill-creator` (Apache-2.0) with a local
 output-path overlay. Upstream: https://github.com/anthropics/skills/tree/main/skills/skill-creator
+
+## Harness guard - OpenCode only
+
+Execute this workflow only in OpenCode 2. If the active harness is not OpenCode, or cannot be confirmed, report that limitation and stop rather than translating the workflow to another client. For delegated evaluation runs, use OpenCode's native `subagent` tool with a configured worker and the required `agent`, `description`, and `prompt` fields. For follow-ups also supply `sessionID`, retaining those required fields.
 
 ## This flake (read first)
 
@@ -22,8 +26,8 @@ Write and edit skills **in the nix-darwin repo**, not in `~/.agents/skills/` or
 
 - **New skill:** `modules/home/agents/skills/<name>/SKILL.md` (`~/.config/nix-darwin-config/modules/home/agents/skills/<name>/`).
 - **Flat only.** `modules/home/agents/skills/<name>/SKILL.md` — no category folders. Zed does not recurse.
-- **Do not** write into `~/.cursor/skills-cursor/`, `~/.cursor/skills/`, or any other agent directory. Home Manager deploys the same bundle to Zed, Cursor, Codex, OpenCode, Antigravity, and Copilot.
-- After the files exist, tell the user to run **`nixswitch`**. Custom skills under `modules/home/agents/skills/` and third-party skills allowlisted in `modules/home/agents/skills.nix` are deployed to every configured agent.
+- **Do not** write into `~/.cursor/skills-cursor/`, `~/.cursor/skills/`, or any other agent directory. Home Manager deploys skills according to `modules/home/agents/skills.nix`; `work-plan`, `visual-qa`, and this `skill-creator` are OpenCode-only.
+- After the files exist, tell the user to run **`nixswitch`**. Other local skills are shared by default; preserve any explicit per-agent restrictions in `modules/home/agents/skills.nix`.
 - Skip packaging a `.skill` zip unless the user asked for a portable archive or API upload. The source of truth here is the folder in `modules/home/agents/skills/`.
 - Description-optimizer scripts call Cursor Agent with `cursor-agent --print --mode ask` in read-only mode. Run `nixswitch` first so `cursor-cli` is available; set `SKILL_CREATOR_CURSOR_AGENT` only to override the command.
 
@@ -37,7 +41,7 @@ At a high level, the process of creating a skill goes like this:
 
 - Decide what you want the skill to do and roughly how it should do it
 - Write a draft of the skill
-- Create a few test prompts and run Cursor Agent with the skill context on them
+- Create a few test prompts and run OpenCode worker subagents with the skill context on them
 - Help the user evaluate the results both qualitatively and quantitatively
   - While the runs happen in the background, draft some quantitative evals if there aren't any (if there are some, you can either use as is or modify if you feel something needs to change about them). Then explain them to the user (or if they already existed, explain the ones that already exist)
   - Use the `eval-viewer/generate_review.py` script to show the user the results for them to look at, and also let them look at the quantitative metrics
@@ -230,19 +234,11 @@ Good assertions are objectively verifiable and have descriptive names — they s
 
 Update the `eval_metadata.json` files and `evals/evals.json` with the assertions once drafted. Also explain to the user what they'll see in the viewer — both the qualitative outputs and the quantitative benchmark.
 
-### Step 3: As runs complete, capture timing data
+### Step 3: Record only measured runtime data
 
-When each subagent task completes, you receive a notification containing `total_tokens` and `duration_ms`. Save this data immediately to `timing.json` in the run directory:
+OpenCode 2's native `subagent` completion returns a session ID, status, and output; it does not provide `total_tokens` or `duration_ms`. Do not expect those fields in completion notifications, infer tokens from character counts, or fabricate timing values. Without independently verified per-run measurements, omit `timing.json` and record timing/token metrics as unavailable in the evaluation notes.
 
-```json
-{
-  "total_tokens": 84852,
-  "duration_ms": 23332,
-  "total_duration_seconds": 23.3
-}
-```
-
-This is the only opportunity to capture this data — it comes through the task notification and isn't persisted elsewhere. Process each notification as it arrives rather than trying to batch them.
+If a separate instrumented runner records actual wall-clock or usage measurements, retain their source and units. Never compare measured values with missing values treated as zero.
 
 ### Step 4: Grade, aggregate, and launch the viewer
 
@@ -250,7 +246,7 @@ Once all runs are done:
 
 1. **Grade each run** — spawn a grader subagent (or grade inline) that reads `agents/grader.md` and evaluates each assertion against the outputs. Save results to `grading.json` in each run directory. The grading.json expectations array must use the fields `text`, `passed`, and `evidence` (not `name`/`met`/`details` or other variants) — the viewer depends on these exact field names. For assertions that can be checked programmatically, write and run a script rather than eyeballing it — scripts are faster, more reliable, and can be reused across iterations.
 
-2. **Aggregate into benchmark** — run the aggregation script from the skill-creator directory:
+2. **Aggregate into benchmark only with complete measured metrics.** For ordinary native subagent runs, report assertion pass rates directly from `grading.json`, mark time/tokens unavailable, and skip this aggregation command: the bundled upstream aggregator substitutes zeros or output character counts for missing measurements. Do not present those as latency or token-efficiency evidence. For fully instrumented runs only, run the aggregation script from the skill-creator directory:
    ```bash
    python -m scripts.aggregate_benchmark <workspace>/iteration-N --skill-name <name>
    ```
@@ -268,7 +264,7 @@ Put each with_skill version before its baseline counterpart.
      > /dev/null 2>&1 &
    VIEWER_PID=$!
    ```
-   For iteration 2+, also pass `--previous-workspace <workspace>/iteration-<N-1>`.
+   Omit `--benchmark` when measurements are unavailable and no valid benchmark file was generated; the output viewer still supports the qualitative and per-run assertion review. For iteration 2+, also pass `--previous-workspace <workspace>/iteration-<N-1>`.
 
    **Cowork / headless environments:** If `webbrowser.open()` is not available or the environment has no display, use `--static <output_path>` to write a standalone HTML file instead of starting a server. Feedback will be downloaded as a `feedback.json` file when the user clicks "Submit All Reviews". After download, copy `feedback.json` into the workspace directory for the next iteration to pick up.
 
@@ -444,19 +440,13 @@ After packaging, direct the user to the resulting `.skill` file path so they can
 
 ## Headless environment instructions
 
-In a headless environment, the core workflow is the same (draft → test → review → improve → repeat), but because a headless environment doesn't have subagents, some mechanics change. Here's what to adapt:
+Headless OpenCode still supports native subagents. Lack of a display does not justify dropping paired baselines, parallel evaluation, grading, or blind comparison. Follow the normal evaluation workflow whenever `subagent` and suitable workers are available.
 
-**Running test cases**: No subagents means no parallel execution. For each test case, read the skill's SKILL.md, then follow its instructions to accomplish the test prompt yourself. Do them one at a time. This is less rigorous than independent subagents (you wrote the skill and you're also running it, so you have full context), but it's a useful sanity check — and the human review step compensates. Skip the baseline runs — just use the skill to complete the task as requested.
+**Missing delegation capability**: If native subagents or suitable workers are unavailable, report the limitation. A user-approved sequential, main-agent demonstration can give qualitative feedback, but is not an independent comparison or benchmark; do not silently skip baselines and claim comparative gains.
 
-**Reviewing results**: If you can't open a browser (e.g., a headless environment's VM has no display, or you're on a remote server), skip the browser reviewer entirely. Instead, present results directly in the conversation. For each test case, show the prompt and the output. If the output is a file the user needs to see (like a .docx or .xlsx), save it to the filesystem and tell them where it is so they can download and inspect it. Ask for feedback inline: "How does this look? Anything you'd change?"
+**Reviewing results**: Without a display, generate a static review with `--static <output_path>` and share its path. If the user cannot view it, present outputs and per-run assertion results in the conversation and collect feedback there. Do not claim a browser was opened.
 
-**Benchmarking**: Skip the quantitative benchmarking — it relies on baseline comparisons which aren't meaningful without subagents. Focus on qualitative feedback from the user.
-
-**The iteration loop**: Same as before — improve the skill, rerun the test cases, ask for feedback — just without the browser reviewer in the middle. You can still organize results into iteration directories on the filesystem if you have one.
-
-**Description optimization**: This section requires Cursor Agent through `cursor-agent --print --mode ask`. It works headlessly; skip it only when Cursor Agent is unavailable.
-
-**Blind comparison**: Requires subagents. Skip it.
+**Description optimization**: The optional description-classification helper deliberately uses Cursor Agent through `cursor-agent --print --mode ask`, even when OpenCode orchestrates the workflow. It works headlessly; skip it when Cursor Agent is unavailable. It is not the executor for ordinary with-skill/baseline runs.
 
 **Packaging**: The `package_skill.py` script works anywhere with Python and a filesystem. In a headless environment, you can run it and the user can download the resulting `.skill` file.
 
@@ -498,7 +488,7 @@ Repeating one more time the core loop here for emphasis:
 
 - Figure out what the skill is about
 - Draft or edit the skill
-- Run Cursor Agent with the skill context on test prompts
+- Run OpenCode worker subagents with the skill context on test prompts
 - With the user, evaluate the outputs:
   - Create benchmark.json and run `eval-viewer/generate_review.py` to help the user review them
   - Run quantitative evals
