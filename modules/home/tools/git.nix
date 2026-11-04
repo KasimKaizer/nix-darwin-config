@@ -21,4 +21,9 @@
   programs.lazygit = {
     enable = true;
   };
+
+  programs.worktrunk = {
+    enable = true;
+    enableZshIntegration = true;
+  };
 }

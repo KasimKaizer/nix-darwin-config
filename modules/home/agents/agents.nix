@@ -50,6 +50,10 @@ let
     exa = remote "https://mcp.exa.ai/mcp" config.sops.placeholder.zed_exa_api_key;
     context7 = remote "https://mcp.context7.com/mcp" config.sops.placeholder.zed_context7_api_key;
     grep_app = remote "https://mcp.grep.app" null;
+    # Rex docs/community; Discord OAuth requires Rex Beta server membership.
+    superlogical = (remote "https://www.superlogical.com/rex/community-mcp" null) // {
+      oauth = { };
+    };
     "sequential-thinking" =
       stdio "${pkgs.mcp-server-sequential-thinking}/bin/mcp-server-sequential-thinking"
         [ ];

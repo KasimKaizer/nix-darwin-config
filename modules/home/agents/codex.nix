@@ -6,6 +6,13 @@
   mcpServers,
 }:
 let
+  rexSessionStart = pkgs.writeShellScript "rex-codex-session-start" /* bash */ ''
+    if [[ -n "''${REX_BLOCK:-}" && -n "''${REX_BIN_DIR:-}" ]]; then
+      exec "$REX_BIN_DIR/rex" --autostart=false __internal session-start \
+        --agent codex --feature-session-naming=true
+    fi
+  '';
+
   toCodexMcp =
     _: server:
     if server.transport == "http" then
@@ -25,6 +32,18 @@ in
     ".codex/agents/planner.toml".source = ./codex/planner.toml;
     ".codex/agents/researcher.toml".source = ./codex/researcher.toml;
     ".codex/agents/reviewer.toml".source = ./codex/reviewer.toml;
+
+    # Same SessionStart integration Rex installs, kept in the source config.
+    # Codex requires one-time trust for this hook through /hooks.
+    ".codex/hooks.json".text = builtins.toJSON {
+      hooks.SessionStart = lib.lists.singleton {
+        hooks = lib.lists.singleton {
+          type = "command";
+          command = "${rexSessionStart}";
+          timeout = 5;
+        };
+      };
+    };
   };
 
   sops.templates."codex-config.toml" = {

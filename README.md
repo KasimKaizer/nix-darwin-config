@@ -102,9 +102,15 @@ See [Caveats](CAVEATS.md) for the full list of platform quirks and one-time setu
 
 These stay manual and are **not** declared in this flake:
 
-- **Install by hand**: DoGitWork, OnVUE, Rosalyn (App Store / pkg)
+- **Install by hand**: DoGitWork, OnVUE, Rosalyn, [Rex Beta](https://www.superlogical.com/rex)
 - **Auth and state**: `gh auth login`, `az login`, Bitwarden/browser profiles, Gemini/Copilot OAuth, App Store/iCloud login, Ollama config, JetBrains Settings Sync (synced via JetBrains account)
 - **System permissions**: `skhd` needs Accessibility enabled each machine; LuLu rules live outside nix and must be configured in-app
+
+## Rex
+
+See [Getting started with Rex](modules/home/terminal/rex-getting-started.md) for
+setup, shortcuts, project/worktree workflows, agent integration, recovery limits,
+and troubleshooting for this configuration.
 
 ## References
 

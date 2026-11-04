@@ -14,6 +14,16 @@ Specialized domain and task skills:
 - **Authoring or editing an Agent Skill** → in OpenCode, use `skill-creator`; elsewhere, follow the repository's skill-authoring instructions directly.
 - **Python Exercism or CodeCrafters** → `exercism-codecrafters-python-mentor`
 
+- **Rex terminal workspace** → When `REX_SESSION` is set, or the user asks to
+  manage Rex, run `rex skill show` and follow the installed version's guide.
+  Use Rex to arrange tabs and panes, run and inspect commands, switch the
+  displayed session, and give sessions useful names as the task needs.
+  Keep independent coding tasks in separate Git worktrees; sessions and panes
+  alone do not isolate files. `wt` manages worktrees, and Rex's project/worktree
+  pickers reuse sessions by directory even after they are renamed. When
+  reopening an agent conversation, preserve its context and wait for the
+  user's next instruction rather than submitting a continuation prompt.
+
 - **Codebase architecture survey and module deepening** →
   `improve-codebase-architecture` + `codebase-design`; use `grilling` and
   `domain-modeling` for follow-up decisions. Invoke the survey only when the user
