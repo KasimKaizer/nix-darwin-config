@@ -12,6 +12,7 @@
     casks = [
       "android-platform-tools"
       "calibre"
+      "chatgpt"
       "copilot-cli"
       "exifcleaner"
       "freedom"
