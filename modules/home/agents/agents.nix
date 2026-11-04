@@ -88,29 +88,15 @@ let
         tools = [ "*" ];
       };
 
-  toCodexMcp =
-    name: server:
-    if server.transport == "http" then
-      if server.headers ? Authorization then
-        ''
-          [mcp_servers.${name}]
-          url = "${server.url}"
-          http_headers = { Authorization = "${server.headers.Authorization}" }
-        ''
-      else
-        ''
-          [mcp_servers.${name}]
-          url = "${server.url}"
-        ''
-    else
-      ''
-        [mcp_servers.${name}]
-        command = "${server.command}"
-        args = [ ${lib.concatMapStringsSep ", " (arg: "\"${arg}\"") server.args} ]
-      '';
-
-  codexMcpServers = lib.concatStringsSep "\n" (lib.mapAttrsToList toCodexMcp mcpServers);
-
+  codexConfig = import ./codex.nix {
+    inherit
+      lib
+      pkgs
+      homeDirectory
+      flakeDir
+      mcpServers
+      ;
+  };
   cursorConfig = import ./cursor.nix {
     inherit lib homeDirectory mcpServers;
   };
@@ -133,6 +119,7 @@ let
 in
 {
   imports = [
+    codexConfig
     cursorConfig
     feynmanConfig
   ];
@@ -149,23 +136,7 @@ in
       "${homeDirectory}/.copilot"
   '';
 
-  sops.templates = opencode.templates // {
-    "codex-config.toml" = {
-      path = "${homeDirectory}/.codex/config.toml";
-      mode = "0600";
-      content = ''
-        plan_mode_reasoning_effort = "xhigh"
-        model = "gpt-5.6-terra"
-        model_reasoning_effort = "xhigh"
-        approvals_reviewer = "auto_review"
-
-        [projects."${flakeDir}"]
-        trust_level = "trusted"
-
-        ${codexMcpServers}
-      '';
-    };
-  };
+  sops.templates = opencode.templates;
 
   home.file = {
     ".gemini/config/mcp_config.json" = {
