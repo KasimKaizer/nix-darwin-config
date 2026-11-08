@@ -1,4 +1,4 @@
-# Getting started with Rex
+<!--# Getting started with Rex-->
 
 This guide explains the Rex trial setup in this repository: how to get working,
 organize projects, run several agents, and use the configured shortcuts and tools.
@@ -8,16 +8,16 @@ Start with [your first session](#your-first-session). Use the rest as a referenc
 
 ## What this setup provides
 
-| Feature | What you get |
-| --- | --- |
-| Project picker | Choose a directory and open or return to its Rex session |
-| Worktree picker | Choose an existing Git worktree and open or return to its session |
-| Coding layouts | Two terminals side by side, optionally starting Codex or OpenCode |
-| Floating shell | An extra terminal over the current workspace |
-| Scrollback viewer | A snapshot of a terminal's output, opened in Helix |
-| Conversation resume | Pick a saved Codex or OpenCode conversation |
-| Agent workspace control | Guidance for agents to use Rex; a SessionStart hook for Codex |
-| Native navigation | Rex's default keys, with four additional workflow shortcuts |
+| Feature                 | What you get                                                      |
+| ----------------------- | ----------------------------------------------------------------- |
+| Project picker          | Choose a directory and open or return to its Rex session          |
+| Worktree picker         | Choose an existing Git worktree and open or return to its session |
+| Coding layouts          | Two terminals side by side, optionally starting Codex or OpenCode |
+| Floating shell          | An extra terminal over the current workspace                      |
+| Scrollback viewer       | A snapshot of a terminal's output, opened in Helix                |
+| Conversation resume     | Pick a saved Codex or OpenCode conversation                       |
+| Agent workspace control | Guidance for agents to use Rex; a SessionStart hook for Codex     |
+| Native navigation       | Rex's default keys, with four additional workflow shortcuts       |
 
 You install and update Rex manually. Appearance, glass effects, font, cursor,
 sidebar, and Rex notification preferences are configured in the app. Nix manages
@@ -107,13 +107,13 @@ one yourself or choose an agent layout.
 
 ## Sessions, tabs, panes, and conversations
 
-| Term | Meaning in daily use |
-| --- | --- |
-| Rex session | A workspace for a project or worktree |
-| Tab | One terminal arrangement within that session |
-| Pane | An individual terminal running a shell, agent, editor, or other program |
-| Floating pane | A terminal displayed over the tab's other panes |
-| Agent conversation | The agent's own saved chat history, separate from a Rex session |
+| Term               | Meaning in daily use                                                    |
+| ------------------ | ----------------------------------------------------------------------- |
+| Rex session        | A workspace for a project or worktree                                   |
+| Tab                | One terminal arrangement within that session                            |
+| Pane               | An individual terminal running a shell, agent, editor, or other program |
+| Floating pane      | A terminal displayed over the tab's other panes                         |
+| Agent conversation | The agent's own saved chat history, separate from a Rex session         |
 
 A `website` session might have a coding tab with Codex beside a shell, plus a
 development-server tab. A `website-login-fix` session can hold another agent
@@ -130,32 +130,32 @@ output and agent instructions.
 These are Rex defaults. App-recorded shortcuts can override both defaults and
 Lua bindings. Check Settings or the palette for your installed build.
 
-| Task | Shortcut |
-| --- | --- |
-| Find an action | `⌘⇧P` |
-| Switch session | `⌘K` |
-| New session | `⌘⇧N` |
-| New tab | `⌘T` |
-| Next / previous tab | `Control+Tab` / `Control+Shift+Tab` |
-| Go to a numbered tab | `⌘1` through `⌘9` |
-| Split right / below | `⌘D` / `⌘⇧D` |
-| Split using best fit | `⌘Return` |
-| Focus a pane by direction | `⌘⌥Arrow` |
-| Next / previous pane | `⌘]` / `⌘[` |
-| Zoom / restore focused pane | `⌘⇧Return` |
-| Close pane / tab | `⌘W` / `⌘⌥W` |
-| Activity overview | `⌘.` |
-| Toggle sidebar | `⌘/` |
-| Settings | `⌘,` |
+| Task                        | Shortcut                            |
+| --------------------------- | ----------------------------------- |
+| Find an action              | `⌘⇧P`                               |
+| Switch session              | `⌘K`                                |
+| New session                 | `⌘⇧N`                               |
+| New tab                     | `⌘T`                                |
+| Next / previous tab         | `Control+Tab` / `Control+Shift+Tab` |
+| Go to a numbered tab        | `⌘1` through `⌘9`                   |
+| Split right / below         | `⌘D` / `⌘⇧D`                        |
+| Split using best fit        | `⌘Return`                           |
+| Focus a pane by direction   | `⌘⌥Arrow`                           |
+| Next / previous pane        | `⌘]` / `⌘[`                         |
+| Zoom / restore focused pane | `⌘⇧Return`                          |
+| Close pane / tab            | `⌘W` / `⌘⌥W`                        |
+| Activity overview           | `⌘.`                                |
+| Toggle sidebar              | `⌘/`                                |
+| Settings                    | `⌘,`                                |
 
 The four additions from this repository are:
 
-| Configured workflow | Shortcut |
-| --- | --- |
-| Switch Project | `⌃⌘P` |
-| Switch Git Worktree | `⌃⌘W` |
-| Open Floating Shell | `⌃⌘Return` |
-| Inspect Scrollback in Helix | `⌃⌘H` |
+| Configured workflow         | Shortcut   |
+| --------------------------- | ---------- |
+| Switch Project              | `⌃⌘P`      |
+| Switch Git Worktree         | `⌃⌘T`      |
+| Open Floating Shell         | `⌃⌘Return` |
+| Inspect Scrollback in Helix | `⌃⌘H`      |
 
 Layouts and resume actions are available through the palette without custom
 shortcuts. Learn pane focus and zoom first: they make a busy workspace easier to
@@ -215,7 +215,7 @@ rules requiring approval before creating branches or worktrees.
 Creating a worktree does not create a Rex session or move every pane into the
 new directory. After creating it:
 
-1. Keep that shell focused and press **Control+Command+W**.
+1. Keep that shell focused and press **Control+Command+T**.
 2. Select the new worktree's directory.
 3. Choose an agent layout in its Rex session.
 4. Give the agent its task.
@@ -303,23 +303,23 @@ Codex uses its native `codex resume` picker. OpenCode lists saved sessions by
 title and directory, then launches `opencode --session` with the selected ID.
 Pick deliberately when several agents worked in the same repository.
 
-| Agent | Configured resume support |
-| --- | --- |
-| Codex | Native saved-conversation picker |
-| OpenCode | Saved-session picker showing title and directory |
-| Cursor TUI | No dedicated helper; use Cursor's supported resume flow |
-| Antigravity TUI | No dedicated helper; use Antigravity's supported resume flow |
-| Zed ACP | Managed in Zed; these actions do not restore its ACP sessions |
+| Agent           | Configured resume support                                     |
+| --------------- | ------------------------------------------------------------- |
+| Codex           | Native saved-conversation picker                              |
+| OpenCode        | Saved-session picker showing title and directory              |
+| Cursor TUI      | No dedicated helper; use Cursor's supported resume flow       |
+| Antigravity TUI | No dedicated helper; use Antigravity's supported resume flow  |
+| Zed ACP         | Managed in Zed; these actions do not restore its ACP sessions |
 
 ### What survives an interruption
 
-| Event | Expected behavior |
-| --- | --- |
-| Change tabs or sessions | Existing programs keep running |
-| Close the app while its server remains alive | Programs can keep running on the server |
-| Mac sleeps | Local work cannot be relied on to keep progressing |
-| Server stops or Mac reboots | Programs end; supported versions restore the workspace as fresh shells in saved directories |
-| Close a pane, tab, or session | Its affected programs end; this differs from closing the client app |
+| Event                                        | Expected behavior                                                                           |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Change tabs or sessions                      | Existing programs keep running                                                              |
+| Close the app while its server remains alive | Programs can keep running on the server                                                     |
+| Mac sleeps                                   | Local work cannot be relied on to keep progressing                                          |
+| Server stops or Mac reboots                  | Programs end; supported versions restore the workspace as fresh shells in saved directories |
+| Close a pane, tab, or session                | Its affected programs end; this differs from closing the client app                         |
 
 Built-in workspace recovery saves tabs, splits, names, and directories. It does
 not restart agents with conversation context. Agent history comes from the
@@ -375,14 +375,14 @@ version's command details.
 
 ## Customize the setup permanently
 
-| Change | Source of truth |
-| --- | --- |
-| Lua actions, extra keys, layouts, project roots | [rex.nix](rex.nix) |
-| Worktrunk and its shell integration | [tools/git.nix](../tools/git.nix) |
-| Codex hook and notification emission | [agents/codex.nix](../agents/codex.nix) |
-| Agent guidance for Rex | [shared skill routing](../agents/skills/using-agent-skills/SKILL.md) |
-| Font, glass, themes, cursor, sidebar, app notifications | Rex Settings |
-| App version | Manual installation and Rex's update mechanism |
+| Change                                                  | Source of truth                                                      |
+| ------------------------------------------------------- | -------------------------------------------------------------------- |
+| Lua actions, extra keys, layouts, project roots         | [rex.nix](rex.nix)                                                   |
+| Worktrunk and its shell integration                     | [tools/git.nix](../tools/git.nix)                                    |
+| Codex hook and notification emission                    | [agents/codex.nix](../agents/codex.nix)                              |
+| Agent guidance for Rex                                  | [shared skill routing](../agents/skills/using-agent-skills/SKILL.md) |
+| Font, glass, themes, cursor, sidebar, app notifications | Rex Settings                                                         |
+| App version                                             | Manual installation and Rex's update mechanism                       |
 
 Home Manager generates `~/.config/rex/init.lua` and `rex/project-roots`. Make
 permanent changes in `rex.nix`, apply with `nixswitch`, and run `rex config check`
@@ -397,21 +397,21 @@ directory changes its identity; associations are not migrated automatically.
 
 ## Troubleshooting
 
-| Symptom | Check |
-| --- | --- |
-| `rex: command not found` | Open a fresh Rex shell; inspect `printf '%s\n' "$REX_BIN_DIR"` and `command -v rex`. Shell startup must preserve Rex's CLI directory |
-| `rex-workflow` or `wt` is missing | Apply the configuration and open a fresh shell |
-| Custom actions or keys are missing | Run `rex config check`, then `rex config reload`; inspect configured bindings with `rex keymap` |
-| A binding does something else | App-recorded shortcuts in Rex Settings take priority over Lua |
-| Project is missing from the picker | Check roots; only immediate child directories and the flake path are listed |
-| Worktree picker reports no Git repository | Focus a shell inside the intended repository |
-| Picker cannot display the selected session | Enable Remote Control and keep the originating app attached to the session |
-| No focused terminal or directory cannot be determined | Focus a ready shell in the intended directory; wait for startup to finish, then retry |
-| Agent launcher cannot find its command | Check `command -v codex` or `command -v opencode` in a fresh Rex shell |
-| Agent does not know Rex | Ask it to run `rex skill show`; check Codex's `/hooks` approval |
-| Completion notifications are missing | Check the agent's support, Rex settings, and macOS permission; Codex alerts are configured for unfocused work |
-| Saved conversation is missing | Check the agent's saved history and the project/worktree; Rex workspace state is not the conversation archive |
-| Old output is absent from the viewer | Check the pane, retained history, alternate-screen TUI, and whether the server restarted |
+| Symptom                                               | Check                                                                                                                                |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `rex: command not found`                              | Open a fresh Rex shell; inspect `printf '%s\n' "$REX_BIN_DIR"` and `command -v rex`. Shell startup must preserve Rex's CLI directory |
+| `rex-workflow` or `wt` is missing                     | Apply the configuration and open a fresh shell                                                                                       |
+| Custom actions or keys are missing                    | Run `rex config check`, then `rex config reload`; inspect configured bindings with `rex keymap`                                      |
+| A binding does something else                         | App-recorded shortcuts in Rex Settings take priority over Lua                                                                        |
+| Project is missing from the picker                    | Check roots; only immediate child directories and the flake path are listed                                                          |
+| Worktree picker reports no Git repository             | Focus a shell inside the intended repository                                                                                         |
+| Picker cannot display the selected session            | Enable Remote Control and keep the originating app attached to the session                                                           |
+| No focused terminal or directory cannot be determined | Focus a ready shell in the intended directory; wait for startup to finish, then retry                                                |
+| Agent launcher cannot find its command                | Check `command -v codex` or `command -v opencode` in a fresh Rex shell                                                               |
+| Agent does not know Rex                               | Ask it to run `rex skill show`; check Codex's `/hooks` approval                                                                      |
+| Completion notifications are missing                  | Check the agent's support, Rex settings, and macOS permission; Codex alerts are configured for unfocused work                        |
+| Saved conversation is missing                         | Check the agent's saved history and the project/worktree; Rex workspace state is not the conversation archive                        |
+| Old output is absent from the viewer                  | Check the pane, retained history, alternate-screen TUI, and whether the server restarted                                             |
 
 Use `rex config reload` for Lua changes. A server restart interrupts running
 programs and is not a routine configuration-reload step.

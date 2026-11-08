@@ -242,7 +242,7 @@ in
     end
 
     rex.bind("ctrl+cmd+p", "project_picker")
-    rex.bind("ctrl+cmd+w", "worktree_picker")
+    rex.bind("ctrl+cmd+t", "worktree_picker")
     rex.bind("ctrl+cmd+enter", "floating_shell")
     rex.bind("ctrl+cmd+h", "scrollback_viewer")
   '';
