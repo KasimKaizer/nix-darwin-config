@@ -1,112 +1,57 @@
 ---
 name: using-agent-skills
-description: "Discovers and invokes agent skills. Make sure to use this meta-skill whenever starting any engineering task, planning complex work, choosing workflows, fixing bugs, refactoring, building UI, or reviewing code. It governs how all specialized domain skills and lifecycle skills are discovered, composed, and executed across OpenCode, Cursor, Codex, Copilot, Antigravity, and Zed."
+description: Discovers and invokes agent skills. Use when starting a session, or when you need to decide which skill or workflow applies to the piece of work at hand. This is the meta-skill that governs how all other skills are discovered and invoked.
 ---
 
 # Using Agent Skills
 
-This local file is the overlay that replaces the intentionally excluded upstream `using-agent-skills` (MIT).
-Upstream: https://github.com/addyosmani/agent-skills/tree/main/skills/using-agent-skills
-
-Specialized domain and task skills:
-
-- **System / Host / Dotfiles Configuration** → `nix-darwin-home-manager`
-- **Authoring or editing an Agent Skill** → in OpenCode, use `skill-creator`; elsewhere, follow the repository's skill-authoring instructions directly.
-- **Python Exercism or CodeCrafters** → `exercism-codecrafters-python-mentor`
-
-- **Rex terminal workspace** → When `REX_SESSION` is set, or the user asks to
-  manage Rex, run `rex skill show` and follow the installed version's guide.
-  Use Rex to arrange tabs and panes, run and inspect commands, switch the
-  displayed session, and give sessions useful names as the task needs.
-  Keep independent coding tasks in separate Git worktrees; sessions and panes
-  alone do not isolate files. `wt` manages worktrees, and Rex's project/worktree
-  pickers reuse sessions by directory even after they are renamed. When
-  reopening an agent conversation, preserve its context and wait for the
-  user's next instruction rather than submitting a continuation prompt.
-
-- **Codebase architecture survey and module deepening** →
-  `improve-codebase-architecture` + `codebase-design`; use `grilling` and
-  `domain-modeling` for follow-up decisions. Invoke the survey only when the user
-  asks for architecture review; it is intentionally opt-in.
-- **Web/iOS UI direction, design, polish, simplification, or audit** → `ui-taste`; pair with
-  `frontend-ui-engineering` for implementation and `browser-testing-with-devtools`
-  for rendered verification.
-
-- **Behavior-preserving cleanup of AI code smells (10 categories)** → `remove-ai-slops`
-
-Active core and engineering lifecycle skills:
-
-- **Polyglot strict types, modern stacks, and toolchains (Python, TS, Rust, Go)** → `programming`
-- **Structural AST search & code rewrite** → `ast-grep`
-- **About to claim done / passing / fixed** → `verification-before-completion`
-- **UI design tokens, layouts, and components** → `frontend-ui-engineering`
-- **Playwright browser QA & automation** → `browser-testing-with-devtools`
-- **Performance profiling, latency, and memory** → `performance-optimization`
-- **Office & Documents** → `pdf`, `docx`, `pptx`, `xlsx`
-- **Engineering Lifecycle Suite** → `spec-driven-development`, `planning-and-task-breakdown`, `incremental-implementation`, `test-driven-development`, `source-driven-development`, `doubt-driven-development`, `api-and-interface-design`, `debugging-and-error-recovery`, `code-review-and-quality`, `security-and-hardening`, `git-workflow-and-versioning`, `ci-cd-and-automation`, `deprecation-and-migration`, `documentation-and-adrs`, `observability-and-instrumentation`
-
 ## Overview
 
-Agent Skills is a collection of engineering workflow skills organized by development phase and task domain. Each skill encodes a specific process that senior engineers follow. This meta-skill helps you discover and apply the right skill for your current task across any agent environment (OpenCode, Cursor, Codex, Copilot, Antigravity, Zed) on macOS and Linux.
+Agent Skills is a collection of engineering workflow skills organized by development phase. Each skill encodes a specific process that senior engineers follow. This meta-skill helps you discover and apply the right skill for your current task.
 
 ## Skill Discovery
 
-When a task arrives, identify the domain or development phase and apply the corresponding skill:
+When a task arrives, identify the development phase and apply the corresponding skill:
 
 ```
 Task arrives
     │
-    ├── Domain-Specific Tasks
-    │   ├── System / dotfiles / host configuration? ──→ nix-darwin-home-manager
-    │   ├── Authoring or editing an Agent Skill? ─────→ skill-creator (OpenCode only); otherwise repo instructions
-    │   ├── Python Exercism / CodeCrafters? ──────────→ exercism-codecrafters-python-mentor
-    │   ├── PDF / Word / PowerPoint / Excel? ─────────→ pdf / docx / pptx / xlsx
-    │   ├── Structural AST code search / rewrite? ────→ ast-grep
-    │   ├── Web/iOS UI design, polish, or audit? ─────→ ui-taste
-
-    │   ├── Architecture survey? ─────────────────────→ improve-codebase-architecture
-    │   │   └── Follow-up design? ────────────────────→ codebase-design / grilling / domain-modeling
-    │   └── Cleaning AI code smells / de-slop? ───────→ remove-ai-slops
-    │
-    ├── Development Phase
-    │   ├── Define & Scope (requirements, specs)? ────→ spec-driven-development
-    │   ├── Plan & Decompose (break into tasks)? ─────→ planning-and-task-breakdown
-    │   ├── Visual & UI Engineering (styling/UX)? ────→ ui-taste + frontend-ui-engineering
-    │   ├── Implementing Code (polyglot/modern)? ─────→ programming + incremental-implementation
-    │   │   ├── API & Interface boundaries? ──────────→ api-and-interface-design
-    │   │   ├── Verifying framework documentation? ───→ source-driven-development
-    │   │   └── High-stakes logic / state machines? ──→ doubt-driven-development
-    │   ├── Writing & Running Tests (TDD)? ───────────→ test-driven-development
-    │   ├── Investigating Bugs & Failures? ───────────→ debugging-and-error-recovery
-    │   ├── Performance Profiling & Optimization? ────→ performance-optimization
-    │   ├── Telemetry, Metrics, Tracing & Logging? ──→ observability-and-instrumentation
-    │   ├── Browser Testing & Web Automation? ────────→ browser-testing-with-devtools
-    │   ├── Reviewing Code & Quality Gates? ──────────→ code-review-and-quality + security-and-hardening
-    │   ├── About to claim done / complete? ──────────→ verification-before-completion
-    │   ├── Committing, Branching & Git ops? ─────────→ git-workflow-and-versioning
-    │   ├── CI/CD & Pipeline Automation? ─────────────→ ci-cd-and-automation
-    │   ├── Deprecating & Migrating Old Code? ────────→ deprecation-and-migration
-    │   └── Writing ADRs & Documentation? ────────────→ documentation-and-adrs
+    ├── Nix/host settings, managed agents or skills? → nix-darwin-home-manager
+    ├── Don't know what you want yet? ──────→ interview-me
+    ├── Have a rough concept, need variants? → idea-refine
+    ├── Python Exercism or CodeCrafters? → exercism-codecrafters-python-mentor
+    ├── Word, PDF, presentation or spreadsheet? → docx / pdf / pptx / xlsx
+    ├── Authoring a skill? → skill-creator (OpenCode only; otherwise edit source)
+    ├── Work-plan workflow explicitly requested in OpenCode? → work-plan
+    ├── OpenCode visual QA workflow? → visual-qa
+    ├── Architecture survey requested? → improve-codebase-architecture + codebase-design
+    ├── Module boundaries or domain terms? → codebase-design / domain-modeling
+    ├── New project/feature/change? ──→ spec-driven-development
+    ├── Have a spec, need tasks? ──────→ planning-and-task-breakdown
+    ├── Implementing code? ────────────→ incremental-implementation
+    │   ├── Python, TS/JS, Rust, Go, or tests? → programming
+    │   ├── Structural search or codemod? → ast-grep
+    │   ├── UI design or implementation? → ui-taste + frontend-ui-engineering
+    │   ├── API work? ────────────────→ api-and-interface-design
+    │   ├── Need better context? ─────→ context-engineering
+    │   ├── Need doc-verified code? ───→ source-driven-development
+    │   └── Stakes high / unfamiliar code? ──→ doubt-driven-development
+    ├── Writing/running tests? ────────→ test-driven-development
+    │   └── Browser-based? ───────────→ browser-testing-with-devtools
+    ├── Something broke? ──────────────→ debugging-and-error-recovery
+    ├── Reviewing code? ───────────────→ code-review-and-quality
+    │   ├── Too complex? ─────────────→ code-simplification
+    │   ├── Explicit AI slop cleanup? → remove-ai-slops
+    │   ├── Security concerns? ───────→ security-and-hardening
+    │   └── Performance concerns? ────→ performance-optimization
+    ├── Committing/branching? ─────────→ git-workflow-and-versioning
+    ├── CI/CD pipeline work? ──────────→ ci-cd-and-automation
+    ├── Deprecating/migrating? ────────→ deprecation-and-migration
+    ├── Writing docs/ADRs? ───────────→ documentation-and-adrs
+    ├── Adding logs/metrics/alerts? ───→ observability-and-instrumentation
+    ├── Deploying/launching? ─────────→ shipping-and-launch
+    └── Claiming completion or passing checks? → verification-before-completion
 ```
-
-## Universal Task Domain $\longleftrightarrow$ Skill Stack Reference
-
-For complex tasks spanning multiple capabilities, combine complementary skills:
-
-| Task Domain                         | Primary Skill Stack                                                                          | Objective & Workflow                                                                                                                                                         |
-| :---------------------------------- | :------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Visual & UI Engineering**         | `ui-taste` + `frontend-ui-engineering`                                                       | Choose direction, build with project patterns, then inspect real screens, states, and sizes. Add `browser-testing-with-devtools` when browser interaction checks are needed. |
-| **Deep Autonomous Implementation**  | `programming` + `test-driven-development` + `incremental-implementation` + `remove-ai-slops` | Red-green TDD discipline, strict type proofs, thin vertical slices, and behavior-preserving AI slop removal.                                                                 |
-| **Complex Logic & State Machines**  | `doubt-driven-development` + `api-and-interface-design` + `remove-ai-slops`                  | Adversarial cross-examination of non-trivial invariants, stable interface contracts, and clean error types.                                                                  |
-| **Fast Mechanical Edits**           | `verification-before-completion` + `remove-ai-slops`                                         | Evidence-first verification, zero unverified success claims, and clean code deodorizing.                                                                                     |
-| **Planning & Task Breakdown**       | `spec-driven-development` + `planning-and-task-breakdown`                                    | Requirement discovery, acceptance criteria, and verifiable task decomposition.                                                                                               |
-| **Bug Fixing & Diagnostics**        | `debugging-and-error-recovery` + `test-driven-development` + `source-driven-development`     | Reproduce with failing test $\rightarrow$ localize root cause $\rightarrow$ verify with docs $\rightarrow$ minimal fix $\rightarrow$ regression guard.                       |
-| **Production Hardening & Delivery** | `security-and-hardening` + `observability-and-instrumentation` + `ci-cd-and-automation`      | OWASP defense-in-depth, consumer-leveled telemetry, and automated CI/CD deployment gates.                                                                                    |
-| **Host & System Configuration**     | `nix-darwin-home-manager` + `verification-before-completion`                                 | Declarative system configuration, package placement, secret templates, and switch verification.                                                                              |
-
-| **Architecture survey and follow-up** | `improve-codebase-architecture` + `codebase-design`; then `grilling` + `domain-modeling` as needed | Surface deepening opportunities, then explore a selected candidate and keep domain language/decisions coherent. |
-
----
 
 ## Core Operating Behaviors
 
@@ -181,9 +126,9 @@ Every skill includes a verification step. A task is not complete until verificat
 
 Per-skill verification is the local check. The project-wide bar that applies to _every_ change, regardless of which skill is active, is the Definition of Done: tests pass, no regressions, behavior verified at runtime, docs updated. See `references/definition-of-done.md`. It complements each task's acceptance criteria rather than replacing them.
 
----
-
 ## Failure Modes to Avoid
+
+These are the subtle errors that look like productivity but create problems:
 
 1. Making wrong assumptions without checking
 2. Not managing your own confusion — plowing ahead when lost
@@ -196,83 +141,73 @@ Per-skill verification is the local check. The project-wide bar that applies to 
 9. Building without a spec because "it's obvious"
 10. Skipping verification because "it looks right"
 
----
-
 ## Skill Rules
 
 1. **Check for an applicable skill before starting work.** Skills encode processes that prevent common mistakes.
-2. **Skills are workflows, not suggestions.** Follow the steps in order. Don't skip verification steps.
-3. **Multiple skills can apply.** A feature implementation might involve `spec-driven-development` → `planning-and-task-breakdown` → `programming` → `incremental-implementation` → `test-driven-development` → `code-review-and-quality` → `remove-ai-slops` in sequence.
-4. **When in doubt, start with a plan or spec.** If the task is non-trivial and there's no spec, begin with `spec-driven-development`.
 
----
+2. **Skills are workflows, not suggestions.** Follow the steps in order. Don't skip verification steps.
+
+3. **Multiple skills can apply.** A feature implementation might involve `idea-refine` → `spec-driven-development` → `planning-and-task-breakdown` → `context-engineering` → `incremental-implementation` → `test-driven-development` → `code-review-and-quality` → `code-simplification` → `shipping-and-launch` in sequence.
+
+4. **When in doubt, start with a spec.** If the task is non-trivial and there's no spec, begin with `spec-driven-development`.
 
 ## Lifecycle Sequence
 
 For a complete feature, the typical skill sequence is:
 
+Use `interview-me` to clarify uncertain intent and `idea-refine` to explore and
+converge on alternatives before a plan when the task calls for them.
+For this flake, route system and managed-skill changes through `nix-darwin-home-manager`.
+Use `programming` for its supported languages and tests, and pair `ui-taste` with
+`frontend-ui-engineering` for UI work. These routes apply when relevant, not as
+mandatory steps for every feature.
+
 ```
-1.  spec-driven-development     → Define what we're building
-2.  planning-and-task-breakdown → Decompose into atomic task batches
-3.  api-and-interface-design    → Design stable interface contracts and boundary parsing
-4.  source-driven-development   → Verify against official documentation
-5.  programming                 → Apply strict polyglot types and toolchain
-6.  incremental-implementation  → Build slice by slice
-7.  doubt-driven-development    → Cross-examine non-trivial decisions in-flight
-8.  test-driven-development     → Red-green TDD proof for each slice
-9.  ui-taste + frontend-ui-engineering → UI direction, components, and design tokens (if visual)
-10. performance-optimization    → Benchmark and eliminate bottlenecks
-11. observability-and-instrumentation → Add structured logging, metrics, and tracing
-12. remove-ai-slops             → Strip AI code smells while locking behavior
-13. code-review-and-quality     → Multi-axis review before merge
-14. security-and-hardening      → Security audit and input boundary hardening
-15. verification-before-completion → Evidence check before completion claims
-16. git-workflow-and-versioning → Atomic commits, clean history
-17. documentation-and-adrs      → Document decisions and architecture
-18. ci-cd-and-automation        → Automated quality gates on every change
-19. deprecation-and-migration   → Retire old systems safely when needed
+1.  interview-me                → Extract what the user actually wants
+2.  idea-refine                 → Refine vague ideas
+3.  spec-driven-development     → Define what we're building
+4.  planning-and-task-breakdown → Break into verifiable chunks
+5.  context-engineering         → Load the right context
+6.  source-driven-development   → Verify against official docs
+7.  incremental-implementation  → Build slice by slice
+8.  observability-and-instrumentation → Instrument as you build (runs parallel with 7-10, not after)
+9.  doubt-driven-development    → Cross-examine non-trivial decisions in-flight
+10. test-driven-development     → Prove each slice works
+11. code-review-and-quality     → Review before merge
+12. code-simplification         → Reduce unnecessary complexity while preserving behavior
+13. verification-before-completion → Verify completion claims
+14. git-workflow-and-versioning → Clean commit history
+15. documentation-and-adrs      → Document decisions
+16. deprecation-and-migration   → Retire old systems and move users safely when needed
+17. shipping-and-launch         → Deploy safely
 ```
 
----
+Not every task needs every skill. A bug fix might only need: `debugging-and-error-recovery` → `test-driven-development` → `code-review-and-quality`.
 
 ## Quick Reference
 
-### Engineering Lifecycle Skills
-
-| Phase       | Skill                                  | One-Line Summary                                                             |
-| :---------- | :------------------------------------- | :--------------------------------------------------------------------------- |
-| **Scope**   | `spec-driven-development`              | Requirements, contracts, and acceptance criteria before code                 |
-| **Plan**    | `planning-and-task-breakdown`          | Decompose work into small, verifiable, atomic tasks                          |
-| **API**     | `api-and-interface-design`             | Stable interfaces with clear contracts and parse-don't-validate              |
-| **Code**    | `programming`                          | Strict types, modern stacks, and canonical toolchains (Python, TS, Rust, Go) |
-| **Build**   | `incremental-implementation`           | Thin vertical slices, test each before expanding                             |
-| **Docs**    | `source-driven-development`            | Verify against official documentation before implementing                    |
-| **Logic**   | `doubt-driven-development`             | Adversarial fresh-context review of every non-trivial decision               |
-| **UI**      | `ui-taste` + `frontend-ui-engineering` | UI direction, design tokens, layouts, and components                         |
-| **Browser** | `browser-testing-with-devtools`        | Playwright browser QA, DOM inspection, and console verification              |
-
-| **De-slop** | `remove-ai-slops` | Behavior-preserving cleanup of AI code bloat and smells (10 categories) |
-| **TDD** | `test-driven-development` | Failing test first (Given/When/Then), then make it pass |
-| **Debug** | `debugging-and-error-recovery` | Reproduce $\rightarrow$ localize $\rightarrow$ fix $\rightarrow$ regression guard |
-| **Perf** | `performance-optimization` | Profile bottlenecks, latency, and resource utilization |
-| **Observe** | `observability-and-instrumentation` | Log, metric, trace, and instrument production paths |
-| **Review** | `code-review-and-quality` | Multi-axis review with quality gates before merge |
-| **Security** | `security-and-hardening` | OWASP prevention, input parsing at boundaries, least privilege |
-| **Done** | `verification-before-completion` | Require real tool evidence before making any completion claim |
-| **Git** | `git-workflow-and-versioning` | Atomic commits, clean history, semver, and release logs |
-| **CI** | `ci-cd-and-automation` | Automated quality gates on every change |
-| **Docs** | `documentation-and-adrs` | Document the why, not just the what |
-| **Sunset** | `deprecation-and-migration` | Remove old systems and migrate users safely |
-
-### Specialized & Domain Skills
-
-| Domain         | Skill                                 | One-Line Summary                                                                      |
-| :------------- | :------------------------------------ | :------------------------------------------------------------------------------------ |
-| **AST**        | `ast-grep`                            | Structural AST search, linting, and rewrite rules                                     |
-| **Office**     | `pdf` / `docx` / `pptx` / `xlsx`      | Parse, author, and manipulate office document and spreadsheet formats                 |
-| **System**     | `nix-darwin-home-manager`             | Declarative macOS, Homebrew, dotfiles, and system configuration                       |
-| **Meta**       | `skill-creator` (OpenCode only)       | Author, iterate, benchmark, and optimize Agent Skills; other clients follow repo instructions |
-| **Practice**   | `exercism-codecrafters-python-mentor` | Socratic mentor for Python exercises and challenges                                   |
-| **Web/iOS UI** | `ui-taste`                            | Design, redesign, polish, simplify, or audit web/iOS interfaces using Uizze playbooks |
-
-| **Architecture** | `improve-codebase-architecture`, `codebase-design`, `grilling`, `domain-modeling` | Find architecture deepening opportunities and support the follow-up design conversation. |
+| Phase  | Skill                             | One-Line Summary                                                           |
+| ------ | --------------------------------- | -------------------------------------------------------------------------- |
+| Define | interview-me                      | Surface what the user actually wants before any plan, spec, or code exists |
+| Define | idea-refine                       | Refine ideas through structured divergent and convergent thinking          |
+| Define | spec-driven-development           | Requirements and acceptance criteria before code                           |
+| Plan   | planning-and-task-breakdown       | Decompose into small, verifiable tasks                                     |
+| Build  | incremental-implementation        | Thin vertical slices, test each before expanding                           |
+| Build  | source-driven-development         | Verify against official docs before implementing                           |
+| Build  | doubt-driven-development          | Adversarial fresh-context review of every non-trivial decision             |
+| Build  | context-engineering               | Right context at the right time                                            |
+| Build  | frontend-ui-engineering           | Production-quality UI with accessibility                                   |
+| Build  | api-and-interface-design          | Stable interfaces with clear contracts                                     |
+| Verify | test-driven-development           | Failing test first, then make it pass                                      |
+| Verify | browser-testing-with-devtools     | Chrome DevTools MCP for runtime verification                               |
+| Verify | debugging-and-error-recovery      | Reproduce → localize → fix → guard                                         |
+| Review | code-review-and-quality           | Five-axis review with quality gates                                        |
+| Review | code-simplification               | Preserve behavior while reducing unnecessary complexity                    |
+| Review | security-and-hardening            | OWASP prevention, input validation, least privilege                        |
+| Review | performance-optimization          | Measure first, optimize only what matters                                  |
+| Ship   | git-workflow-and-versioning       | Atomic commits, clean history                                              |
+| Ship   | ci-cd-and-automation              | Automated quality gates on every change                                    |
+| Ship   | deprecation-and-migration         | Remove old systems and migrate users safely                                |
+| Ship   | documentation-and-adrs            | Document the why, not just the what                                        |
+| Ship   | observability-and-instrumentation | Structured logs, RED metrics, traces, symptom-based alerts                 |
+| Ship   | shipping-and-launch               | Pre-launch checklist, monitoring, rollback plan                            |

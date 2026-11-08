@@ -17,6 +17,10 @@ let
   addy = {
     enable = [
       "spec-driven-development"
+      "context-engineering"
+      "shipping-and-launch"
+      "interview-me"
+      "idea-refine"
       "planning-and-task-breakdown"
       "incremental-implementation"
       "test-driven-development"
@@ -35,10 +39,6 @@ let
       "browser-testing-with-devtools"
       "performance-optimization"
       "code-simplification"
-      # "idea-refine"
-      # "interview-me"
-      # "context-engineering"
-      # "shipping-and-launch"
     ];
   };
 
@@ -57,7 +57,6 @@ let
       "domain-modeling"
       "improve-codebase-architecture"
     ];
-    productivity = [ "grilling" ];
   };
 
   opencodeOnlySkills = [
@@ -115,14 +114,6 @@ in
         filter.nameRegex = discoverRegex mattpocock.engineering;
       };
 
-      mattpocock-productivity = {
-        # github:mattpocock/skills
-        path = inputs.mattpocock-skills;
-        subdir = "skills/productivity";
-        filter.maxDepth = 1;
-        filter.nameRegex = discoverRegex mattpocock.productivity;
-      };
-
       superpowers = {
         # github:obra/superpowers
         path = inputs.superpowers;
@@ -147,17 +138,24 @@ in
     };
 
     skills = {
-      explicit = lib.genAttrs opencodeOnlySkills (_: {
-        from = "local";
-        agents = lib.lists.singleton "opencode";
-      });
+      explicit =
+        # Shared references live outside individual skill bundles. Resolve them
+        # against the pinned source; ../../ traversal across symlinks is unsafe.
+        lib.genAttrs addy.enable (_: {
+          from = "addy";
+          transform =
+            { original, ... }:
+            lib.replaceStrings [ "../../references/" ] [ "${inputs.agent-skills}/references/" ] original;
+        })
+        // lib.genAttrs opencodeOnlySkills (_: {
+          from = "local";
+          agents = lib.lists.singleton "opencode";
+        });
 
       enableAll = [ "local" ];
       enable =
-        addy.enable
-        ++ anthropic.enable
+        anthropic.enable
         ++ mattpocock.engineering
-        ++ mattpocock.productivity
         ++ [
           "verification-before-completion"
           "ast-grep"
