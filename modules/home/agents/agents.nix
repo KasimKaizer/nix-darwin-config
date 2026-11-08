@@ -102,7 +102,12 @@ let
       ;
   };
   cursorConfig = import ./cursor.nix {
-    inherit lib homeDirectory mcpServers;
+    inherit
+      lib
+      pkgs
+      homeDirectory
+      mcpServers
+      ;
   };
   opencode = import ./opencode.nix {
     inherit

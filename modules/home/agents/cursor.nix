@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   homeDirectory,
   mcpServers,
 }:
@@ -24,8 +25,13 @@ in
     ".cursor/agents/reviewer.md".source = ./cursor/reviewer.mdc;
     ".cursor/agents/verifier.md".source = ./cursor/verifier.mdc;
 
+    # Local user rules apply across projects, including CLI/ACP sessions.
+    # https://cursor.com/help/customization/rules
+    ".cursor/rules/workflow.mdc".source = ./cursor/workflow.mdc;
+
     # Cursor CLI has its own permission system. Auto-review evaluates commands
     # outside this routine allowlist and requests confirmation for risky work.
+    # Arbitrary package scripts and git branch mutations go through auto-review.
     ".cursor/cli-config.json".text = builtins.toJSON {
       version = 1;
       editor.vimMode = false;
@@ -57,7 +63,9 @@ in
           "Shell(git:status*)"
           "Shell(git:diff*)"
           "Shell(git:log*)"
-          "Shell(git:branch*)"
+          "Shell(git:branch)"
+          "Shell(git:branch --show-current)"
+          "Shell(git:branch --list*)"
           "Shell(git:show*)"
           "Shell(git:rev-parse*)"
           "Shell(git:ls-files*)"
@@ -66,17 +74,12 @@ in
           "Shell(nix:eval*)"
           "Shell(nix:build*)"
           "Shell(npm:test*)"
-          "Shell(npm:run*)"
           "Shell(pnpm:test*)"
-          "Shell(pnpm:run*)"
           "Shell(yarn:test*)"
-          "Shell(yarn:run*)"
           "Shell(bun:test*)"
-          "Shell(bun:run*)"
           "Shell(pytest)"
           "Shell(ruff)"
           "Shell(mypy)"
-          "Shell(uv:run*)"
           "Shell(cargo:build*)"
           "Shell(cargo:test*)"
           "Shell(cargo:check*)"
@@ -119,7 +122,21 @@ in
     path = "${homeDirectory}/.cursor/mcp.json";
     mode = "0600";
     content = builtins.toJSON {
-      mcpServers = lib.mapAttrs toMcpJson mcpServers;
+      mcpServers = lib.mapAttrs toMcpJson mcpServers // {
+        # Complements Playwright and supplies the browser-testing skill's tools.
+        # Pinned npm release; first launch needs registry access and a local Chrome.
+        "chrome-devtools" = {
+          command = "${pkgs.nodejs}/bin/npx";
+          args = [
+            "--yes"
+            "chrome-devtools-mcp@1.12.0"
+            "--isolated"
+            "--headless"
+            "--no-usage-statistics"
+            "--no-performance-crux"
+          ];
+        };
+      };
     };
   };
 }
