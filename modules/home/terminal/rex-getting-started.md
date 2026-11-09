@@ -133,7 +133,6 @@ Lua bindings. Check Settings or the palette for your installed build.
 | Task                        | Shortcut                            |
 | --------------------------- | ----------------------------------- |
 | Find an action              | `⌘⇧P`                               |
-| Switch session              | `⌘K`                                |
 | New session                 | `⌘⇧N`                               |
 | New tab                     | `⌘T`                                |
 | Next / previous tab         | `Control+Tab` / `Control+Shift+Tab` |
@@ -148,14 +147,25 @@ Lua bindings. Check Settings or the palette for your installed build.
 | Toggle sidebar              | `⌘/`                                |
 | Settings                    | `⌘,`                                |
 
-The four additions from this repository are:
+The additions from this repository are:
 
 | Configured workflow         | Shortcut   |
 | --------------------------- | ---------- |
+| Switch workspace            | `⌘K`       |
+| Switch tab in workspace     | `⌘⇧K`      |
 | Switch Project              | `⌃⌘P`      |
 | Switch Git Worktree         | `⌃⌘T`      |
 | Open Floating Shell         | `⌃⌘Return` |
 | Inspect Scrollback in Helix | `⌃⌘H`      |
+
+The workspace and tab pickers open searchable floating lists. Press `⌥1` through
+`⌥9` to select the first through ninth search result, counted from the top.
+Type to filter, use arrows and Return for any result, or Escape to cancel.
+In Rex Settings → Terminal → Keyboard, the Option key must send Alt for these
+number shortcuts. Enable **Remote Control** under **Rex Server** so the picker
+can ask the originating Rex app to switch workspaces or tabs.
+The tab picker lists only tabs in the current workspace. `⌘K` replaces Rex's
+native session picker; **Change Session…** remains available in the palette.
 
 Layouts and resume actions are available through the palette without custom
 shortcuts. Learn pane focus and zoom first: they make a busy workspace easier to
