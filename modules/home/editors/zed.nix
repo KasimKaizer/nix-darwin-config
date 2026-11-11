@@ -131,10 +131,10 @@ in
     prettier
     typescript
     # Markdown
-    marksman
-    # Azure IaC
-    dotnet-sdk_8
-    bicep-lsp
+    markdown-oxide
+    # Azure IaC (Zed's Bicep extension installs its server with `dotnet tool`).
+    # Microsoft's prebuilt SDK: source builds of .NET often miss the darwin cache.
+    dotnetCorePackages.sdk_8_0-bin
     terraform
     terraform-ls
   ];

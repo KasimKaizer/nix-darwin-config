@@ -11,10 +11,6 @@ in
 {
   programs.helix.languages = {
     language-server = {
-      # Helix's built-in Bicep definition expects `bicep-langserver`, while
-      # nixpkgs exposes the server application as `Bicep.LangServer`.
-      bicep-langserver.command = "Bicep.LangServer";
-
       terraform-ls.config.experimentalFeatures.prefillRequiredFields = true;
 
       nixd = {
@@ -211,7 +207,7 @@ in
       }
       {
         name = "markdown";
-        language-servers = [ "marksman" ];
+        language-servers = [ "markdown-oxide" ];
       }
       {
         name = "toml";

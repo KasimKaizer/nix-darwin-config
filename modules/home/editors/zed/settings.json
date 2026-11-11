@@ -340,7 +340,7 @@
     "toml": true,
     // Language servers
     "codebook": true,
-    "marksman": true,
+    "markdown-oxide": true,
     "pyrefly": true,
     "tsgo": true,
     // Snippets
@@ -461,7 +461,7 @@
       "tab_size": 4,
     },
     "Markdown": {
-      "language_servers": ["marksman"],
+      "language_servers": ["markdown-oxide"],
       "soft_wrap": "editor_width",
       // Preserve trailing double-spaces (Markdown hard line breaks).
       "remove_trailing_whitespace_on_save": false,
