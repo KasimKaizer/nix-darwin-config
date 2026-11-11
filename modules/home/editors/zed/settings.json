@@ -30,7 +30,6 @@
     },
     "mcp-server-grep-app": {
       "enabled": true,
-      "remote": true,
       "url": "https://mcp.grep.app",
     },
     "mcp-server-sequential-thinking": {
