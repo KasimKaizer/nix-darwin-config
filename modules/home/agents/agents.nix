@@ -103,6 +103,7 @@ let
   };
   cursorConfig = import ./cursor.nix {
     inherit
+      config
       lib
       pkgs
       homeDirectory
