@@ -12,6 +12,7 @@ notes/
 
 # Local agent settings and worktrees
 /.claude/
+/.cursor/
 /.serena/
 /.codegraph/
 
