@@ -36,44 +36,6 @@ let
       }
 
       case "''${1:-}" in
-        sessions|tabs)
-          kind="$1"
-          session_id="$2"
-          client_id="$3"
-          if [[ "$kind" == sessions ]]; then
-            entries=$(rex --autostart=false ls --json |
-              jq --raw-output '.sessions[] | [.session_id, .label] | @tsv')
-          else
-            entries=$(rex --autostart=false session inspect "$session_id" --json |
-              jq --raw-output '.windows[] | [.window_id, .label] | @tsv')
-          fi
-
-          # Positions refer to the current search results, starting at the top.
-          # Ignore a number when that result does not exist.
-          number_bindings=()
-          for number in {1..9}; do
-            number_bindings+=(
-              "--bind=alt-$number:transform:if [ \"\$FZF_MATCH_COUNT\" -ge $number ]; then printf 'pos($number)+accept'; fi"
-            )
-          done
-          selected=$(printf '%s\n' "$entries" |
-            fzf --delimiter=$'\t' --with-nth=2.. --no-sort --sync \
-              --prompt="$kind> " --layout=reverse --height=100% \
-              --header='Option+1–9: select result 1–9 · Enter: select · Esc: cancel' \
-              "''${number_bindings[@]}") || {
-            status=$?
-            case "$status" in 1|130) exit 0 ;; *) exit "$status" ;; esac
-          }
-          [[ -n "$selected" ]] || exit 0
-          selected_id="''${selected%%$'\t'*}"
-          if [[ "$kind" == sessions ]]; then
-            rex --autostart=false --client "$client_id" 'do' session.select \
-              session_id="$selected_id"
-          else
-            rex --autostart=false --client "$client_id" 'do' session.select \
-              session_id="$session_id" window_id="$selected_id"
-          fi
-          ;;
         projects)
           {
             printf '%s\0' ${lib.escapeShellArg flakeDir}
@@ -116,7 +78,7 @@ let
           exec opencode --session "''${selected%%$'\t'*}"
           ;;
         *)
-          echo 'Usage: rex-workflow sessions|tabs SESSION CLIENT | projects|worktrees|scrollback SESSION BLOCK|resume-opencode' >&2
+          echo 'Usage: rex-workflow projects|worktrees|scrollback SESSION BLOCK|resume-opencode' >&2
           exit 2
           ;;
       esac
@@ -245,22 +207,6 @@ in
       name = "worktree_picker", title = "Switch Git Worktree…", category = "Workflow",
       run = function(ctx) return floating(ctx, { workflow, "worktrees" }, "Worktrees") end,
     }
-    for _, kind in ipairs({ "sessions", "tabs" }) do
-      local picker = kind
-      local title = picker == "sessions" and "Switch Workspace…" or "Switch Tab…"
-      rex.action{
-        name = picker .. "_picker", title = title, category = "Workflow",
-        run = function(ctx)
-          if not ctx.client_id then error("Open the picker from the Rex app", 0) end
-          return checked(rex.session.new_layer{
-            bounds = { 0.1, 0.1, 0.8, 0.8 },
-            focus = true,
-            layout = block(${builtins.toJSON homeDirectory},
-              { workflow, picker, ctx.session_id, ctx.client_id }, title),
-          })
-        end,
-      }
-    end
     rex.action{
       name = "floating_shell", title = "Open Floating Shell", category = "Workflow",
       run = function(ctx) return floating(ctx, nil, "Shell") end,
@@ -295,8 +241,8 @@ in
       }
     end
 
-    rex.bind("cmd+k", "sessions_picker")
-    rex.bind("shift+cmd+k", "tabs_picker")
+    -- Cmd+K stays on the app's native Change Session… picker.
+    rex.bind("shift+cmd+k", "pane.go_to")
     rex.bind("ctrl+cmd+p", "project_picker")
     rex.bind("ctrl+cmd+t", "worktree_picker")
     rex.bind("ctrl+cmd+enter", "floating_shell")
