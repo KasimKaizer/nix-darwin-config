@@ -2,7 +2,7 @@
 
 This guide explains the Rex trial setup in this repository: how to get working,
 organize projects, run several agents, and use the configured shortcuts and tools.
-Rex runs alongside Ghostty + Zellij while you evaluate it.
+Rex is the configured terminal app in this setup.
 
 Start with [your first session](#your-first-session). Use the rest as a reference.
 
@@ -21,8 +21,7 @@ Start with [your first session](#your-first-session). Use the rest as a referenc
 
 You install and update Rex manually. Appearance, glass effects, font, cursor,
 sidebar, and Rex notification preferences are configured in the app. Nix manages
-the Lua workflows and agent configuration described here. The existing terminal
-launch shortcut still opens Ghostty.
+the Lua workflows and agent configuration described here. Rex remains available from the Dock.
 
 ## Your first session
 
@@ -60,8 +59,8 @@ Open Settings with **Command+,**.
   actions such as switching the displayed session.
 - In **Notifications**, enable completion and needs-attention notifications.
   Allow Rex notifications in macOS when requested.
-- Keep your existing glass and visual choices. To match Ghostty, choose
-  **JetBrainsMono Nerd Font Mono, 15pt** under terminal typography.
+- Keep your existing glass and visual choices. Set terminal typography to
+  **JetBrainsMono Nerd Font Mono, 15pt**.
 
 For Codex, start a session and use **`/hooks`** to approve the Rex SessionStart
 hook. It supplies Rex context and session-naming guidance. It does not restore

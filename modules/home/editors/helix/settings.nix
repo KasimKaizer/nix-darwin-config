@@ -85,7 +85,6 @@
             l.f = ":format";
             l.r = ":lsp-restart";
             l.g = ":sh gh browse";
-            l.m = ":sh zellij run -fc --height 100% --width 100% -x 0 -y 0 -- glow -p *.md";
             l.y = [
               ":new"
               ":insert-output lazygit"
@@ -98,7 +97,7 @@
     };
 
     # Builtin onedark with One Dark Pro background greys, matching Zed's
-    # one-dark-pro extension and the Ghostty "one-dark-pro" theme.
+    # one-dark-pro extension.
     themes.onedark_pro = {
       inherits = "onedark";
       palette = {

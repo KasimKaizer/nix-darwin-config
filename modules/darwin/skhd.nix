@@ -5,7 +5,6 @@
     enable = true;
     skhdConfig = ''
       # Open apps (⌘⌥ + letter)
-      cmd + alt - t : open -a Ghostty
       cmd + alt - m : open -a Mail
       cmd + alt - f : open -a Finder
       cmd + alt - s : open -a Safari

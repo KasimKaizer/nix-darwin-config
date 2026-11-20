@@ -18,7 +18,6 @@
       "freedom"
       "grammarly-desktop"
       "grok-bot"
-      "ghostty"
       "google-chrome"
       "iina"
       "intellij-idea"

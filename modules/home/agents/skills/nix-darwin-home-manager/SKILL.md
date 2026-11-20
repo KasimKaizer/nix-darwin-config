@@ -103,7 +103,7 @@ Then the rest of the map:
 | Config that **contains** secrets | `sops.templates` + `config.sops.placeholder.*` |
 | Create or modify a custom Agent Skill | `modules/home/agents/skills/<name>/SKILL.md` — auto-installed into `~/.agents/skills/<name>` on switch |
 | Install / enable a third-party Agent Skill | `modules/home/agents/skills.nix` (`sources` + `skills.enable`) |
-| Ghostty / Zellij | `modules/home/terminal/` |
+| Rex | `modules/home/terminal/rex.nix` |
 | Starship | `modules/home/shell/starship.nix` |
 
 Lookups: [nixpkgs](https://search.nixos.org/packages), [Homebrew](https://formulae.brew.sh/). GUI apps are Homebrew, not `home.packages`. New CLIs are nixpkgs, not `brew install` — after `rg` so you do not duplicate a cask.

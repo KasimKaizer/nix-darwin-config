@@ -92,7 +92,7 @@ This flake is organized by concern: `default.nix` files are import lists, one mo
 - **Flake entry**: `flake.nix` (inputs, `hosts` registry, `mkDarwin`, formatter) and `flake.lock` (pinned inputs including private vault)
 - **Hosts**: `hosts/<name>/` for per-machine darwin settings (e.g. `audio.nix` for hardware quirks, `default.nix` for host identity)
 - **System**: `modules/darwin/` (`core.nix` for nix/GC/PAM/firewall/shells/nixPath/uninstaller, `defaults.nix` + `defaults/` for macOS defaults, `homebrew.nix` for casks/brews/masApps, `nix-homebrew.nix` for taps, `fonts.nix`, `skhd.nix`)
-- **User**: `modules/home/` (`default.nix` for imports/packages, `shell/` for zsh/starship, `terminal/` for ghostty/zellij, `editors/` for helix/vscode/zed, `tools/` for cli/git/ssh/secrets/exercism/azure, `agents/` for skills, MCPs, and various agent configs)
+- **User**: `modules/home/` (`default.nix` for imports/packages, `shell/` for zsh/starship, `terminal/` for Rex, `editors/` for helix/vscode/zed, `tools/` for cli/git/ssh/secrets/exercism/azure, `agents/` for skills, MCPs, and various agent configs)
 
 Rules of thumb: CLI package → `modules/home/default.nix` (or owning `tools/` module); GUI/MAS app → `modules/darwin/homebrew.nix`; macOS default → `modules/darwin/defaults.nix`.
 

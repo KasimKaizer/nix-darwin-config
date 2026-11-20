@@ -11,9 +11,7 @@
   imports = [
     ./shell/zsh.nix
     ./shell/starship.nix
-    ./terminal/ghostty.nix
     ./terminal/rex.nix
-    ./terminal/zellij.nix
     ./editors/helix.nix
     ./editors/vscode.nix
     ./editors/zed.nix

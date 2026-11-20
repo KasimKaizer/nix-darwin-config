@@ -25,7 +25,7 @@ One module ≈ one concern. `default.nix` files are import lists.
 
 ## Homebrew vs nixpkgs
 
-- **casks** — GUI apps (`zed`, `ghostty`, `visual-studio-code`, …) and a few
+- **casks** — GUI apps (`zed`, `visual-studio-code`, …) and a few
   CLIs shipped as casks (`copilot-cli`, `android-platform-tools`).
   `cursor-cli` and `antigravity-cli` are nixpkgs (`home.packages`), not casks.
 - **masApps** — `{ PrettyName = 123456789; }`. Needs App Store login on the
