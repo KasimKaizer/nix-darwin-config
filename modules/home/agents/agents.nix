@@ -64,18 +64,6 @@ let
     codegraph = stdio (toString codegraphMcpServer) [ ];
   };
 
-  toAntigravity =
-    _: server:
-    if server.transport == "http" then
-      {
-        serverUrl = server.url;
-        inherit (server) headers;
-      }
-    else
-      {
-        inherit (server) command args;
-      };
-
   toCopilot =
     _: server:
     if server.transport == "http" then
@@ -142,19 +130,12 @@ in
       "${homeDirectory}/.cursor/agents" \
       "${homeDirectory}/.cursor/rules" \
       "${homeDirectory}/.codex" \
-      "${homeDirectory}/.gemini/config" \
       "${homeDirectory}/.copilot"
   '';
 
   sops.templates = opencode.templates;
 
   home.file = {
-    ".gemini/config/mcp_config.json" = {
-      force = true;
-      text = builtins.toJSON {
-        mcpServers = lib.mapAttrs toAntigravity mcpServers;
-      };
-    };
     ".copilot/mcp-config.json" = {
       force = true;
       text = builtins.toJSON {
