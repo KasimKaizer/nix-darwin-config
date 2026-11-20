@@ -7,6 +7,7 @@
     # Communication
     "/System/Applications/Mail.app"
     "/Applications/WhatsApp.app"
+    "/Applications/Grok Bot.app"
 
     # Sync & networking
     "${homeDirectory}/Applications/OneDrive.app"
