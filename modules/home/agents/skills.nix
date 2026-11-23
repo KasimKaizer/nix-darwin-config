@@ -165,9 +165,7 @@ in
 
     # `link` is home.file (HM-native); destinations must be static relative to $HOME.
     targets = {
-      agents = skillTarget ".agents/skills";
       cursor = skillTarget ".cursor/skills";
-      codex = skillTarget ".codex/skills";
       opencode = skillTarget ".config/opencode/skills";
       copilot = skillTarget ".copilot/skills";
     };

@@ -3,7 +3,6 @@
   pkgs,
   homeDirectory,
   flakeDir,
-  mcpServers,
 }:
 let
   rexSessionStart = pkgs.writeShellScript "rex-codex-session-start" /* bash */ ''
@@ -12,26 +11,9 @@ let
         --agent codex --feature-session-naming=true
     fi
   '';
-
-  toCodexMcp =
-    _: server:
-    if server.transport == "http" then
-      {
-        inherit (server) url;
-      }
-      // lib.optionalAttrs (server.headers != { }) {
-        http_headers = server.headers;
-      }
-    else
-      {
-        inherit (server) command args;
-      };
 in
 {
   home.file = {
-    ".codex/agents/planner.toml".source = ./codex/planner.toml;
-    ".codex/agents/researcher.toml".source = ./codex/researcher.toml;
-    ".codex/agents/reviewer.toml".source = ./codex/reviewer.toml;
 
     # Same SessionStart integration Rex installs, kept in the source config.
     # Codex requires one-time trust for this hook through /hooks.
@@ -50,17 +32,13 @@ in
     path = "${homeDirectory}/.codex/config.toml";
     mode = "0600";
     file = (pkgs.formats.toml { }).generate "codex-config.toml" {
-      model = "gpt-6.1-sol";
-      model_reasoning_effort = "high";
+      model = "gpt-6.2-sol";
+      model_reasoning_effort = "medium";
       plan_mode_reasoning_effort = "high";
       sandbox_mode = "workspace-write";
       approval_policy = "on-request";
       # Deliberately review escalation automatically, rather than prompting for each one.
       approvals_reviewer = "auto_review";
-
-      developer_instructions = builtins.readFile ./codex/root.md;
-
-      agents.max_concurrent_threads_per_session = 3;
 
       sandbox_workspace_write.network_access = false;
 
@@ -83,9 +61,10 @@ in
           "model-with-reasoning"
           "current-dir"
           "git-branch"
-          "context-remaining"
+          "context-used"
           "five-hour-limit"
           "weekly-limit"
+          "branch-changes"
         ];
       };
 
@@ -107,7 +86,7 @@ in
         "unified-computer-use@openai-bundled".enabled = true;
         "code-review@openai-bundled".enabled = true;
         "visualize@openai-bundled".enabled = true;
-        "computer-use@openai-bundled".enabled = true;
+        "computer-use@openai-bundled".enabled = false;
         "documents@openai-primary-runtime".enabled = true;
         "pdf@openai-primary-runtime".enabled = true;
         "spreadsheets@openai-primary-runtime".enabled = true;
@@ -116,8 +95,6 @@ in
       };
 
       projects.${flakeDir}.trust_level = "trusted";
-
-      mcp_servers = lib.mapAttrs toCodexMcp mcpServers;
     };
   };
 }

@@ -86,7 +86,6 @@ let
       pkgs
       homeDirectory
       flakeDir
-      mcpServers
       ;
   };
   cursorConfig = import ./cursor.nix {
