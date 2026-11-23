@@ -27,6 +27,7 @@
       "lulu"
       "mullvad-browser"
       # "ollama-app"
+      "spokenly"
       "spotify"
       "utm"
       "visual-studio-code"
