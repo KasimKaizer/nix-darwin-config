@@ -35,8 +35,6 @@
               "skill-installer"
             ];
       };
-
-      projects."${homeDirectory}/Developer/projects/ai-coding-crash-course".trust_level = "trusted";
     };
   };
 
