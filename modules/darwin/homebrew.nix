@@ -40,10 +40,7 @@
       "homebrew/bundle"
     ];
 
-    brews = [
-      "mas"
-      "opencode"
-    ];
+    brews = [ "mas" ];
 
     masApps = {
       AmazonKindle = 302584613;
