@@ -4,26 +4,33 @@
   homeDirectory,
   flakeDir,
 }:
-let
-  rexSessionStart = pkgs.writeShellScript "rex-codex-session-start" /* bash */ ''
-    if [[ -n "''${REX_BLOCK:-}" && -n "''${REX_BIN_DIR:-}" ]]; then
-      exec "$REX_BIN_DIR/rex" --autostart=false __internal session-start \
-        --agent codex --feature-session-naming=true
-    fi
-  '';
-in
 {
-  home.file = {
+  home.shellAliases = {
+    co = "${lib.getExe pkgs.codex} --profile lean";
+    cor = "${lib.getExe pkgs.codex} --profile lean resume";
+  };
 
-    # Same SessionStart integration Rex installs, kept in the source config.
-    # Codex requires one-time trust for this hook through /hooks.
-    ".codex/hooks.json".text = builtins.toJSON {
-      hooks.SessionStart = lib.lists.singleton {
-        hooks = lib.lists.singleton {
-          type = "command";
-          command = "${rexSessionStart}";
-          timeout = 5;
-        };
+  home.file = {
+    ".codex/lean.config.toml".source = (pkgs.formats.toml { }).generate "codex-lean-config.toml" {
+      features = {
+        apps = false;
+        image_generation = false;
+        plugins = false;
+      };
+
+      skills = {
+        include_instructions = true;
+        config =
+          map
+            (name: {
+              inherit name;
+              enabled = false;
+            })
+            [
+              "imagegen"
+              "skill-creator"
+              "skill-installer"
+            ];
       };
     };
   };
@@ -86,7 +93,7 @@ in
         "unified-computer-use@openai-bundled".enabled = true;
         "code-review@openai-bundled".enabled = true;
         "visualize@openai-bundled".enabled = true;
-        "computer-use@openai-bundled".enabled = false;
+        "computer-use@openai-bundled".enabled = true;
         "documents@openai-primary-runtime".enabled = true;
         "pdf@openai-primary-runtime".enabled = true;
         "spreadsheets@openai-primary-runtime".enabled = true;

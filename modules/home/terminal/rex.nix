@@ -221,9 +221,9 @@ in
     -- Starting agents is explicit; opening a project starts only a login shell.
     local layouts = {
       { "coding_layout", "Open Coding Layout", nil },
-      { "codex_layout", "Open Codex and Shell", { "codex" } },
+      { "codex_layout", "Open Codex and Shell", { "codex", "--profile", "lean" } },
       { "opencode_layout", "Open OpenCode and Shell", { "opencode" } },
-      { "resume_codex", "Resume Codex Conversation…", { "codex", "resume" } },
+      { "resume_codex", "Resume Codex Conversation…", { "codex", "--profile", "lean", "resume" } },
       { "resume_opencode", "Resume OpenCode Conversation…", { workflow, "resume-opencode" } },
     }
     for _, entry in ipairs(layouts) do
