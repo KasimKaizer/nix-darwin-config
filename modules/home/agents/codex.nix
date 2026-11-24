@@ -10,8 +10,11 @@
     cor = "${lib.getExe pkgs.codex} --profile lean resume";
   };
 
-  home.file = {
-    ".codex/lean.config.toml".source = (pkgs.formats.toml { }).generate "codex-lean-config.toml" {
+  # Codex saves TUI preferences and project trust into the selected profile.
+  sops.templates."codex-lean-config.toml" = {
+    path = "${homeDirectory}/.codex/lean.config.toml";
+    mode = "0600";
+    file = (pkgs.formats.toml { }).generate "codex-lean-config.toml" {
       features = {
         apps = false;
         image_generation = false;
@@ -32,6 +35,8 @@
               "skill-installer"
             ];
       };
+
+      projects."${homeDirectory}/Developer/projects/ai-coding-crash-course".trust_level = "trusted";
     };
   };
 
